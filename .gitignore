@@ -44,4 +44,4 @@ coverage/
 .firebase/
 firebase-debug.log
 firebase-debug.*.log
-*.json
+backend/teamie-61d5c-firebase-adminsdk.json
