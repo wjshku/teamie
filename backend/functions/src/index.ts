@@ -18,7 +18,8 @@ app.use(cors({
   origin: [
     'http://localhost:5173',  // 前端开发服务器
     'http://localhost:3000',  // 备用端口
-    // 'https://teamie.com'  // 生产域名（如果有）
+    'https://68e2231a62e4cd00084b7518--spiffy-tulumba-616f2c.netlify.app', // 生产域名
+    'https://teamie.trisure.me'  // 生产域名（如果有）
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
