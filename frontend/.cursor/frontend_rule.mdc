@@ -1,0 +1,63 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+## 🏆 **Frontend Best Practices Summary**
+
+### **1. Architecture & Organization**
+```
+src/
+├── components/    # Reusable components
+├── views/         # Page-level components
+├── composables/   # Vue 3 composition functions
+├── stores/        # Pinia stores
+├── services/      # API and external services
+├── utils/         # Helper functions
+├── types/         # TypeScript type definitions
+├── assets/        # Static assets
+└── styles/        # Global styles and themes
+```
+
+### **2. Component Design Principles**
+- **Single Responsibility**: Each component should have one clear purpose
+- **Composition over Inheritance**: Use Vue 3 Composition API
+- **Props Down, Events Up**: Clear data flow
+- **Reusable UI Components**: Build a design system (Use Element Plus for Vue UI)
+
+### **3. State Management Best Practices**
+- **Domain-based Stores**: Separate stores for different business domains
+- **Actions for Async Operations**: Use actions for API calls
+- **Getters for Computed State**: Derive state from existing state
+- **State Normalization**: Keep related data normalized
+
+### **4. API Integration**
+- **Service Layer**: Abstract API calls into services
+- **Error Handling**: Consistent error handling across the app
+- **Loading States**: Show loading indicators for async operations
+- **Caching**: Implement appropriate caching strategies
+
+### **5. Performance Optimization**
+- **Code Splitting**: Lazy load routes and components
+- **Bundle Analysis**: Monitor bundle size
+- **Image Optimization**: Use appropriate image formats and sizes
+- **Virtual Scrolling**: For large lists
+
+### **6. User Experience**
+- **Responsive Design**: Mobile-first approach
+- **Accessibility**: WCAG 2.1 compliance
+- **Progressive Enhancement**: Core functionality works without JS
+- **Error Boundaries**: Graceful error handling
+
+### **7. Security**
+- **Input Validation**: Client and server-side validation
+- **XSS Prevention**: Sanitize user inputs
+- **CSRF Protection**: Use appropriate tokens
+- **Authentication**: Secure token management
+
+### **8. Development Workflow**
+- **TypeScript**: Strong typing for better DX and fewer bugs
+- **ESLint + Prettier**: Code quality and formatting
+- **Testing**: Unit tests for components and utilities
+- **Git Hooks**: Pre-commit checks
