@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 用户集合规则
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // 会议集合规则
+    match /meetings/{meetingId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == resource.data.createdBy || 
+         request.auth.uid in resource.data.participants);
+      
+      // 会前准备子集合
+      match /preMeeting/{document} {
+        allow read, write: if request.auth != null && 
+          (request.auth.uid == get(/databases/$(database)/documents/meetings/$(meetingId)).data.createdBy ||
+           request.auth.uid in get(/databases/$(database)/documents/meetings/$(meetingId)).data.participants);
+      }
+      
+      // 会中笔记子集合
+      match /inMeeting/{document} {
+        allow read, write: if request.auth != null && 
+          (request.auth.uid == get(/databases/$(database)/documents/meetings/$(meetingId)).data.createdBy ||
+           request.auth.uid in get(/databases/$(database)/documents/meetings/$(meetingId)).data.participants);
+      }
+      
+      // 会后总结子集合
+      match /postMeeting/{document} {
+        allow read, write: if request.auth != null && 
+          (request.auth.uid == get(/databases/$(database)/documents/meetings/$(meetingId)).data.createdBy ||
+           request.auth.uid in get(/databases/$(database)/documents/meetings/$(meetingId)).data.participants);
+      }
+    }
+  }
+}
