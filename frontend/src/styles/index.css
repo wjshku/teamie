@@ -427,12 +427,12 @@
   }
 
   .tab-header {
-    @apply flex space-x-1 rounded-lg bg-muted p-1 overflow-x-auto whitespace-nowrap;
+    @apply flex space-x-1 rounded-lg bg-muted p-1;
     box-shadow: var(--shadow-sm);
   }
 
   .tab-button {
-    @apply rounded-md px-2 py-2 text-xs md:px-3 md:text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
 
   .tab-active {
@@ -611,11 +611,5 @@
 
   .glass-effect {
     @apply bg-background/80 backdrop-blur-sm border border-border/50;
-  }
-
-  /* ===== 时间戳（移动端更紧凑） ===== */
-  .timestamp {
-    @apply text-xs md:text-sm text-gray-500 whitespace-nowrap truncate;
-    max-width: 8rem; /* 防止占据过多横向空间 */
   }
 }

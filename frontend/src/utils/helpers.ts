@@ -10,16 +10,6 @@ export const formatTime = (date: string | Date): string => {
   });
 };
 
-// 仅日期（移动端使用）
-export const formatDateOnly = (date: string | Date): string => {
-  const d = new Date(date);
-  return d.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-};
-
 // 生成会议链接
 export const generateMeetingLink = (meetingId: string): string => {
   const baseUrl = window.location.origin;
