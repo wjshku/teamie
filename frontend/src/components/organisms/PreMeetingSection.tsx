@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { formatDateOnly, formatTime } from '../../utils/helpers';
 import Button from '../atoms/Button';
 import { usePreMeeting } from '../../hooks/usePreMeeting';
 import { useAuth } from '../../hooks/useAuth';
@@ -170,9 +171,12 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
                   {question.authorInitial}
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 min-w-0">
                     <span className="font-medium text-gray-900">{question.author}</span>
-                    <span className="text-sm text-gray-500">{question.timestamp}</span>
+                    <span className="timestamp">
+                      <span className="md:hidden">{formatDateOnly(question.timestamp)}</span>
+                      <span className="hidden md:inline">{formatTime(question.timestamp)}</span>
+                    </span>
                   </div>
                   <div className="text-gray-800">
                     {question.content}
