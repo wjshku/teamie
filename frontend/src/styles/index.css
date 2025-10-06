@@ -219,11 +219,11 @@
   }
 
   .btn-lg {
-    @apply h-12 px-6 py-3 text-base;
+    @apply h-10 px-4 py-2 text-sm md:h-12 md:px-6 md:py-3 md:text-base;
   }
 
   .btn-xl {
-    @apply h-14 px-8 py-4 text-lg;
+    @apply h-11 px-5 py-2.5 text-base md:h-14 md:px-8 md:py-4 md:text-lg;
   }
 
   /* ===== 输入框系统 ===== */
@@ -277,7 +277,7 @@
   }
 
   .card-header {
-    @apply flex flex-col space-y-1.5 p-6;
+    @apply flex flex-col space-y-1.5 p-4 md:p-6;
   }
 
   .card-title {
@@ -289,11 +289,11 @@
   }
 
   .card-content {
-    @apply p-6 pt-0;
+    @apply p-4 md:p-6 md:pt-0;
   }
 
   .card-footer {
-    @apply flex items-center p-6 pt-0;
+    @apply flex items-center p-4 md:p-6 md:pt-0;
   }
 
   /* ===== 标签系统 ===== */
@@ -412,7 +412,7 @@
 
   /* ===== 导航栏系统 ===== */
   .nav-bar {
-    @apply flex items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 py-4;
+    @apply flex items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 md:px-6 md:py-4;
     box-shadow: var(--shadow-sm);
   }
 
@@ -421,25 +421,25 @@
   }
 
   .brand-text {
-    @apply text-xl font-bold text-foreground;
+    @apply text-xl font-bold text-foreground hidden sm:inline;
   }
 
   .nav-tabs {
-    @apply flex items-center gap-1;
+    @apply flex items-center gap-2 md:gap-3 overflow-x-auto;
   }
 
   .nav-actions {
-    @apply flex items-center gap-3;
+    @apply flex items-center gap-2 md:gap-3 overflow-x-auto;
   }
 
   /* ===== 会议卡片系统 ===== */
   .meeting-card {
-    @apply relative rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
+    @apply relative rounded-xl border border-border bg-card p-4 md:p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
     box-shadow: var(--shadow-sm);
   }
 
   .meeting-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
   }
 
@@ -493,12 +493,12 @@
 
   /* ===== 团队卡片系统 ===== */
   .team-card {
-    @apply relative rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
+    @apply relative rounded-xl border border-border bg-card p-4 md:p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
     box-shadow: var(--shadow-sm);
   }
 
   .team-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
   }
 

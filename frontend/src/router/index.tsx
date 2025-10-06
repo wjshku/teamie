@@ -11,12 +11,12 @@ const HomePageWrapper: React.FC = () => {
   const navigate = useNavigate();
 
   const handleViewMeeting = (id: string) => {
-    console.log('查看会议:', id);
+    // console.log('查看会议:', id);
     navigate(`/meeting/${id}`);
   };
 
   const handleNavigateToCreate = () => {
-    console.log('导航到创建页面');
+    // console.log('导航到创建页面');
     navigate('/create');
   };
 

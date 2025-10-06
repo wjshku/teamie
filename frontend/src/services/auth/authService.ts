@@ -29,8 +29,8 @@ export const loginWithGoogle = async (): Promise<{ token: string; user: User }> 
     
     // 获取或创建用户资料
     const user = await getUserProfile(firebaseUser.uid);
-    console.log('user', user);
-    console.log('token', token);
+    // console.log('user', user);
+    // console.log('token', token);
     return {
       token,
       user
