@@ -252,19 +252,40 @@ router.post('/:meetingId/invite-link', async (req: Request, res: Response) => {
       return;
     }
 
-    // 生成唯一token
-    const token = generateInviteToken();
-    
-    // 创建邀请记录
-    const inviteData: Omit<MeetingInvite, 'id'> = {
-      meetingId,
-      token,
-      createdAt: new Date(),
-      status: 'active',
-      usedCount: 0
-    };
+    // 检查是否已存在有效的邀请链接
+    const existingInvites = await db.collection('meeting_invites')
+      .where('meetingId', '==', meetingId)
+      .where('status', '==', 'active')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
 
-    await db.collection('meeting_invites').add(inviteData);
+    let token: string;
+
+    if (!existingInvites.empty) {
+      // 如果存在有效的邀请链接，重复利用
+      const existingInvite = existingInvites.docs[0];
+      const existingData = existingInvite.data() as MeetingInvite;
+      token = existingData.token;
+      
+      console.log(`重复利用现有邀请链接: ${token} for meeting: ${meetingId}`);
+    } else {
+      // 如果不存在有效的邀请链接，生成新的
+      token = generateInviteToken();
+      
+      // 创建邀请记录
+      const inviteData: Omit<MeetingInvite, 'id'> = {
+        meetingId,
+        token,
+        createdAt: new Date(),
+        status: 'active',
+        usedCount: 0
+      };
+
+      await db.collection('meeting_invites').add(inviteData);
+      
+      console.log(`创建新邀请链接: ${token} for meeting: ${meetingId}`);
+    }
     
     // 返回相对路径，由前端组合完整URL
     const invitePath = `/meetings/join?token=${token}`;

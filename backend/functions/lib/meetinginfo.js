@@ -211,17 +211,35 @@ router.post('/:meetingId/invite-link', async (req, res) => {
             res.status(404).json({ success: false, error: '会议不存在' });
             return;
         }
-        // 生成唯一token
-        const token = (0, utils_1.generateInviteToken)();
-        // 创建邀请记录
-        const inviteData = {
-            meetingId,
-            token,
-            createdAt: new Date(),
-            status: 'active',
-            usedCount: 0
-        };
-        await firebase_1.db.collection('meeting_invites').add(inviteData);
+        // 检查是否已存在有效的邀请链接
+        const existingInvites = await firebase_1.db.collection('meeting_invites')
+            .where('meetingId', '==', meetingId)
+            .where('status', '==', 'active')
+            .orderBy('createdAt', 'desc')
+            .limit(1)
+            .get();
+        let token;
+        if (!existingInvites.empty) {
+            // 如果存在有效的邀请链接，重复利用
+            const existingInvite = existingInvites.docs[0];
+            const existingData = existingInvite.data();
+            token = existingData.token;
+            console.log(`重复利用现有邀请链接: ${token} for meeting: ${meetingId}`);
+        }
+        else {
+            // 如果不存在有效的邀请链接，生成新的
+            token = (0, utils_1.generateInviteToken)();
+            // 创建邀请记录
+            const inviteData = {
+                meetingId,
+                token,
+                createdAt: new Date(),
+                status: 'active',
+                usedCount: 0
+            };
+            await firebase_1.db.collection('meeting_invites').add(inviteData);
+            console.log(`创建新邀请链接: ${token} for meeting: ${meetingId}`);
+        }
         // 返回相对路径，由前端组合完整URL
         const invitePath = `/meetings/join?token=${token}`;
         const response = {

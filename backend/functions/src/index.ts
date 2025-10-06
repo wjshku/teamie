@@ -20,7 +20,8 @@ app.use(cors({
     'http://localhost:3000',  // 备用端口
     'https://spiffy-tulumba-616f2c.netlify.app', // 生产域名
     'https://*.netlify.app',
-    'https://teamie.trisure.me'  // 生产域名（如果有）
+    'https://teamie.trisure.me',  // 生产域名（如果有）
+    'http://teamie.trisure.me'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
