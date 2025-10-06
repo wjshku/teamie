@@ -50,7 +50,18 @@ const postMeeting_1 = __importDefault(require("./postMeeting"));
 // 创建 Express 应用
 const app = (0, express_1.default)();
 // 中间件
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: [
+        'http://localhost:5173', // 前端开发服务器
+        'http://localhost:3000', // 备用端口
+        'https://spiffy-tulumba-616f2c.netlify.app', // 生产域名
+        'https://*.netlify.app',
+        'https://teamie.trisure.me' // 生产域名（如果有）
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express_1.default.json());
 // 注册路由
 app.use('/users', user_1.default);
