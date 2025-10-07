@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from '../atoms/Button';
+import { formatDateOnly, formatTime } from '../../utils/helpers';
 import { usePostMeeting } from '../../hooks/usePostMeeting';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -177,7 +178,9 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="font-medium text-gray-900">{feedback.author}</span>
-                    <span className="text-sm text-gray-500">{feedback.timestamp}</span>
+                    {/* Mobile: date only; Desktop: full timestamp */}
+                    <span className="text-sm text-gray-500 md:hidden">{feedback.timestamp ? formatDateOnly(feedback.timestamp) : ''}</span>
+                    <span className="text-sm text-gray-500 hidden md:inline">{feedback.timestamp ? formatTime(feedback.timestamp) : ''}</span>
                   </div>
                   <div className="text-gray-800">
                     {feedback.content}

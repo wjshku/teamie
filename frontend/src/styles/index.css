@@ -427,12 +427,12 @@
   }
 
   .tab-header {
-    @apply flex space-x-1 rounded-lg bg-muted p-1;
+    @apply flex space-x-1 rounded-lg bg-muted p-1 overflow-x-auto snap-x snap-mandatory;
     box-shadow: var(--shadow-sm);
   }
 
   .tab-button {
-    @apply flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap shrink-0 snap-start md:flex-1;
   }
 
   .tab-active {
@@ -441,6 +441,12 @@
 
   .tab-content {
     @apply mt-4;
+  }
+
+  /* 移动端当前标签显示条 */
+  .tab-current {
+    @apply flex items-center justify-center rounded-lg bg-muted px-3 py-2 text-sm font-medium text-foreground;
+    box-shadow: var(--shadow-sm);
   }
 
   /* ===== 导航栏系统 ===== */

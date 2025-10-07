@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../atoms/Button';
+import { formatDateOnly, formatTime } from '../../utils/helpers';
 import { useInMeeting } from '../../hooks/useInMeeting';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -90,7 +91,9 @@ const InMeetingNotesSection: React.FC<InMeetingNotesSectionProps> = ({
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-medium text-gray-900">{note.author}</span>
-                  <span className="text-sm text-gray-500">{note.timestamp}</span>
+                  {/* Mobile: date only; Desktop: full timestamp */}
+                  <span className="text-sm text-gray-500 md:hidden">{note.timestamp ? formatDateOnly(note.timestamp) : ''}</span>
+                  <span className="text-sm text-gray-500 hidden md:inline">{note.timestamp ? formatTime(note.timestamp) : ''}</span>
                 </div>
                 <div className="text-gray-800 whitespace-pre-line">
                   {note.content}
