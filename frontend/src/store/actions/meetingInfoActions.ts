@@ -4,13 +4,28 @@
 import { useCallback } from 'react';
 import { getMeetingById, updateMeeting, deleteMeeting, generateInviteLink } from '../../services/api/meetingService';
 import { useMeetinginfoSlice } from '../slices/useMeetinginfoSlice';
+import { useMeetingSlice } from '../slices/useMeetingSlice';
 import { Meeting, UpdateMeetingRequest } from '../../types/api';
 
 export const useMeetingInfoActions = (meetingId?: string) => {
   const meetingInfoSlice = useMeetinginfoSlice();
+  const meetingListSlice = useMeetingSlice();
 
-  const fetchMeetingDetails = useCallback(async () => {
+  const fetchMeetingDetails = useCallback(async (options?: { force?: boolean }) => {
     if (!meetingId) return { success: false, error: '会议ID不存在' };
+
+    const force = options?.force === true;
+    const cached = meetingInfoSlice.currentMeeting;
+
+    // 如果 store 中已有对应会议详情且不强制刷新，直接返回缓存
+    if (
+      !force &&
+      cached &&
+      (cached as Meeting).meetingid === meetingId
+    ) {
+      return { success: true, data: cached };
+    }
+
     try {
       meetingInfoSlice.setLoading(true);
       meetingInfoSlice.clearError();
@@ -38,6 +53,8 @@ export const useMeetingInfoActions = (meetingId?: string) => {
         throw new Error(response.error);
       }
       meetingInfoSlice.updateCurrentMeeting(updates);
+      // 同步更新会议列表中的该会议
+      meetingListSlice.updateMeetingInList(meetingId, updates);
       return { success: true };
     } catch (error: any) {
       console.error('更新会议失败:', error);
@@ -56,6 +73,8 @@ export const useMeetingInfoActions = (meetingId?: string) => {
         throw new Error('删除会议失败');
       }
       meetingInfoSlice.clearCurrentMeeting();
+      // 从会议列表中移除该会议
+      meetingListSlice.removeMeeting(meetingId);
       return { success: true };
     } catch (error: any) {
       console.error('删除会议失败:', error);

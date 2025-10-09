@@ -15,8 +15,15 @@ import { Meeting, CreateMeetingRequest } from '../../types/api';
 export const useMeetingActions = () => {
   const meetingSlice = useMeetingSlice();
 
-  // 获取会议列表
-  const fetchMeetings = useCallback(async () => {
+  // 获取会议列表（带缓存）
+  const fetchMeetings = useCallback(async (options?: { force?: boolean }) => {
+    const force = options?.force === true;
+
+    // 如果已有数据且不强制刷新，直接返回缓存，避免重复请求
+    if (!force && Array.isArray(meetingSlice.meetings) && meetingSlice.meetings.length > 0) {
+      return { success: true, data: meetingSlice.meetings };
+    }
+
     try {
       meetingSlice.setLoading(true);
       meetingSlice.clearError();

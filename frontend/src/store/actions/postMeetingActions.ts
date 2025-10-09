@@ -14,10 +14,18 @@ import { PostMeeting, Feedback } from '../../types/api';
 export const usePostMeetingActions = (meetingId?: string) => {
   const postMeetingSlice = usePostMeetingSlice();
 
-  // 获取会后总结信息
-  const fetchPostMeeting = useCallback(async () => {
+  // 获取会后总结信息（带缓存）
+  const fetchPostMeeting = useCallback(async (options?: { force?: boolean }) => {
     if (!meetingId) return { success: false, error: '会议ID不存在' };
-    
+
+    const force = options?.force === true;
+    const cached = postMeetingSlice.postMeeting;
+
+    // 如果 store 中已有对应会后总结且不强制刷新，直接返回缓存
+    if (!force && cached && (cached as PostMeeting).meetingid === meetingId) {
+      return { success: true, data: cached };
+    }
+
     try {
       postMeetingSlice.setPostMeetingLoading(true);
       postMeetingSlice.setPostMeetingError(null);

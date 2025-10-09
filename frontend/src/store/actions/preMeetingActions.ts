@@ -14,10 +14,18 @@ import { PreMeeting, Question } from '../../types/api';
 export const usePreMeetingActions = (meetingId?: string) => {
   const preMeetingSlice = usePreMeetingSlice();
 
-  // 获取会前准备信息
-  const fetchPreMeeting = useCallback(async () => {
+  // 获取会前准备信息（带缓存）
+  const fetchPreMeeting = useCallback(async (options?: { force?: boolean }) => {
     if (!meetingId) return { success: false, error: '会议ID不存在' };
-    
+
+    const force = options?.force === true;
+    const cached = preMeetingSlice.preMeeting;
+
+    // 如果 store 中已有对应会前准备且不强制刷新，直接返回缓存
+    if (!force && cached && (cached as PreMeeting).meetingid === meetingId) {
+      return { success: true, data: cached };
+    }
+
     try {
       preMeetingSlice.setPreMeetingLoading(true);
       preMeetingSlice.setPreMeetingError(null);

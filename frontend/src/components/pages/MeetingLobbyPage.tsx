@@ -14,42 +14,13 @@ const MeetingLobbyPage: React.FC<MeetingLobbyPageProps> = ({
   const { loading, error, fetchMeetingDetails } = useMeetinginfo(id);
   const { isAuthenticated } = useAuth();
 
-  // 认证与会议详情加载
+  // 认证与会议详情加载（未登录时不请求后端）
   React.useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
+    if (!isAuthenticated) return;
     if (id) {
       fetchMeetingDetails();
     }
   }, [id, isAuthenticated, fetchMeetingDetails]);
-
-  // 未登录时提示登录
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background">
-        <TopNavBar />
-        <main className="container mx-auto section">
-          <div className="container-max">
-            <div className="flex items-center justify-center min-h-[60vh]">
-              <div className="text-center">
-                <div className="alert alert--warning max-w-md">
-                  <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-yellow-100 rounded-full">
-                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                  </div>
-                  <h2 className="heading-sm text-yellow-800 mb-2">需要登录</h2>
-                  <p className="body-sm text-yellow-600 mb-4">请先登录以查看会议详情</p>
-                  <p className="body-xs text-gray-500">请使用顶部导航栏的登录按钮</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import InputField from '../atoms/InputField';
 import Button from '../atoms/Button';
 import { useMeetings } from '../../hooks/useMeetings';
+import { useAuth } from '../../hooks/useAuth';
 
 interface MeetingCreationFormProps {
   onSubmit: (data: { title: string }) => void;
@@ -12,12 +13,19 @@ interface MeetingCreationFormProps {
 const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({ onSubmit, className = '' }) => {
   const navigate = useNavigate();
   const { createNewMeeting, loading } = useMeetings();
+  const { isAuthenticated, loginUser } = useAuth();
   const [title, setTitle] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
       try {
+        if (!isAuthenticated) {
+          const loginRes = await loginUser();
+          if (!loginRes.success) {
+            return;
+          }
+        }
         const result = await createNewMeeting({
           title: title.trim(),
         });

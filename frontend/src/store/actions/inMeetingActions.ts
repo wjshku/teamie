@@ -13,10 +13,18 @@ import { InMeeting, Note } from '../../types/api';
 export const useInMeetingActions = (meetingId?: string) => {
   const inMeetingSlice = useInMeetingSlice();
 
-  // 获取会中笔记信息
-  const fetchInMeeting = useCallback(async () => {
+  // 获取会中笔记信息（带缓存）
+  const fetchInMeeting = useCallback(async (options?: { force?: boolean }) => {
     if (!meetingId) return { success: false, error: '会议ID不存在' };
-    
+
+    const force = options?.force === true;
+    const cached = inMeetingSlice.inMeeting;
+
+    // 如果 store 中已有对应会中笔记且不强制刷新，直接返回缓存
+    if (!force && cached && (cached as InMeeting).meetingid === meetingId) {
+      return { success: true, data: cached };
+    }
+
     try {
       inMeetingSlice.setInMeetingLoading(true);
       inMeetingSlice.setInMeetingError(null);

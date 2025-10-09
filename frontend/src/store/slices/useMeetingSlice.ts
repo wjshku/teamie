@@ -13,6 +13,8 @@ interface MeetingSliceState {
   // 基础会议操作
   setMeetings: (meetings: Meeting[]) => void;
   addMeeting: (meeting: Meeting) => void;
+  updateMeetingInList: (meetingId: string, updates: Partial<Meeting>) => void;
+  removeMeeting: (meetingId: string) => void;
   
   // 状态管理
   setLoading: (loading: boolean) => void;
@@ -34,6 +36,20 @@ export const useMeetingSlice = create<MeetingSliceState>((set) => ({
   addMeeting: (meeting) => {
     set((state) => ({
       meetings: [meeting, ...state.meetings],
+    }));
+  },
+
+  updateMeetingInList: (meetingId, updates) => {
+    set((state) => ({
+      meetings: state.meetings.map((m) =>
+        m.meetingid === meetingId ? { ...m, ...updates } : m
+      ),
+    }));
+  },
+
+  removeMeeting: (meetingId) => {
+    set((state) => ({
+      meetings: state.meetings.filter((m) => m.meetingid !== meetingId),
     }));
   },
 
