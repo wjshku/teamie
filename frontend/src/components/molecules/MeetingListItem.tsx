@@ -14,32 +14,19 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
   className = "",
 }) => {
   const { t } = useTranslation();
-
   const { title, time, participants } = meeting;
 
-  const getParticipantInitials = (participants: any[]) => {
-    return participants.slice(0, 4).map((user) => {
-      if (user.name) return user.name.charAt(0).toUpperCase();
-      return "?";
-    });
-  };
+  const getParticipantInitials = (participants: any[]) =>
+    participants
+      .slice(0, 4)
+      .map((user) => (user.name ? user.name.charAt(0).toUpperCase() : "?"));
 
   const participantInitials = getParticipantInitials(participants);
 
+  // 直接返回原始字符串
   const formatTime = (timeString: string) => {
     if (!timeString) return t("MeetingListItem.timePending");
-
-    try {
-      const date = new Date(timeString);
-      return date.toLocaleString("zh-CN", {
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return timeString;
-    }
+    return timeString;
   };
 
   return (
