@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import TopNavBar from "../organisms/TopNavBar";
 import Tab from "../atoms/Tab";
 import MeetingInfoSection from "../organisms/MeetingInfoSection";
@@ -16,26 +17,27 @@ const MeetingLobbyTemplate: React.FC<MeetingLobbyTemplateProps> = ({
   className = "",
 }) => {
   const [activeTab, setActiveTab] = useState(0);
+  const { t } = useTranslation();
 
   const tabs = [
     {
       id: "info",
-      label: "基本信息",
+      label: t("MeetingLobbyTemplate.basicInfo"),
       content: <MeetingInfoSection meetingId={meetingId} />,
     },
     {
       id: "pre",
-      label: "会前准备",
+      label: t("MeetingLobbyTemplate.preMeeting"),
       content: <PreMeetingSection meetingId={meetingId} />,
     },
     {
       id: "notes",
-      label: "协作笔记",
+      label: t("MeetingLobbyTemplate.collabNotes"),
       content: <InMeetingNotesSection meetingId={meetingId} />,
     },
     {
       id: "summary",
-      label: "会后总结",
+      label: t("MeetingLobbyTemplate.postSummary"),
       content: <PostMeetingSummarySection meetingId={meetingId} />,
     },
   ];

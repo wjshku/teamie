@@ -74,7 +74,6 @@ const MeetingInfoSection: React.FC<MeetingInfoSectionProps> = ({
     <div className={`space-y-6 ${className}`}>
       <MeetingManagement
         title={currentMeeting.title}
-        status={currentMeeting.status}
         deleting={false}
         onDelete={handleDeleteMeeting}
       />

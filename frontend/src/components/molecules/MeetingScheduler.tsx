@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../atoms/Button";
 
 interface MeetingSchedulerProps {
@@ -14,6 +15,8 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
   onSaveTime,
   onSaveLink,
 }) => {
+  const { t } = useTranslation();
+
   const [isEditingTime, setIsEditingTime] = useState(false);
   const [editedTime, setEditedTime] = useState(time);
   const [savingTime, setSavingTime] = useState(false);
@@ -63,7 +66,9 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span className="text-lg font-medium">会议时间</span>
+            <span className="text-lg font-medium">
+              {t("meetingScheduler.timeLabel")}
+            </span>
           </div>
           {!isEditingTime && (
             <Button
@@ -72,7 +77,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
               size="sm"
               className="text-gray-600 hover:text-gray-800"
             >
-              编辑
+              {t("common.edit")}
             </Button>
           )}
         </div>
@@ -84,7 +89,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
               value={editedTime}
               onChange={(e) => setEditedTime(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="请输入会议时间"
+              placeholder={t("meetingScheduler.timePlaceholder") || ""}
               disabled={savingTime}
             />
             <div className="flex gap-2">
@@ -94,10 +99,10 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
                 size="sm"
                 disabled={savingTime}
               >
-                {savingTime ? "保存中..." : "保存"}
+                {savingTime ? t("common.saving") : t("common.save")}
               </Button>
               <Button onClick={handleCancelTime} variant="ghost" size="sm">
-                取消
+                {t("common.cancel")}
               </Button>
             </div>
           </div>
@@ -109,7 +114,9 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
       {/* 投票链接 */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h4 className="text-lg font-semibold text-gray-900">投票链接</h4>
+          <h4 className="text-lg font-semibold text-gray-900">
+            {t("meetingScheduler.voteLinkLabel")}
+          </h4>
           {!isEditingLink && (
             <Button
               onClick={() => setIsEditingLink(true)}
@@ -117,7 +124,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
               size="sm"
               className="text-gray-600 hover:text-gray-800"
             >
-              编辑
+              {t("common.edit")}
             </Button>
           )}
         </div>
@@ -129,7 +136,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
               value={editedLink}
               onChange={(e) => setEditedLink(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="请输入投票链接"
+              placeholder={t("meetingScheduler.linkPlaceholder") || ""}
               disabled={savingLink}
             />
             <div className="flex gap-2">
@@ -139,10 +146,10 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
                 size="sm"
                 disabled={savingLink}
               >
-                {savingLink ? "保存中..." : "保存"}
+                {savingLink ? t("common.saving") : t("common.save")}
               </Button>
               <Button onClick={handleCancelLink} variant="ghost" size="sm">
-                取消
+                {t("common.cancel")}
               </Button>
             </div>
           </div>

@@ -1,5 +1,6 @@
-import React from 'react';
-import { Meeting } from '../../types/api';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Meeting } from "../../types/api";
 
 interface MeetingListItemProps {
   meeting: Meeting;
@@ -10,51 +11,31 @@ interface MeetingListItemProps {
 const MeetingListItem: React.FC<MeetingListItemProps> = ({
   meeting,
   onView,
-  className = '',
+  className = "",
 }) => {
-  const { title, status, time, participants } = meeting;
+  const { t } = useTranslation();
 
-  const getStatusClass = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
-      case '已完成':
-        return 'status-completed';
-      case 'upcoming':
-      case '即将进行':
-        return 'status-upcoming';
-      case 'in-progress':
-      case '进行中':
-        return 'status-in-progress';
-      default:
-        return 'status-completed';
-    }
-  };
+  const { title, time, participants } = meeting;
 
-  // 生成参与者头像 initials
   const getParticipantInitials = (participants: any[]) => {
-    return participants.slice(0, 4).map(user => {
-      // 如果用户有 name，取第一个字符
-      if (user.name) {
-        return user.name.charAt(0).toUpperCase();
-      }
-      // 否则使用默认值
-      return '?';
+    return participants.slice(0, 4).map((user) => {
+      if (user.name) return user.name.charAt(0).toUpperCase();
+      return "?";
     });
   };
 
   const participantInitials = getParticipantInitials(participants);
 
-  // 格式化时间显示
   const formatTime = (timeString: string) => {
-    if (!timeString) return '时间待定';
-    
+    if (!timeString) return t("MeetingListItem.timePending");
+
     try {
       const date = new Date(timeString);
-      return date.toLocaleString('zh-CN', {
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
+      return date.toLocaleString("zh-CN", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
       return timeString;
@@ -62,13 +43,13 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={`meeting-card group ${className}`}
       onClick={onView}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onView();
         }
@@ -79,34 +60,48 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
           <h4 className="meeting-card-title">{title}</h4>
           <div className="meeting-card-meta">
             <span className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               {formatTime(time)}
             </span>
             <span className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
               </svg>
-              {participants.length}人参与
+              {participants.length} {t("MeetingListItem.participants")}
             </span>
           </div>
         </div>
-        <span className={`meeting-card-status ${getStatusClass(status)}`}>
-          {status}
-        </span>
       </div>
       <div className="flex items-center justify-between">
         <div className="meeting-card-members">
           <div className="flex -space-x-2">
             {participantInitials.map((initial, index) => (
               <div key={index} className="avatar avatar-sm">
-                <div className="avatar-placeholder">
-                  {initial}
-                </div>
+                <div className="avatar-placeholder">{initial}</div>
               </div>
             ))}
-            {/* 如果参与者超过4个，显示更多指示器 */}
             {participants.length > 4 && (
               <div className="avatar avatar-sm">
                 <div className="avatar-placeholder bg-gray-300 text-gray-600">
@@ -116,11 +111,20 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
             )}
           </div>
         </div>
-        {/* 添加一个视觉提示，表示可以点击 */}
         <div className="flex items-center gap-1 text-muted-foreground text-sm">
-          <span>点击查看详情</span>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <span>{t("MeetingListItem.clickToView")}</span>
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </div>
       </div>

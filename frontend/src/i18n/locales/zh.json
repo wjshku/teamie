@@ -1,0 +1,111 @@
+{
+  "home": "首页",
+  "login": "登录",
+  "logout": "登出",
+  "MeetingListItem": {
+    "timePending": "时间待定",
+    "participants": "参会者",
+    "clickToView": "点击查看详情"
+  },
+  "meetingJoin": {
+    "missingToken": "缺少邀请token",
+    "joinMeetingFailed": "加入会议失败",
+    "joiningMeeting": "正在加入会议...",
+    "successJoinedMeeting": "成功加入会议！",
+    "meetingTime": "会议时间",
+    "status": "状态",
+    "redirecting": "正在跳转到会议页面...",
+    "needLogin": "需要登录",
+    "goLogin": "前往登录"
+  },
+  "quickJoin": {
+    "recentMeetingsTitle": "最近会议",
+    "recentMeetingsDesc": "查看您最近参与的会议",
+    "noRecentMeetings": "暂无最近会议",
+    "createFirstMeeting": "开始创建您的第一个会议吧！",
+    "quickStartTitle": "快速开始",
+    "quickStartDesc": "立即创建一个新的会议，邀请团队成员参与讨论",
+    "createMeetingBtn": "立即创建会议"
+  },
+  "personalCenter": {
+    "historyTitle": "我的历史会议",
+    "historyDesc": "查看您参与过的所有会议记录",
+    "noHistory": "暂无历史会议",
+    "createFirst": "开始创建您的第一个会议吧！"
+  },
+  "meetingManagement": {
+    "delete": "删除会议",
+    "deleting": "删除中..."
+  },
+  "meetingScheduler": {
+    "timeLabel": "会议时间",
+    "timePlaceholder": "请输入会议时间",
+    "voteLinkLabel": "投票链接",
+    "linkPlaceholder": "请输入投票链接"
+  },
+  "common": {
+    "edit": "编辑",
+    "save": "保存",
+    "saving": "保存中...",
+    "cancel": "取消"
+  },
+  "meetingPrinciples": {
+    "title": "会议指引 - ACTION 原则",
+    "shareAgenda": "提前分享议程",
+    "clearGoal": "明确会议目标",
+    "timeManagement": "管理讨论时间",
+    "inclusiveParticipation": "包容性参与",
+    "recordOutcome": "记录会议结果",
+    "assignNextSteps": "分配后续步骤"
+  },
+  "meetingInvitation": {
+    "title": "邀请链接",
+    "generate": "生成邀请链接",
+    "generating": "生成中...",
+    "copy": "复制",
+    "close": "关闭",
+    "tip": "分享此链接邀请其他人加入会议"
+  },
+  "participantsList": {
+    "title": "参与者",
+    "empty": "暂无参与者"
+  },
+  "preMeetingSection": {
+    "objectiveLabel": "会议目标",
+    "objectivePlaceholder": "讨论Q1产品功能需求和优先级排序",
+    "questionLabel": "会前问题",
+    "questionPlaceholder": "分享您的会前问题和思考...",
+    "loading": "加载中...",
+    "error": "加载失败",
+    "retry": "重试",
+    "anonymous": "匿名用户"
+  },
+  "InMeetingNote": {
+    "label": "会议笔记",
+    "placeholder": "输入您的会议笔记...",
+    "loading": "加载中...",
+    "error": "加载失败",
+    "retry": "重试",
+    "anonymous": "匿名用户"
+  },
+  "PostMeetingNote": {
+    "summaryLabel": "会议总结与后续行动",
+    "summaryPlaceholder": "请按照以下指引总结会议：\n• 总结关键决策和结论\n• 明确行动项目和负责人\n• 设定完成时间\n• 确认下次会议安排",
+    "feedbackLabel": "会议反馈",
+    "feedbackPlaceholder": "分享您的会议反馈和思考...",
+    "loading": "加载中...",
+    "error": "加载失败",
+    "retry": "重试",
+    "anonymous": "匿名用户"
+  },
+  "MessageBox": {
+    "submit": "提交",
+    "submitting": "添加中..."
+  },
+  "MeetingLobbyTemplate": {
+    "basicInfo": "基本信息",
+    "preMeeting": "会前准备",
+    "collabNotes": "协作笔记",
+    "postSummary": "会后总结"
+  }
+}

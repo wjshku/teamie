@@ -1,0 +1,111 @@
+{
+  "home": "Home",
+  "login": "Login",
+  "logout": "Logout",
+  "MeetingListItem": {
+    "timePending": "Time Pending",
+    "participants": "participants",
+    "clickToView": "Click to view details"
+  },
+  "meetingJoin": {
+    "missingToken": "Missing invitation token",
+    "joinMeetingFailed": "Failed to join meeting",
+    "joiningMeeting": "Joining meeting...",
+    "successJoinedMeeting": "Successfully joined the meeting!",
+    "meetingTime": "Meeting time",
+    "status": "Status",
+    "redirecting": "Redirecting to the meeting page...",
+    "needLogin": "Login required",
+    "goLogin": "Go to login"
+  },
+  "quickJoin": {
+    "recentMeetingsTitle": "Recent Meetings",
+    "recentMeetingsDesc": "See the meetings you recently joined",
+    "noRecentMeetings": "No recent meetings",
+    "createFirstMeeting": "Start by creating your first meeting!",
+    "quickStartTitle": "Quick Start",
+    "quickStartDesc": "Create a new meeting immediately and invite team members to join",
+    "createMeetingBtn": "Create Meeting Now"
+  },
+  "personalCenter": {
+    "historyTitle": "My Past Meetings",
+    "historyDesc": "View all meetings you have participated in",
+    "noHistory": "No past meetings",
+    "createFirst": "Start by creating your first meeting!"
+  },
+  "meeting": {
+    "delete": "Delete Meeting",
+    "deleting": "Deleting..."
+  },
+  "meetingScheduler": {
+    "timeLabel": "Meeting Time",
+    "timePlaceholder": "Enter meeting time",
+    "voteLinkLabel": "Voting Link",
+    "linkPlaceholder": "Enter voting link"
+  },
+  "common": {
+    "edit": "Edit",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  },
+  "meetingPrinciples": {
+    "title": "Meeting Guide - ACTION Principles",
+    "shareAgenda": "Share agenda in advance",
+    "clearGoal": "Clarify meeting goals",
+    "timeManagement": "Manage discussion time",
+    "inclusiveParticipation": "Ensure inclusive participation",
+    "recordOutcome": "Record meeting outcomes",
+    "assignNextSteps": "Assign next steps"
+  },
+  "meetingInvitation": {
+    "title": "Invitation Link",
+    "generate": "Generate Invitation Link",
+    "generating": "Generating...",
+    "copy": "Copy",
+    "close": "Close",
+    "tip": "Share this link to invite others to join the meeting"
+  },
+  "participantsList": {
+    "title": "Participants",
+    "empty": "No participants yet"
+  },
+  "preMeetingSection": {
+    "objectiveLabel": "Meeting Objective",
+    "objectivePlaceholder": "Discuss Q1 product features and prioritization",
+    "questionLabel": "Pre-meeting Questions",
+    "questionPlaceholder": "Share your thoughts or questions before the meeting...",
+    "loading": "Loading...",
+    "error": "Failed to load",
+    "retry": "Retry",
+    "anonymous": "Anonymous"
+  },
+  "InMeetingNote": {
+    "label": "Meeting Notes",
+    "placeholder": "Enter your meeting notes...",
+    "loading": "Loading...",
+    "error": "Failed to load",
+    "retry": "Retry",
+    "anonymous": "Anonymous"
+  },
+  "PostMeetingNote": {
+    "summaryLabel": "Post-meeting Summary & Action Items",
+    "summaryPlaceholder": "Please summarize the meeting following these guidelines:\n• Summarize key decisions and conclusions\n• Clarify action items and responsible persons\n• Set deadlines\n• Confirm next meeting arrangements",
+    "feedbackLabel": "Meeting Feedback",
+    "feedbackPlaceholder": "Share your feedback and thoughts...",
+    "loading": "Loading...",
+    "error": "Failed to load",
+    "retry": "Retry",
+    "anonymous": "Anonymous"
+  },
+  "MessageBox": {
+    "submit": "Submit",
+    "submitting": "Adding..."
+  },
+  "MeetingLobbyTemplate": {
+    "basicInfo": "Basic Info",
+    "preMeeting": "Pre-Meeting",
+    "collabNotes": "Collaborative Notes",
+    "postSummary": "Post-Meeting Summary"
+  }
+}

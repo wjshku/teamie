@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../atoms/Button";
 import { useAuth } from "../../hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 interface TopNavBarProps {
   className?: string;
@@ -10,6 +11,7 @@ interface TopNavBarProps {
 const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated, loginUser, logout } = useAuth();
+  const { t, i18n } = useTranslation();
 
   const handleBrandClick = () => {
     navigate("/");
@@ -32,6 +34,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
     try {
       await logout();
       console.log("登出成功");
+      navigate("/");
     } catch (error) {
       console.error("登出出错:", error);
     }
@@ -39,6 +42,11 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
 
   const handlePersonalCenterClick = () => {
     navigate("/personal");
+  };
+
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === "zh" ? "en" : "zh";
+    i18n.changeLanguage(nextLang);
   };
 
   return (
@@ -51,12 +59,15 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
         <span className="brand-text">Teamie</span>
       </div>
 
-      <div className="nav-actions">
+      <div className="nav-actions flex items-center gap-3">
+        <Button onClick={toggleLanguage} variant="outline" size="sm">
+          {i18n.language === "zh" ? "EN" : "中文"}
+        </Button>
+
         {isAuthenticated ? (
-          // 已登录：显示用户名、Home按钮和登出按钮
           <div className="flex items-center gap-3">
             <Button onClick={handleBrandClick} variant="ghost" size="sm">
-              Home
+              {t("home")}
             </Button>
             <Button
               onClick={handlePersonalCenterClick}
@@ -66,13 +77,12 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
               {user?.name}
             </Button>
             <Button onClick={handleLogout} variant="ghost" size="sm">
-              登出
+              {t("logout")}
             </Button>
           </div>
         ) : (
-          // 未登录：显示登录按钮
           <Button onClick={handleLogin} variant="ghost" size="sm">
-            登录
+            {t("login")}
           </Button>
         )}
       </div>

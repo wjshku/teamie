@@ -1,6 +1,7 @@
-import React from 'react';
-import MeetingListItem from '../molecules/MeetingListItem';
-import { Meeting } from '../../types/api';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import MeetingListItem from "../molecules/MeetingListItem";
+import { Meeting } from "../../types/api";
 
 interface PersonalCenterSectionProps {
   meetings: Meeting[];
@@ -11,15 +12,17 @@ interface PersonalCenterSectionProps {
 const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
   meetings,
   onViewMeeting,
-  className = '',
+  className = "",
 }) => {
+  const { t } = useTranslation();
+
   return (
     <section className={`space-y-8 ${className}`}>
       {/* 我的历史会议卡片 */}
       <div className="card">
         <div className="card-header">
-          <h2 className="card-title">我的历史会议</h2>
-          <p className="card-description">查看您参与过的所有会议记录</p>
+          <h2 className="card-title">{t("personalCenter.historyTitle")}</h2>
+          <p className="card-description">{t("personalCenter.historyDesc")}</p>
         </div>
         <div className="card-content">
           <div className="grid gap-4">
@@ -33,8 +36,10 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
               ))
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                <p>暂无历史会议</p>
-                <p className="text-sm mt-2">开始创建您的第一个会议吧！</p>
+                <p>{t("personalCenter.noHistory")}</p>
+                <p className="text-sm mt-2">
+                  {t("personalCenter.createFirst")}
+                </p>
               </div>
             )}
           </div>

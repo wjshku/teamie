@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../atoms/Button";
 import { formatDateOnly, formatTime } from "../../utils/helpers";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: string;
@@ -13,7 +14,7 @@ interface Message {
 interface MessageBoxProps {
   label: string;
   labelIcon?: React.ReactNode;
-  messages?: Message[]; // 可显示已有消息列表
+  messages?: Message[];
   newMessage: string;
   onNewMessageChange: (val: string) => void;
   onSubmitNewMessage: () => void;
@@ -33,6 +34,8 @@ const MessageBox: React.FC<MessageBoxProps> = ({
   placeholder = "",
   rows = 3,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
       {/* Label + Icon */}
@@ -102,7 +105,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({
                 d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
               />
             </svg>
-            {submitting ? "添加中..." : "提交"}
+            {submitting ? t("MessageBox.submitting") : t("MessageBox.submit")}
           </Button>
         </div>
       </div>

@@ -62,7 +62,6 @@ export interface PostMeeting {
 export interface Meeting {
   meetingid: string;
   title: string;
-  status: string;
   time: string;
   participants: User[];
   votelink: string;
@@ -100,7 +99,7 @@ export interface MeetingListResponse {
 // ----------------- PreMeeting API -----------------
 export interface CreatePreMeetingRequest {
   objective?: string;
-  questions?: Omit<Question, 'timestamp' | 'meetingid'>[];
+  questions?: Omit<Question, "timestamp" | "meetingid">[];
 }
 
 export interface UpdatePreMeetingRequest {
@@ -136,10 +135,12 @@ export interface SuccessResponse {
 }
 
 // ==================== API Response Wrapper ====================
-export type ApiResponse<T> = {
-  success: true;
-  data: T;
-} | {
-  success: false;
-  error: string;
-};
+export type ApiResponse<T> =
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      error: string;
+    };
