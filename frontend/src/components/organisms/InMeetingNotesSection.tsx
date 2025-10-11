@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import Button from '../atoms/Button';
-import { formatDateOnly, formatTime } from '../../utils/helpers';
-import { useInMeeting } from '../../hooks/useInMeeting';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useState, useEffect } from "react";
+import { useInMeeting } from "../../hooks/useInMeeting";
+import { useAuth } from "../../hooks/useAuth";
+import MessageBox from "../molecules/MessageBox";
 
 interface InMeetingNotesSectionProps {
   meetingId: string;
@@ -11,11 +10,11 @@ interface InMeetingNotesSectionProps {
 
 const InMeetingNotesSection: React.FC<InMeetingNotesSectionProps> = ({
   meetingId,
-  className = '',
+  className = "",
 }) => {
-  const [newNote, setNewNote] = useState('');
+  const [newNote, setNewNote] = useState("");
   const { user } = useAuth();
-  
+
   const {
     inMeeting,
     inMeetingLoading,
@@ -34,17 +33,17 @@ const InMeetingNotesSection: React.FC<InMeetingNotesSectionProps> = ({
 
   const handleAddNote = async () => {
     if (newNote.trim()) {
-      const authorName = user?.name || '匿名用户';
+      const authorName = user?.name || "匿名用户";
       const noteData = {
         id: String(Date.now()),
         author: authorName,
         authorInitial: authorName.charAt(0),
         content: newNote.trim(),
       };
-      
+
       const result = await addNoteData(noteData);
       if (result?.success) {
-        setNewNote('');
+        setNewNote("");
       }
     }
   };
@@ -67,7 +66,7 @@ const InMeetingNotesSection: React.FC<InMeetingNotesSectionProps> = ({
       <div className={`space-y-6 ${className}`}>
         <div className="text-center py-8">
           <p className="text-red-600">加载失败: {inMeetingError}</p>
-          <button 
+          <button
             onClick={() => fetchInMeeting()}
             className="btn btn-primary btn-sm mt-2"
           >
@@ -79,60 +78,30 @@ const InMeetingNotesSection: React.FC<InMeetingNotesSectionProps> = ({
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 现有笔记列表 */}
-      <div className="space-y-4">
-        {existingNotes.map((note) => (
-          <div key={note.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
-                {note.authorInitial}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-medium text-gray-900">{note.author}</span>
-                  {/* Mobile: date only; Desktop: full timestamp */}
-                  <span className="text-sm text-gray-500 md:hidden">{note.timestamp ? formatDateOnly(note.timestamp) : ''}</span>
-                  <span className="text-sm text-gray-500 hidden md:inline">{note.timestamp ? formatTime(note.timestamp) : ''}</span>
-                </div>
-                <div className="text-gray-800 whitespace-pre-line">
-                  {note.content}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* 添加笔记区域 */}
-      <div className="space-y-3">
-        <h4 className="text-sm font-medium text-gray-900">添加笔记</h4>
-        <div className="space-y-3">
-          <textarea
-            value={newNote}
-            onChange={(e) => setNewNote(e.target.value)}
-            placeholder="输入您的会议笔记..."
-            className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            rows={4}
-            disabled={noteAdding}
+    <MessageBox
+      label="会议笔记"
+      labelIcon={
+        <svg
+          className="w-5 h-5 text-gray-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"
           />
-          <div className="flex justify-start">
-            <Button
-              onClick={handleAddNote}
-              variant="primary"
-              size="sm"
-              className="flex items-center gap-2"
-              disabled={!newNote.trim() || noteAdding}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-              {noteAdding ? '添加中...' : '添加笔记'}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+        </svg>
+      }
+      messages={existingNotes}
+      newMessage={newNote}
+      onNewMessageChange={setNewNote}
+      onSubmitNewMessage={handleAddNote}
+      submitting={noteAdding}
+      placeholder="输入您的会议笔记..."
+    />
   );
 };
 

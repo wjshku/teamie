@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
-import TextArea from '../atoms/TextArea';
-import Button from '../atoms/Button';
+import React, { useState } from "react";
+import TextArea from "../atoms/TextArea";
+import { Button } from "../atoms/Button";
 
 interface FeedbackFormProps {
   onSubmit: (feedback: string) => void;
   className?: string;
 }
 
-const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit, className = '' }) => {
-  const [feedback, setFeedback] = useState('');
+const FeedbackForm: React.FC<FeedbackFormProps> = ({
+  onSubmit,
+  className = "",
+}) => {
+  const [feedback, setFeedback] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +29,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit, className = '' })
         rows={8}
         className="feedback-textarea"
       />
-      <Button type="submit" variant="primary" className="feedback-submit">
+      <Button type="submit" variant="default" className="feedback-submit">
         提交反馈
       </Button>
     </form>

@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import InputField from '../atoms/InputField';
-import Button from '../atoms/Button';
-import { useMeetings } from '../../hooks/useMeetings';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import InputField from "../atoms/InputField";
+import { Button } from "../atoms/Button";
+import { useMeetings } from "../../hooks/useMeetings";
+import { useAuth } from "../../hooks/useAuth";
 
 interface MeetingCreationFormProps {
   onSubmit: (data: { title: string }) => void;
   className?: string;
 }
 
-const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({ onSubmit, className = '' }) => {
+const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({
+  onSubmit,
+  className = "",
+}) => {
   const navigate = useNavigate();
   const { createNewMeeting, loading } = useMeetings();
   const { isAuthenticated, loginUser } = useAuth();
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,16 +32,16 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({ onSubmit, cla
         const result = await createNewMeeting({
           title: title.trim(),
         });
-        
+
         if (result.success && result.meeting) {
           // 调用父组件的回调
           onSubmit({ title: title.trim() });
-          
+
           // 重定向到新创建的会议页面
           navigate(`/meeting/${result.meeting.meetingid}`);
         }
       } catch (error) {
-        console.error('创建会议失败:', error);
+        console.error("创建会议失败:", error);
       }
     }
   };
@@ -57,14 +60,14 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({ onSubmit, cla
       </div>
 
       <div className="flex justify-start">
-        <Button 
-          type="submit" 
-          variant="primary" 
-          size="lg" 
+        <Button
+          type="submit"
+          variant="default"
+          size="lg"
           className="px-8"
           disabled={loading}
         >
-          {loading ? '创建中...' : '创建会议'}
+          {loading ? "创建中..." : "创建会议"}
         </Button>
       </div>
     </form>

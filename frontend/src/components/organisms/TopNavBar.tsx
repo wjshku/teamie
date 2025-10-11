@@ -1,56 +1,56 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../atoms/Button';
-import Icon from '../atoms/Icon';
-import { useAuth } from '../../hooks/useAuth';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../atoms/Button";
+import { useAuth } from "../../hooks/useAuth";
 
 interface TopNavBarProps {
   className?: string;
 }
 
-const TopNavBar: React.FC<TopNavBarProps> = ({
-  className = '',
-}) => {
+const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated, loginUser, logout } = useAuth();
 
   const handleBrandClick = () => {
-    navigate('/');
+    navigate("/");
   };
 
   const handleLogin = async () => {
     try {
       const result = await loginUser();
       if (result.success) {
-        console.log('登录成功:', result.user);
+        console.log("登录成功:", result.user);
       } else {
-        console.error('登录失败:', result.error);
+        console.error("登录失败:", result.error);
       }
     } catch (error) {
-      console.error('登录出错:', error);
+      console.error("登录出错:", error);
     }
   };
 
   const handleLogout = async () => {
     try {
       await logout();
-      console.log('登出成功');
+      console.log("登出成功");
     } catch (error) {
-      console.error('登出出错:', error);
+      console.error("登出出错:", error);
     }
   };
 
   const handlePersonalCenterClick = () => {
-    navigate('/personal');
+    navigate("/personal");
   };
 
   return (
     <nav className={`nav-bar ${className}`}>
-      <div className="nav-brand" onClick={handleBrandClick} style={{ cursor: 'pointer' }}>
-        <Icon name="logo" size={32} />
+      <div
+        className="nav-brand"
+        onClick={handleBrandClick}
+        style={{ cursor: "pointer" }}
+      >
         <span className="brand-text">Teamie</span>
       </div>
-      
+
       <div className="nav-actions">
         {isAuthenticated ? (
           // 已登录：显示用户名、Home按钮和登出按钮
@@ -58,7 +58,11 @@ const TopNavBar: React.FC<TopNavBarProps> = ({
             <Button onClick={handleBrandClick} variant="ghost" size="sm">
               Home
             </Button>
-            <Button onClick={handlePersonalCenterClick} variant="primary" size="sm">
+            <Button
+              onClick={handlePersonalCenterClick}
+              variant="default"
+              size="sm"
+            >
               {user?.name}
             </Button>
             <Button onClick={handleLogout} variant="ghost" size="sm">
