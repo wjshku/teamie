@@ -4,7 +4,6 @@ import { Button } from "../atoms/Button";
 
 interface MeetingManagementProps {
   title: string;
-  status: string;
   deleting: boolean;
   onDelete: () => void;
 }
