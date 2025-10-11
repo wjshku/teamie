@@ -1,6 +1,4 @@
 import React from "react";
-import { Button } from "../atoms/Button";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 interface JoinStatusCardProps {
@@ -14,10 +12,8 @@ const JoinStatusCard: React.FC<JoinStatusCardProps> = ({
   meetingData,
   isParticipant,
   message,
-  isAuthenticated,
 }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const cardBg = isParticipant
     ? "bg-green-50 border-green-200"
