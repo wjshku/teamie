@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Button from "../atoms/Button";
 import { usePostMeeting } from "../../hooks/usePostMeeting";
 import { useAuth } from "../../hooks/useAuth";
 import InputBox from "../molecules/InputBox";
@@ -81,6 +80,9 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
 
   const feedbacks = postMeeting?.feedbacks || [];
 
+  {
+    /* 这里的 loading 和 error 每个 tab 都有可以优化 */
+  }
   if (postMeetingLoading)
     return (
       <div className={`space-y-6 ${className}`}>
@@ -95,7 +97,7 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
           {t("PostMeetingNote.error")}: {postMeetingError}
         </p>
         <button
-          onClick={fetchPostMeeting}
+          onClick={() => fetchPostMeeting()}
           className="btn btn-primary btn-sm mt-2"
         >
           {t("PostMeetingNote.retry")}
