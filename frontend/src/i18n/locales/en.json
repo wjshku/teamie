@@ -31,13 +31,20 @@
     "createTitle": "Create New Meeting",
     "createDescription": "Set up basic meeting information"
   },
+  "meetingCreationForm": {
+    "titleLabel": "Meeting Title",
+    "titlePlaceholder": "Enter meeting title",
+    "creating": "Creating...",
+    "createButton": "Create Meeting",
+    "createFailed": "Failed to create meeting:"
+  },
   "personalCenter": {
     "historyTitle": "My Past Meetings",
     "historyDesc": "View all meetings you have participated in",
     "noHistory": "No past meetings",
     "createFirst": "Start by creating your first meeting!"
   },
-  "meeting": {
+  "meetingManagement": {
     "delete": "Delete Meeting",
     "deleting": "Deleting..."
   },

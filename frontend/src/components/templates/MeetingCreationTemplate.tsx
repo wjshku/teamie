@@ -1,32 +1,28 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import MeetingCreationForm from '../molecules/MeetingCreationForm';
+import TopNavBar from '../organisms/TopNavBar';
+import MeetingTemplateSection from '../organisms/MeetingTemplateSection';
 
-interface MeetingTemplateSectionProps {
+interface MeetingCreationTemplateProps {
   onCreateMeeting: (data: { title: string }) => void;
   className?: string;
 }
 
-const MeetingTemplateSection: React.FC<MeetingTemplateSectionProps> = ({
+const MeetingCreationTemplate: React.FC<MeetingCreationTemplateProps> = ({
   onCreateMeeting,
   className = '',
 }) => {
-  const { t } = useTranslation();
-
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 会议创建表单卡片 */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">{t('meetingTemplate.createTitle')}</h2>
-          <p className="card-description">{t('meetingTemplate.createDescription')}</p>
+    <div className={`min-h-screen bg-background ${className}`}>
+      <TopNavBar />
+      <main className="container mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto">
+          <MeetingTemplateSection
+            onCreateMeeting={onCreateMeeting}
+          />
         </div>
-        <div className="card-content">
-          <MeetingCreationForm onSubmit={onCreateMeeting} />
-        </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default MeetingTemplateSection;
+export default MeetingCreationTemplate;

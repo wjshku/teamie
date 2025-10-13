@@ -4,6 +4,7 @@ import InputField from "../atoms/InputField";
 import { Button } from "../atoms/Button";
 import { useMeetings } from "../../hooks/useMeetings";
 import { useAuth } from "../../hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 interface MeetingCreationFormProps {
   onSubmit: (data: { title: string }) => void;
@@ -14,6 +15,7 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({
   onSubmit,
   className = "",
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { createNewMeeting, loading } = useMeetings();
   const { isAuthenticated, loginUser } = useAuth();
@@ -34,14 +36,11 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({
         });
 
         if (result.success && result.meeting) {
-          // 调用父组件的回调
           onSubmit({ title: title.trim() });
-
-          // 重定向到新创建的会议页面
           navigate(`/meeting/${result.meeting.meetingid}`);
         }
       } catch (error) {
-        console.error("创建会议失败:", error);
+        console.error(t("meetingCreationForm.createFailed"), error);
       }
     }
   };
@@ -49,10 +48,12 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
       <div className="space-y-3">
-        <label className="text-sm font-medium text-gray-900">会议标题</label>
+        <label className="text-sm font-medium text-gray-900">
+          {t("meetingCreationForm.titleLabel")}
+        </label>
         <InputField
           type="text"
-          placeholder="请输入会议标题"
+          placeholder={t("meetingCreationForm.titlePlaceholder")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full"
@@ -67,7 +68,9 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({
           className="px-8"
           disabled={loading}
         >
-          {loading ? "创建中..." : "创建会议"}
+          {loading
+            ? t("meetingCreationForm.creating")
+            : t("meetingCreationForm.createButton")}
         </Button>
       </div>
     </form>
