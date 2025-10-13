@@ -51,7 +51,8 @@
     "edit": "编辑",
     "save": "保存",
     "saving": "保存中...",
-    "cancel": "取消"
+    "cancel": "取消",
+    "loading": "加载中..."
   },
   "meetingPrinciples": {
     "title": "会议指引 - ACTION 原则",

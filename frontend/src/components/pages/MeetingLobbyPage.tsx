@@ -22,7 +22,7 @@ const MeetingLobbyPage: React.FC<MeetingLobbyPageProps> = ({}) => {
   }, [id, isAuthenticated, fetchMeetingDetails]);
 
   if (loading) {
-    return <FullScreenLoading text="加载会议中..." minHeight="min-h-[60vh]" />;
+    return <FullScreenLoading minHeight="min-h-[60vh]" />;
   }
 
   if (error) {

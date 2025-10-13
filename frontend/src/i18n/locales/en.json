@@ -51,7 +51,8 @@
     "edit": "Edit",
     "save": "Save",
     "saving": "Saving...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loading": "Loading..."
   },
   "meetingPrinciples": {
     "title": "Meeting Guide - ACTION Principles",
