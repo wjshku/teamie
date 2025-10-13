@@ -27,6 +27,10 @@
     "quickStartDesc": "Create a new meeting immediately and invite team members to join",
     "createMeetingBtn": "Create Meeting Now"
   },
+  "meetingTemplate": {
+    "createTitle": "Create New Meeting",
+    "createDescription": "Set up basic meeting information"
+  },
   "personalCenter": {
     "historyTitle": "My Past Meetings",
     "historyDesc": "View all meetings you have participated in",
@@ -110,5 +114,8 @@
   },
   "propaganda": {
     "message": "All those scattered messages in the group?\nRepeated questions?\nTasks forgotten at the end of the meeting?\nTeamie gathers everything for you, making pre-, during-, and post-meeting smooth.\nGroup projects done fast, clear, and easy!"
+  },
+  "language": {
+    "current": "EN"
   }
 }

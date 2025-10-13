@@ -45,7 +45,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
   };
 
   const toggleLanguage = () => {
-    const nextLang = i18n.language === "zh" ? "en" : "zh";
+    const nextLang = i18n.language === "en" ? "zh" : "en";
     i18n.changeLanguage(nextLang);
   };
 
@@ -61,7 +61,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
 
       <div className="nav-actions flex items-center gap-3">
         <Button onClick={toggleLanguage} variant="outline" size="sm">
-          {i18n.language === "zh" ? "EN" : "中文"}
+          {t("language.current")}
         </Button>
 
         {isAuthenticated ? (
