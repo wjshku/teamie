@@ -52,7 +52,6 @@ export interface PostMeeting {
 export interface Meeting {
     meetingid: string;
     title: string;
-    status: string;
     time: string;
     participants: User[];
     votelink: string;
@@ -85,7 +84,7 @@ export interface MeetingInvite {
     meetingId: string;
     token: string;
     createdAt: Date;
-    status: 'active' | 'revoked';
+    status: "active" | "revoked";
     usedCount: number;
 }
 export interface CreateInviteLinkRequest {
@@ -105,7 +104,7 @@ export interface JoinMeetingResponse {
 }
 export interface CreatePreMeetingRequest {
     objective?: string;
-    questions?: Omit<Question, 'timestamp' | 'meetingid'>[];
+    questions?: Omit<Question, "timestamp" | "meetingid">[];
 }
 export interface UpdatePreMeetingRequest {
     objective?: string;
