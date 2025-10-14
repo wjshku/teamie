@@ -36,8 +36,6 @@ From pre-meeting preparation to real-time collaboration and post-meeting summari
 - **Accurate:** Keep discussions structured and clear  
 - **Effortless:** Let AI handle the messy parts  
 
-![Workflow Illustration](./images/workflow.png)
-
 ---
 
 ## 🚀 Tech Stack
