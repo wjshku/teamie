@@ -65,6 +65,23 @@ export interface Meeting {
   time: string;
   participants: User[];
   votelink: string;
+  contextCapsuleIds?: string[]; // 关联的会议胶囊 IDs
+}
+
+// ----------------- MeetingCapsule (会议胶囊) -----------------
+export interface MeetingCapsule {
+  capsuleId: string;
+  userId: string;
+  title: string;
+  summary: string; // AI 生成的总结
+  keyPoints: string[]; // 关键点
+  sourceMeetingId?: string; // 如果是从会议生成的
+  createdAt: string;
+  metadata: {
+    participants?: string[];
+    meetingDate?: string;
+    topics?: string[];
+  };
 }
 
 // ==================== API Request/Response Types ====================
@@ -82,6 +99,7 @@ export interface UserListResponse {
 // ----------------- Meeting API -----------------
 export interface CreateMeetingRequest {
   title: string;
+  contextCapsuleIds?: string[];
 }
 
 export interface UpdateMeetingRequest {
@@ -120,6 +138,30 @@ export interface CreatePostMeetingRequest {
 export interface UpdatePostMeetingRequest {
   summary?: string;
   feedbacks?: Feedback[];
+}
+
+// ----------------- MeetingCapsule API -----------------
+export interface CreateMeetingCapsuleRequest {
+  meetingId: string;
+  title?: string;
+}
+
+export interface GenerateMeetingCapsuleResponse {
+  capsule: MeetingCapsule;
+}
+
+export interface MeetingCapsuleListResponse {
+  capsules: MeetingCapsule[];
+}
+
+export interface ImportMeetingCapsuleRequest {
+  title: string;
+  content: string; // 外部会议内容
+  metadata?: {
+    participants?: string[];
+    meetingDate?: string;
+    topics?: string[];
+  };
 }
 
 // ==================== Error Response ====================

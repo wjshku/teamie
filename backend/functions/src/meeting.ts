@@ -39,7 +39,7 @@ router.get("/", async (req: Request, res: Response) => {
  */
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const { title }: CreateMeetingRequest = req.body;
+    const { title, contextCapsuleIds }: CreateMeetingRequest = req.body;
     const uid = await verifyAuth(req); // 验证认证令牌
 
     const userDoc = await db.collection("users").doc(uid).get();
@@ -53,6 +53,7 @@ router.post("/", async (req: Request, res: Response) => {
       ], // 临时用户对象，后续会从数据库获取完整信息
       votelink: "",
       createdBy: uid,
+      contextCapsuleIds: contextCapsuleIds || [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };

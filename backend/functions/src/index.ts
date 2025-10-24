@@ -9,6 +9,7 @@ import meetingInfoRouter from './meetinginfo';
 import inMeetingRouter from './inMeeting';
 import preMeetingRouter from './preMeeting';
 import postMeetingRouter from './postMeeting';
+import meetingCapsuleRouter from './meetingCapsule';
 
 // 创建 Express 应用
 const app = express();
@@ -20,8 +21,9 @@ app.use(cors({
     'http://localhost:3000',  // 备用端口
     'https://spiffy-tulumba-616f2c.netlify.app', // 生产域名
     'https://*.netlify.app',
-    'https://teamie.trisure.me',  // 生产域名（如果有）
-    'http://teamie.trisure.me'
+    'https://teamie.work',  // 生产域名（如果有）
+    'http://teamie.work',
+    'https://www.teamie.work',  // 生产域名（如果有）
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -36,6 +38,7 @@ app.use('/meetings', meetingInfoRouter);
 app.use('/meetings', inMeetingRouter);
 app.use('/meetings', preMeetingRouter);
 app.use('/meetings', postMeetingRouter);
+app.use('/meetingCapsules', meetingCapsuleRouter);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

@@ -27,7 +27,11 @@
     "titlePlaceholder": "请输入会议标题",
     "creating": "创建中...",
     "createButton": "创建会议",
-    "createFailed": "创建会议失败:"
+    "createFailed": "创建会议失败:",
+    "contextLabel": "上下文胶囊（可选）",
+    "contextDesc": "选择历史会议胶囊为本次会议提供上下文",
+    "noCapsules": "暂无可用胶囊",
+    "selectCapsules": "选择胶囊..."
   },
   "quickJoin": {
     "recentMeetingsTitle": "最近会议",
@@ -42,7 +46,13 @@
     "historyTitle": "我的历史会议",
     "historyDesc": "查看您参与过的所有会议记录",
     "noHistory": "暂无历史会议",
-    "createFirst": "开始创建您的第一个会议吧！"
+    "createFirst": "开始创建您的第一个会议吧！",
+    "capsulesTitle": "我的会议胶囊",
+    "capsulesDesc": "AI 生成的会议总结与关键点",
+    "noCapsules": "暂无会议胶囊",
+    "generateFirst": "从历史会议中生成胶囊吧！",
+    "switchToHistory": "切换到会议历史",
+    "switchToCapsules": "切换到会议胶囊"
   },
   "meetingManagement": {
     "delete": "删除",
@@ -92,7 +102,13 @@
     "loading": "加载中...",
     "error": "加载失败",
     "retry": "重试",
-    "anonymous": "匿名用户"
+    "anonymous": "匿名用户",
+    "generateSuggestions": "根据上下文生成 AI 建议",
+    "generating": "生成建议中...",
+    "suggestedObjective": "建议的目标",
+    "suggestedQuestions": "建议的问题",
+    "useSuggestion": "使用此建议",
+    "dismissSuggestions": "关闭"
   },
   "InMeetingNote": {
     "label": "会议笔记",
@@ -111,6 +127,13 @@
     "error": "加载失败",
     "retry": "重试",
     "anonymous": "匿名用户"
+  },
+  "MeetingCapsule": {
+    "generateButton": "生成会议胶囊",
+    "generating": "生成中...",
+    "generateSuccess": "会议胶囊生成成功！",
+    "generateError": "生成会议胶囊失败",
+    "viewCapsule": "查看胶囊"
   },
   "MessageBox": {
     "submit": "提交",

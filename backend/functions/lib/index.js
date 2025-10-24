@@ -47,6 +47,7 @@ const meetinginfo_1 = __importDefault(require("./meetinginfo"));
 const inMeeting_1 = __importDefault(require("./inMeeting"));
 const preMeeting_1 = __importDefault(require("./preMeeting"));
 const postMeeting_1 = __importDefault(require("./postMeeting"));
+const meetingCapsule_1 = __importDefault(require("./meetingCapsule"));
 // 创建 Express 应用
 const app = (0, express_1.default)();
 // 中间件
@@ -56,8 +57,9 @@ app.use((0, cors_1.default)({
         'http://localhost:3000', // 备用端口
         'https://spiffy-tulumba-616f2c.netlify.app', // 生产域名
         'https://*.netlify.app',
-        'https://teamie.trisure.me', // 生产域名（如果有）
-        'http://teamie.trisure.me'
+        'https://teamie.work', // 生产域名（如果有）
+        'http://teamie.work',
+        'https://www.teamie.work', // 生产域名（如果有）
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -71,6 +73,7 @@ app.use('/meetings', meetinginfo_1.default);
 app.use('/meetings', inMeeting_1.default);
 app.use('/meetings', preMeeting_1.default);
 app.use('/meetings', postMeeting_1.default);
+app.use('/meetingCapsules', meetingCapsule_1.default);
 // 健康检查端点
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });

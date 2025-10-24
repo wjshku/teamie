@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
  */
 router.post("/", async (req, res) => {
     try {
-        const { title } = req.body;
+        const { title, contextCapsuleIds } = req.body;
         const uid = await (0, client_1.verifyAuth)(req); // 验证认证令牌
         const userDoc = await firebase_1.db.collection("users").doc(uid).get();
         const userData = userDoc.data();
@@ -45,6 +45,7 @@ router.post("/", async (req, res) => {
             ], // 临时用户对象，后续会从数据库获取完整信息
             votelink: "",
             createdBy: uid,
+            contextCapsuleIds: contextCapsuleIds || [],
             createdAt: new Date(),
             updatedAt: new Date(),
         };

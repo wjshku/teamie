@@ -1,0 +1,304 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const firebase_1 = require("./firebase");
+const client_1 = require("./client");
+const aiService_1 = require("./aiService");
+const router = (0, express_1.Router)();
+// ==================== MeetingCapsule Routes ====================
+/**
+ * 获取用户的所有会议胶囊
+ * GET /meetingCapsules
+ */
+router.get('/', async (req, res) => {
+    try {
+        const uid = await (0, client_1.verifyAuth)(req);
+        const capsulesSnapshot = await firebase_1.db.collection('meetingCapsules')
+            .where('userId', '==', uid)
+            .orderBy('createdAt', 'desc')
+            .get();
+        const capsules = capsulesSnapshot.docs.map(doc => (Object.assign({ capsuleId: doc.id }, doc.data())));
+        res.json({ success: true, data: { capsules } });
+    }
+    catch (error) {
+        if (error instanceof Error && (error.message === '未提供认证令牌' || error.message === '无效的认证令牌')) {
+            res.status(401).json({ success: false, error: error.message });
+            return;
+        }
+        console.error('获取会议胶囊失败:', error);
+        res.status(500).json({ success: false, error: '获取会议胶囊失败' });
+    }
+});
+/**
+ * 从会议生成会议胶囊（使用 AI 总结）
+ * POST /meetingCapsules/generate
+ * Body: { meetingId: string, title?: string }
+ */
+router.post('/generate', async (req, res) => {
+    var _a;
+    try {
+        const uid = await (0, client_1.verifyAuth)(req);
+        const { meetingId, title } = req.body;
+        if (!meetingId) {
+            res.status(400).json({ success: false, error: '缺少 meetingId' });
+            return;
+        }
+        // 检查用户是否有权限访问此会议
+        const hasAccess = await (0, client_1.checkMeetingAccess)(meetingId, uid);
+        if (!hasAccess) {
+            res.status(404).json({ success: false, error: '会议不存在或无权限访问' });
+            return;
+        }
+        // 获取会议数据
+        const meetingDoc = await firebase_1.db.collection('meetings').doc(meetingId).get();
+        if (!meetingDoc.exists) {
+            res.status(404).json({ success: false, error: '会议不存在' });
+            return;
+        }
+        const meetingData = meetingDoc.data();
+        // 获取 pre/in/post meeting 数据
+        const preMeetingDoc = await firebase_1.db.collection('meetings').doc(meetingId).collection('preMeeting').doc('data').get();
+        const inMeetingDoc = await firebase_1.db.collection('meetings').doc(meetingId).collection('inMeeting').doc('data').get();
+        const postMeetingDoc = await firebase_1.db.collection('meetings').doc(meetingId).collection('postMeeting').doc('data').get();
+        const preMeetingData = preMeetingDoc.exists ? preMeetingDoc.data() : null;
+        const inMeetingData = inMeetingDoc.exists ? inMeetingDoc.data() : null;
+        const postMeetingData = postMeetingDoc.exists ? postMeetingDoc.data() : null;
+        // 使用 AI 生成摘要和关键点（这里先用简单逻辑，实际应该调用 AI API）
+        const summary = generateSummary(preMeetingData, inMeetingData, postMeetingData, meetingData);
+        const keyPoints = extractKeyPoints(preMeetingData, inMeetingData, postMeetingData);
+        // 创建会议胶囊
+        const capsuleData = {
+            userId: uid,
+            title: title || (meetingData === null || meetingData === void 0 ? void 0 : meetingData.title) || '未命名会议',
+            summary,
+            keyPoints,
+            sourceMeetingId: meetingId,
+            createdAt: new Date().toISOString(),
+            metadata: {
+                participants: ((_a = meetingData === null || meetingData === void 0 ? void 0 : meetingData.participants) === null || _a === void 0 ? void 0 : _a.map((p) => p.name)) || [],
+                meetingDate: (meetingData === null || meetingData === void 0 ? void 0 : meetingData.time) || '',
+                topics: extractTopics(preMeetingData)
+            }
+        };
+        const capsuleRef = await firebase_1.db.collection('meetingCapsules').add(capsuleData);
+        const capsule = Object.assign({ capsuleId: capsuleRef.id }, capsuleData);
+        res.json({ success: true, data: { capsule } });
+    }
+    catch (error) {
+        if (error instanceof Error && (error.message === '未提供认证令牌' || error.message === '无效的认证令牌')) {
+            res.status(401).json({ success: false, error: error.message });
+            return;
+        }
+        console.error('生成会议胶囊失败:', error);
+        res.status(500).json({ success: false, error: '生成会议胶囊失败' });
+    }
+});
+/**
+ * 导入外部会议生成胶囊
+ * POST /meetingCapsules/import
+ * Body: { title: string, content: string, metadata?: {...} }
+ */
+router.post('/import', async (req, res) => {
+    try {
+        const uid = await (0, client_1.verifyAuth)(req);
+        const { title, content, metadata } = req.body;
+        if (!title || !content) {
+            res.status(400).json({ success: false, error: '缺少 title 或 content' });
+            return;
+        }
+        // 使用 AI 处理外部内容（这里先用简单逻辑）
+        const summary = content.substring(0, 500); // 简单截取前500字符
+        const keyPoints = content.split('\n')
+            .filter((line) => line.trim().length > 0)
+            .slice(0, 5)
+            .map((line) => line.trim());
+        const capsuleData = {
+            userId: uid,
+            title,
+            summary,
+            keyPoints,
+            createdAt: new Date().toISOString(),
+            metadata: metadata || {}
+        };
+        const capsuleRef = await firebase_1.db.collection('meetingCapsules').add(capsuleData);
+        const capsule = Object.assign({ capsuleId: capsuleRef.id }, capsuleData);
+        res.json({ success: true, data: { capsule } });
+    }
+    catch (error) {
+        if (error instanceof Error && (error.message === '未提供认证令牌' || error.message === '无效的认证令牌')) {
+            res.status(401).json({ success: false, error: error.message });
+            return;
+        }
+        console.error('导入会议胶囊失败:', error);
+        res.status(500).json({ success: false, error: '导入会议胶囊失败' });
+    }
+});
+/**
+ * 获取单个会议胶囊
+ * GET /meetingCapsules/:capsuleId
+ */
+router.get('/:capsuleId', async (req, res) => {
+    try {
+        const uid = await (0, client_1.verifyAuth)(req);
+        const { capsuleId } = req.params;
+        const capsuleDoc = await firebase_1.db.collection('meetingCapsules').doc(capsuleId).get();
+        if (!capsuleDoc.exists) {
+            res.status(404).json({ success: false, error: '会议胶囊不存在' });
+            return;
+        }
+        const capsuleData = capsuleDoc.data();
+        if ((capsuleData === null || capsuleData === void 0 ? void 0 : capsuleData.userId) !== uid) {
+            res.status(403).json({ success: false, error: '无权限访问此胶囊' });
+            return;
+        }
+        const capsule = Object.assign({ capsuleId: capsuleDoc.id }, capsuleData);
+        res.json({ success: true, data: capsule });
+    }
+    catch (error) {
+        if (error instanceof Error && (error.message === '未提供认证令牌' || error.message === '无效的认证令牌')) {
+            res.status(401).json({ success: false, error: error.message });
+            return;
+        }
+        console.error('获取会议胶囊失败:', error);
+        res.status(500).json({ success: false, error: '获取会议胶囊失败' });
+    }
+});
+/**
+ * 删除会议胶囊
+ * DELETE /meetingCapsules/:capsuleId
+ */
+router.delete('/:capsuleId', async (req, res) => {
+    try {
+        const uid = await (0, client_1.verifyAuth)(req);
+        const { capsuleId } = req.params;
+        const capsuleDoc = await firebase_1.db.collection('meetingCapsules').doc(capsuleId).get();
+        if (!capsuleDoc.exists) {
+            res.status(404).json({ success: false, error: '会议胶囊不存在' });
+            return;
+        }
+        const capsuleData = capsuleDoc.data();
+        if ((capsuleData === null || capsuleData === void 0 ? void 0 : capsuleData.userId) !== uid) {
+            res.status(403).json({ success: false, error: '无权限删除此胶囊' });
+            return;
+        }
+        await firebase_1.db.collection('meetingCapsules').doc(capsuleId).delete();
+        res.json({ success: true, data: { message: '胶囊已删除' } });
+    }
+    catch (error) {
+        if (error instanceof Error && (error.message === '未提供认证令牌' || error.message === '无效的认证令牌')) {
+            res.status(401).json({ success: false, error: error.message });
+            return;
+        }
+        console.error('删除会议胶囊失败:', error);
+        res.status(500).json({ success: false, error: '删除会议胶囊失败' });
+    }
+});
+// ==================== Helper Functions ====================
+/**
+ * 生成会议摘要（简化版本，实际应该调用 AI API）
+ */
+function generateSummary(preMeeting, inMeeting, postMeeting, meeting) {
+    const parts = [];
+    if (meeting === null || meeting === void 0 ? void 0 : meeting.title) {
+        parts.push(`会议主题：${meeting.title}`);
+    }
+    if (preMeeting === null || preMeeting === void 0 ? void 0 : preMeeting.objective) {
+        parts.push(`会议目标：${preMeeting.objective}`);
+    }
+    if (postMeeting === null || postMeeting === void 0 ? void 0 : postMeeting.summary) {
+        parts.push(`会议总结：${postMeeting.summary}`);
+    }
+    else if ((inMeeting === null || inMeeting === void 0 ? void 0 : inMeeting.notes) && inMeeting.notes.length > 0) {
+        const notesPreview = inMeeting.notes.slice(0, 2).map((n) => n.content).join('; ');
+        parts.push(`会议记录摘要：${notesPreview}`);
+    }
+    return parts.join('\n\n') || '暂无摘要';
+}
+/**
+ * 提取关键点
+ */
+function extractKeyPoints(preMeeting, inMeeting, postMeeting) {
+    const keyPoints = [];
+    // 从会前问题提取
+    if ((preMeeting === null || preMeeting === void 0 ? void 0 : preMeeting.questions) && preMeeting.questions.length > 0) {
+        preMeeting.questions.slice(0, 2).forEach((q) => {
+            keyPoints.push(`问题：${q.content}`);
+        });
+    }
+    // 从会议笔记提取
+    if ((inMeeting === null || inMeeting === void 0 ? void 0 : inMeeting.notes) && inMeeting.notes.length > 0) {
+        inMeeting.notes.slice(0, 3).forEach((n) => {
+            if (n.content.length < 100) {
+                keyPoints.push(n.content);
+            }
+        });
+    }
+    // 从反馈提取
+    if ((postMeeting === null || postMeeting === void 0 ? void 0 : postMeeting.feedbacks) && postMeeting.feedbacks.length > 0) {
+        postMeeting.feedbacks.slice(0, 2).forEach((f) => {
+            if (f.content.length < 100) {
+                keyPoints.push(`反馈：${f.content}`);
+            }
+        });
+    }
+    return keyPoints.slice(0, 5); // 最多5个关键点
+}
+/**
+ * 提取主题
+ */
+function extractTopics(preMeeting) {
+    if (!(preMeeting === null || preMeeting === void 0 ? void 0 : preMeeting.objective))
+        return [];
+    // 简单分词提取关键词（实际应该用 NLP）
+    const words = preMeeting.objective.split(/[，。、；：\s]+/);
+    return words.filter((w) => w.length > 2).slice(0, 3);
+}
+/**
+ * 生成会议建议（使用 AI）
+ * POST /meetingCapsules/generateSuggestions
+ * Body: { capsuleIds: string[] }
+ */
+router.post('/generateSuggestions', async (req, res) => {
+    try {
+        const uid = await (0, client_1.verifyAuth)(req);
+        const { capsuleIds } = req.body;
+        if (!capsuleIds || !Array.isArray(capsuleIds) || capsuleIds.length === 0) {
+            res.status(400).json({ success: false, error: '缺少 capsuleIds' });
+            return;
+        }
+        // 获取胶囊数据
+        const capsulesData = [];
+        for (const capsuleId of capsuleIds) {
+            const capsuleDoc = await firebase_1.db.collection('meetingCapsules').doc(capsuleId).get();
+            if (!capsuleDoc.exists) {
+                continue;
+            }
+            const capsuleData = capsuleDoc.data();
+            if ((capsuleData === null || capsuleData === void 0 ? void 0 : capsuleData.userId) !== uid) {
+                continue; // 跳过不属于该用户的胶囊
+            }
+            capsulesData.push({
+                title: capsuleData.title || '',
+                summary: capsuleData.summary || '',
+                keyPoints: capsuleData.keyPoints || [],
+            });
+        }
+        if (capsulesData.length === 0) {
+            res.status(404).json({ success: false, error: '未找到有效的胶囊数据' });
+            return;
+        }
+        // 调用 AI 服务生成建议
+        const suggestions = await (0, aiService_1.generateMeetingSuggestions)({ capsules: capsulesData });
+        res.json({ success: true, data: suggestions });
+    }
+    catch (error) {
+        if (error instanceof Error && (error.message === '未提供认证令牌' || error.message === '无效的认证令牌')) {
+            res.status(401).json({ success: false, error: error.message });
+            return;
+        }
+        console.error('生成建议失败:', error);
+        res.status(500).json({ success: false, error: '生成建议失败' });
+    }
+});
+exports.default = router;
+//# sourceMappingURL=meetingCapsule.js.map

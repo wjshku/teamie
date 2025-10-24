@@ -4,10 +4,11 @@ import { useAuth } from "../../hooks/useAuth";
 import InputBox from "../molecules/InputBox";
 import MessageBox from "../molecules/MessageBox";
 import { useTranslation } from "react-i18next";
-import { CheckCircle, MessageCircle, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle, MessageCircle, Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
+import { generateMeetingCapsule } from "../../services/api/meetingCapsule";
 
 interface PostMeetingSummarySectionProps {
   meetingId: string;
@@ -21,6 +22,9 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
   const { t } = useTranslation();
   const [summary, setSummary] = useState("");
   const [newFeedback, setNewFeedback] = useState("");
+  const [capsuleGenerating, setCapsuleGenerating] = useState(false);
+  const [capsuleSuccess, setCapsuleSuccess] = useState(false);
+  const [capsuleError, setCapsuleError] = useState<string | null>(null);
   const { user } = useAuth();
 
   const {
@@ -79,6 +83,27 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
     };
     const result = await addFeedbackData(feedbackData);
     if (result?.success) setNewFeedback("");
+  };
+
+  const handleGenerateCapsule = async () => {
+    setCapsuleGenerating(true);
+    setCapsuleError(null);
+    setCapsuleSuccess(false);
+
+    try {
+      const response = await generateMeetingCapsule({ meetingId });
+
+      if (response.success) {
+        setCapsuleSuccess(true);
+        setTimeout(() => setCapsuleSuccess(false), 3000);
+      } else {
+        setCapsuleError(response.error || t("MeetingCapsule.generateError"));
+      }
+    } catch (error) {
+      setCapsuleError(t("MeetingCapsule.generateError"));
+    } finally {
+      setCapsuleGenerating(false);
+    }
   };
 
   const feedbacks = postMeeting?.feedbacks || [];
@@ -144,6 +169,43 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
         submitting={feedbackAdding}
         placeholder={t("PostMeetingNote.feedbackPlaceholder")}
       />
+
+      <div className="flex flex-col gap-3 pt-4 border-t">
+        <Button
+          onClick={handleGenerateCapsule}
+          disabled={capsuleGenerating}
+          className="w-full sm:w-auto"
+          variant="outline"
+        >
+          {capsuleGenerating ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              {t("MeetingCapsule.generating")}
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              {t("MeetingCapsule.generateButton")}
+            </>
+          )}
+        </Button>
+
+        {capsuleSuccess && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              {t("MeetingCapsule.generateSuccess")}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {capsuleError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{capsuleError}</AlertDescription>
+          </Alert>
+        )}
+      </div>
     </div>
   );
 };

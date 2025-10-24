@@ -36,13 +36,23 @@
     "titlePlaceholder": "Enter meeting title",
     "creating": "Creating...",
     "createButton": "Create Meeting",
-    "createFailed": "Failed to create meeting:"
+    "createFailed": "Failed to create meeting:",
+    "contextLabel": "Context Capsules (Optional)",
+    "contextDesc": "Select past meeting capsules to provide context for this meeting",
+    "noCapsules": "No capsules available",
+    "selectCapsules": "Select capsules..."
   },
   "personalCenter": {
     "historyTitle": "My Past Meetings",
     "historyDesc": "View all meetings you have participated in",
     "noHistory": "No past meetings",
-    "createFirst": "Start by creating your first meeting!"
+    "createFirst": "Start by creating your first meeting!",
+    "capsulesTitle": "My Meeting Capsules",
+    "capsulesDesc": "AI-generated summaries from your past meetings",
+    "noCapsules": "No meeting capsules yet",
+    "generateFirst": "Generate capsules from your past meetings!",
+    "switchToHistory": "Switch to Meeting History",
+    "switchToCapsules": "Switch to Meeting Capsules"
   },
   "meetingManagement": {
     "delete": "Delete",
@@ -92,7 +102,13 @@
     "loading": "Loading...",
     "error": "Failed to load",
     "retry": "Retry",
-    "anonymous": "Anonymous"
+    "anonymous": "Anonymous",
+    "generateSuggestions": "Generate AI Suggestions from Context",
+    "generating": "Generating suggestions...",
+    "suggestedObjective": "Suggested Objective",
+    "suggestedQuestions": "Suggested Questions",
+    "useSuggestion": "Use This",
+    "dismissSuggestions": "Dismiss"
   },
   "InMeetingNote": {
     "label": "Meeting Notes",
@@ -111,6 +127,13 @@
     "error": "Failed to load",
     "retry": "Retry",
     "anonymous": "Anonymous"
+  },
+  "MeetingCapsule": {
+    "generateButton": "Generate Meeting Capsule",
+    "generating": "Generating...",
+    "generateSuccess": "Meeting capsule generated successfully!",
+    "generateError": "Failed to generate meeting capsule",
+    "viewCapsule": "View Capsule"
   },
   "MessageBox": {
     "submit": "Submit",

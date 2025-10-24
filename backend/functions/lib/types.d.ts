@@ -56,8 +56,23 @@ export interface Meeting {
     participants: User[];
     votelink: string;
     createdBy: string;
+    contextCapsuleIds?: string[];
     createdAt?: Date;
     updatedAt?: Date;
+}
+export interface MeetingCapsule {
+    capsuleId: string;
+    userId: string;
+    title: string;
+    summary: string;
+    keyPoints: string[];
+    sourceMeetingId?: string;
+    createdAt: string;
+    metadata: {
+        participants?: string[];
+        meetingDate?: string;
+        topics?: string[];
+    };
 }
 export interface CreateUserRequest {
     name: string;
@@ -68,6 +83,7 @@ export interface UserListResponse {
 }
 export interface CreateMeetingRequest {
     title: string;
+    contextCapsuleIds?: string[];
 }
 export interface UpdateMeetingRequest {
     title?: string;
