@@ -181,3 +181,67 @@ Format your response as JSON:
     throw new Error('Failed to generate suggestions using AI');
   }
 }
+
+export interface ImportTranscriptRequest {
+  title: string;
+  content: string;
+}
+
+export async function generateCapsuleFromTranscript(
+  request: ImportTranscriptRequest
+): Promise<GenerateCapsuleResponse> {
+  const { title, content } = request;
+
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is not configured');
+  }
+
+  const prompt = `You are a helpful assistant that creates meeting capsules from meeting transcripts.
+
+Meeting Title: ${title}
+
+Transcript:
+${content}
+
+Analyze this meeting transcript and create a capsule with:
+1. A comprehensive summary (2-4 sentences) capturing the main discussion points and outcomes
+2. 3-7 key points highlighting the most important topics, decisions, or action items
+
+Format your response as JSON:
+{
+  "summary": "your summary here",
+  "keyPoints": ["point 1", "point 2", "point 3", ...]
+}`;
+
+  try {
+    const response = await (openai as any).responses.create({
+      model: 'gpt-5-nano',
+      input: prompt,
+      text: { format: { type: 'text' } },
+    });
+
+    // Extract text from GPT-5 response structure
+    let outputText = '';
+    if (response.output) {
+      for (const item of response.output) {
+        if (item.content) {
+          for (const content of item.content) {
+            if (content.text) {
+              outputText += content.text;
+            }
+          }
+        }
+      }
+    }
+
+    const parsed = JSON.parse(outputText);
+
+    return {
+      summary: parsed.summary || 'Imported meeting summary',
+      keyPoints: parsed.keyPoints || [],
+    };
+  } catch (error) {
+    console.error('OpenAI API error:', error);
+    throw new Error('Failed to generate capsule from transcript using AI');
+  }
+}

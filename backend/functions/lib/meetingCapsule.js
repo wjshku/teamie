@@ -115,17 +115,13 @@ router.post('/import', async (req, res) => {
             res.status(400).json({ success: false, error: '缺少 title 或 content' });
             return;
         }
-        // 使用 AI 处理外部内容（这里先用简单逻辑）
-        const summary = content.substring(0, 500); // 简单截取前500字符
-        const keyPoints = content.split('\n')
-            .filter((line) => line.trim().length > 0)
-            .slice(0, 5)
-            .map((line) => line.trim());
+        // 使用 AI 处理导入的会议记录
+        const aiResult = await (0, aiService_1.generateCapsuleFromTranscript)({ title, content });
         const capsuleData = {
             userId: uid,
             title,
-            summary,
-            keyPoints,
+            summary: aiResult.summary,
+            keyPoints: aiResult.keyPoints,
             createdAt: new Date().toISOString(),
             metadata: metadata || {}
         };

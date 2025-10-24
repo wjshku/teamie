@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from './firebase';
 import { verifyAuth, checkMeetingAccess } from './client';
 import { MeetingCapsule } from './types';
-import { generateMeetingSuggestions, generateMeetingCapsule } from './aiService';
+import { generateMeetingSuggestions, generateMeetingCapsule, generateCapsuleFromTranscript } from './aiService';
 
 const router = Router();
 
@@ -138,18 +138,14 @@ router.post('/import', async (req: Request, res: Response) => {
       return;
     }
 
-    // 使用 AI 处理外部内容（这里先用简单逻辑）
-    const summary = content.substring(0, 500); // 简单截取前500字符
-    const keyPoints = content.split('\n')
-      .filter((line: string) => line.trim().length > 0)
-      .slice(0, 5)
-      .map((line: string) => line.trim());
+    // 使用 AI 处理导入的会议记录
+    const aiResult = await generateCapsuleFromTranscript({ title, content });
 
     const capsuleData: Omit<MeetingCapsule, 'capsuleId'> = {
       userId: uid,
       title,
-      summary,
-      keyPoints,
+      summary: aiResult.summary,
+      keyPoints: aiResult.keyPoints,
       createdAt: new Date().toISOString(),
       metadata: metadata || {}
     };

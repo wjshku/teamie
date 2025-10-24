@@ -52,7 +52,8 @@
     "noCapsules": "No meeting capsules yet",
     "generateFirst": "Generate capsules from your past meetings!",
     "switchToHistory": "Switch to Meeting History",
-    "switchToCapsules": "Switch to Meeting Capsules"
+    "switchToCapsules": "Switch to Meeting Capsules",
+    "importCapsule": "Import"
   },
   "meetingManagement": {
     "delete": "Delete",
@@ -144,6 +145,20 @@
     "meetingDate": "Meeting Date",
     "participants": "Participants",
     "topics": "Topics"
+  },
+  "importCapsule": {
+    "title": "Import Meeting Transcript",
+    "description": "Import external meeting transcripts to create AI-powered capsules",
+    "meetingTitle": "Meeting Title",
+    "meetingTitlePlaceholder": "Enter meeting title",
+    "transcript": "Meeting Transcript",
+    "transcriptPlaceholder": "Paste your meeting transcript here...",
+    "import": "Import",
+    "importing": "Importing...",
+    "imported": "Imported",
+    "importSuccess": "Meeting capsule imported successfully!",
+    "importError": "Failed to import meeting capsule",
+    "emptyFieldsError": "Please fill in all fields"
   },
   "MessageBox": {
     "submit": "Submit",

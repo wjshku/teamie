@@ -52,7 +52,8 @@
     "noCapsules": "暂无会议胶囊",
     "generateFirst": "从历史会议中生成胶囊吧！",
     "switchToHistory": "切换到会议历史",
-    "switchToCapsules": "切换到会议胶囊"
+    "switchToCapsules": "切换到会议胶囊",
+    "importCapsule": "导入"
   },
   "meetingManagement": {
     "delete": "删除",
@@ -144,6 +145,20 @@
     "meetingDate": "会议时间",
     "participants": "参与者",
     "topics": "主题"
+  },
+  "importCapsule": {
+    "title": "导入会议记录",
+    "description": "导入外部会议记录，AI 自动生成会议胶囊",
+    "meetingTitle": "会议标题",
+    "meetingTitlePlaceholder": "请输入会议标题",
+    "transcript": "会议记录",
+    "transcriptPlaceholder": "在此粘贴您的会议记录...",
+    "import": "导入",
+    "importing": "导入中...",
+    "imported": "已导入",
+    "importSuccess": "会议胶囊导入成功！",
+    "importError": "导入会议胶囊失败",
+    "emptyFieldsError": "请填写所有字段"
   },
   "MessageBox": {
     "submit": "提交",

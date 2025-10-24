@@ -38,4 +38,9 @@ export interface GenerateCapsuleResponse {
 }
 export declare function generateMeetingCapsule(request: GenerateCapsuleRequest): Promise<GenerateCapsuleResponse>;
 export declare function generateMeetingSuggestions(request: GenerateSuggestionsRequest): Promise<GenerateSuggestionsResponse>;
+export interface ImportTranscriptRequest {
+    title: string;
+    content: string;
+}
+export declare function generateCapsuleFromTranscript(request: ImportTranscriptRequest): Promise<GenerateCapsuleResponse>;
 //# sourceMappingURL=aiService.d.ts.map

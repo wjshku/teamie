@@ -3,10 +3,11 @@ import { useTranslation } from "react-i18next";
 import MeetingListItem from "../molecules/MeetingListItem";
 import CapsuleListItem from "../molecules/CapsuleListItem";
 import CapsuleDetailModal from "../molecules/CapsuleDetailModal";
+import ImportCapsuleModal from "../molecules/ImportCapsuleModal";
 import { Meeting, MeetingCapsule } from "../../types/api";
 import { getMeetingCapsules, deleteMeetingCapsule } from "../../services/api/meetingCapsule";
 import { Button } from "../ui/button";
-import { History, Sparkles, Loader2, AlertCircle } from "lucide-react";
+import { History, Sparkles, Loader2, AlertCircle, Upload } from "lucide-react";
 import { Alert, AlertDescription } from "../ui/alert";
 
 interface PersonalCenterSectionProps {
@@ -30,6 +31,7 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
   const [capsulesFetched, setCapsulesFetched] = useState(false);
   const [selectedCapsule, setSelectedCapsule] = useState<MeetingCapsule | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   useEffect(() => {
     // Only fetch if switching to capsules view and haven't fetched yet
@@ -83,11 +85,27 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
     setViewMode(viewMode === "meetings" ? "capsules" : "meetings");
   };
 
+  const handleImportSuccess = () => {
+    // Refresh capsules list after successful import
+    fetchCapsules();
+  };
+
   return (
     <section className={`space-y-8 ${className}`}>
       <div className="card relative">
-        {/* Toggle button in top right */}
-        <div className="absolute top-6 right-6">
+        {/* Toggle and Import buttons in top right */}
+        <div className="absolute top-6 right-6 flex gap-2">
+          {viewMode === "capsules" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setImportModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              {t("personalCenter.importCapsule")}
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -187,6 +205,12 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
         capsule={selectedCapsule}
         open={modalOpen}
         onOpenChange={setModalOpen}
+      />
+
+      <ImportCapsuleModal
+        open={importModalOpen}
+        onOpenChange={setImportModalOpen}
+        onImportSuccess={handleImportSuccess}
       />
     </section>
   );
