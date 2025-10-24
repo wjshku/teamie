@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import MeetingListItem from "../molecules/MeetingListItem";
 import CapsuleListItem from "../molecules/CapsuleListItem";
+import CapsuleDetailModal from "../molecules/CapsuleDetailModal";
 import { Meeting, MeetingCapsule } from "../../types/api";
 import { getMeetingCapsules, deleteMeetingCapsule } from "../../services/api/meetingCapsule";
 import { Button } from "../ui/button";
@@ -26,12 +27,16 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
   const [capsules, setCapsules] = useState<MeetingCapsule[]>([]);
   const [capsulesLoading, setCapsulesLoading] = useState(false);
   const [capsulesError, setCapsulesError] = useState<string | null>(null);
+  const [capsulesFetched, setCapsulesFetched] = useState(false);
+  const [selectedCapsule, setSelectedCapsule] = useState<MeetingCapsule | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    if (viewMode === "capsules") {
+    // Only fetch if switching to capsules view and haven't fetched yet
+    if (viewMode === "capsules" && !capsulesFetched && !capsulesLoading) {
       fetchCapsules();
     }
-  }, [viewMode]);
+  }, [viewMode, capsulesFetched, capsulesLoading]);
 
   const fetchCapsules = async () => {
     setCapsulesLoading(true);
@@ -40,6 +45,7 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
       const response = await getMeetingCapsules();
       if (response.success) {
         setCapsules(response.data.capsules);
+        setCapsulesFetched(true);
       } else {
         setCapsulesError(response.error);
       }
@@ -62,6 +68,14 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
       }
     } catch (error) {
       console.error("Failed to delete capsule:", error);
+    }
+  };
+
+  const handleViewCapsule = (capsuleId: string) => {
+    const capsule = capsules.find(c => c.capsuleId === capsuleId);
+    if (capsule) {
+      setSelectedCapsule(capsule);
+      setModalOpen(true);
     }
   };
 
@@ -150,6 +164,7 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
                       <CapsuleListItem
                         key={capsule.capsuleId}
                         capsule={capsule}
+                        onView={handleViewCapsule}
                         onDelete={handleDeleteCapsule}
                       />
                     ))
@@ -167,6 +182,12 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
           )}
         </div>
       </div>
+
+      <CapsuleDetailModal
+        capsule={selectedCapsule}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </section>
   );
 };

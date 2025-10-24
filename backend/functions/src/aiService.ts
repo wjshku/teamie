@@ -10,6 +10,7 @@ export interface GenerateSuggestionsRequest {
     summary: string;
     keyPoints: string[];
   }>;
+  currentObjective?: string;
 }
 
 export interface GenerateSuggestionsResponse {
@@ -17,10 +18,106 @@ export interface GenerateSuggestionsResponse {
   questions: string[];
 }
 
+export interface GenerateCapsuleRequest {
+  meetingTitle: string;
+  objective?: string;
+  questions?: Array<{ content: string; author: string }>;
+  notes?: Array<{ content: string; author: string }>;
+  summary?: string;
+  feedbacks?: Array<{ content: string; author: string }>;
+  actionItems?: Array<{ content: string; responsible: string; deadline: string }>;
+}
+
+export interface GenerateCapsuleResponse {
+  summary: string;
+  keyPoints: string[];
+}
+
+export async function generateMeetingCapsule(
+  request: GenerateCapsuleRequest
+): Promise<GenerateCapsuleResponse> {
+  const { meetingTitle, objective, questions, notes, summary, feedbacks, actionItems } = request;
+
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is not configured');
+  }
+
+  // Build context from meeting data
+  let contextText = `Meeting Title: ${meetingTitle}\n\n`;
+
+  if (objective) {
+    contextText += `Objective: ${objective}\n\n`;
+  }
+
+  if (questions && questions.length > 0) {
+    contextText += `Questions Discussed:\n${questions.map(q => `- ${q.content} (${q.author})`).join('\n')}\n\n`;
+  }
+
+  if (notes && notes.length > 0) {
+    contextText += `Meeting Notes:\n${notes.map(n => `- ${n.content} (${n.author})`).join('\n')}\n\n`;
+  }
+
+  if (summary) {
+    contextText += `Post-Meeting Summary: ${summary}\n\n`;
+  }
+
+  if (feedbacks && feedbacks.length > 0) {
+    contextText += `Feedback:\n${feedbacks.map(f => `- ${f.content} (${f.author})`).join('\n')}\n\n`;
+  }
+
+  if (actionItems && actionItems.length > 0) {
+    contextText += `Action Items:\n${actionItems.map(a => `- ${a.content} (${a.responsible}, due: ${a.deadline})`).join('\n')}\n\n`;
+  }
+
+  const prompt = `You are a helpful assistant that creates concise meeting capsules. Based on the following meeting information, create a concise capsule that captures the essence of the meeting.
+
+${contextText}
+
+Provide a comprehensive summary (2-4 sentences) that captures the main outcomes and decisions, and 3-7 key points that highlight the most important takeaways, decisions, or action items.
+
+Format your response as JSON with this structure:
+{
+  "summary": "your summary here",
+  "keyPoints": ["point 1", "point 2", "point 3", ...]
+}`;
+
+  try {
+    const response = await (openai as any).responses.create({
+      model: 'gpt-5-nano',
+      input: prompt,
+      text: { format: { type: 'text' } },
+    });
+
+    // Extract text from GPT-5 response structure
+    let outputText = '';
+    if (response.output) {
+      for (const item of response.output) {
+        if (item.content) {
+          for (const content of item.content) {
+            if (content.text) {
+              outputText += content.text;
+            }
+          }
+        }
+      }
+    }
+
+    const parsed = JSON.parse(outputText);
+
+    return {
+      summary: parsed.summary || 'Meeting summary unavailable',
+      keyPoints: parsed.keyPoints || [],
+    };
+  } catch (error) {
+    console.error('OpenAI API error:', error);
+    throw new Error('Failed to generate capsule using AI');
+  }
+}
+
 export async function generateMeetingSuggestions(
   request: GenerateSuggestionsRequest
 ): Promise<GenerateSuggestionsResponse> {
-  const { capsules } = request;
+  const { capsules, currentObjective } = request;
 
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY is not configured');
@@ -34,40 +131,46 @@ Key Points:
 ${capsule.keyPoints.map(p => `- ${p}`).join('\n')}
   `).join('\n\n');
 
-  const prompt = `Based on the following past meeting summaries, suggest a meeting objective and 3-5 relevant questions for a follow-up meeting.
+  const currentObjectiveText = currentObjective
+    ? `\n\nCurrent Meeting Objective (to be optimized):\n${currentObjective}\n`
+    : '';
 
-${contextText}
+  const prompt = `You are a helpful assistant. Based on the following past meeting summaries${currentObjective ? ' and the current meeting objective' : ''}, ${currentObjective ? 'optimize and improve the meeting objective and suggest' : 'suggest a meeting objective and'} 3-5 relevant questions for this meeting.
 
-Please provide:
-1. A clear, concise meeting objective (1-2 sentences)
-2. 3-5 specific questions that should be addressed in the follow-up meeting
+${contextText}${currentObjectiveText}
+
+Provide:
+1. ${currentObjective ? 'An improved and more specific meeting objective that builds on the current one' : 'A clear, concise meeting objective'} (1-2 sentences)
+2. 3-5 specific, actionable questions that should be addressed in the meeting${currentObjective ? ', taking into account the objective' : ''}
 
 Format your response as JSON:
 {
-  "objective": "your suggested objective here",
+  "objective": "your ${currentObjective ? 'optimized' : 'suggested'} objective here",
   "questions": ["question 1", "question 2", "question 3", ...]
 }`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a helpful assistant that suggests meeting objectives and questions based on previous meeting context.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
-      response_format: { type: 'json_object' },
+    const response = await (openai as any).responses.create({
+      model: 'gpt-5-nano',
+      input: prompt,
+      text: { format: { type: 'text' } },
     });
 
-    const responseText = completion.choices[0]?.message?.content || '{}';
-    const parsed = JSON.parse(responseText);
+    // Extract text from GPT-5 response structure
+    let outputText = '';
+    if (response.output) {
+      for (const item of response.output) {
+        if (item.content) {
+          for (const content of item.content) {
+            if (content.text) {
+              outputText += content.text;
+            }
+          }
+        }
+      }
+    }
+
+    const parsed = JSON.parse(outputText);
 
     return {
       objective: parsed.objective || 'Follow-up meeting to discuss previous topics',

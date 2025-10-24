@@ -28,11 +28,13 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
   const { getMeetingById } = useMeetings();
 
   const [contextCapsules, setContextCapsules] = useState<MeetingCapsule[]>([]);
+  const [hasContextCapsules, setHasContextCapsules] = useState(false);
   const [generatingSuggestions, setGeneratingSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<{
     objective: string;
     questions: string[];
   } | null>(null);
+  const [suggestionsCache, setSuggestionsCache] = useState<Map<string, { objective: string; questions: string [] }>>(new Map());
 
   const {
     preMeeting,
@@ -51,9 +53,16 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
   useEffect(() => {
     if (meetingId) {
       fetchPreMeeting();
-      fetchContextCapsules();
+      // Immediately check if meeting has context capsules (synchronous)
+      const meeting = getMeetingById(meetingId);
+      if (meeting && meeting.contextCapsuleIds && meeting.contextCapsuleIds.length > 0) {
+        setHasContextCapsules(true);
+        fetchContextCapsules();
+      } else {
+        setHasContextCapsules(false);
+      }
     }
-  }, [meetingId, fetchPreMeeting]);
+  }, [meetingId, fetchPreMeeting, getMeetingById]);
 
   const fetchContextCapsules = async () => {
     try {
@@ -124,28 +133,38 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
   const handleGenerateSuggestions = async () => {
     if (contextCapsules.length === 0) return;
 
+    // Create cache key from capsule IDs and current objective
+    const capsuleIds = contextCapsules.map(c => c.capsuleId).sort().join(',');
+    const cacheKey = `${capsuleIds}:${objective || ''}`;
+
+    // Check cache first
+    const cached = suggestionsCache.get(cacheKey);
+    if (cached) {
+      setSuggestions(cached);
+      return;
+    }
+
     setGeneratingSuggestions(true);
     try {
-      // Call backend API to generate suggestions using OpenAI
-      const capsuleIds = contextCapsules.map(c => c.capsuleId);
-      const response = await generateSuggestionsAPI(capsuleIds);
+      // Call backend API to generate suggestions using OpenAI, including current objective
+      const capsuleIdsArray = contextCapsules.map(c => c.capsuleId);
+      const response = await generateSuggestionsAPI(capsuleIdsArray, objective || undefined);
 
       if (response.success) {
         setSuggestions(response.data);
+        // Cache the result
+        setSuggestionsCache(prev => new Map(prev).set(cacheKey, response.data));
       } else {
         console.error("Failed to generate suggestions:", response.error);
-        // Fallback: show error or use basic suggestions
-        alert(response.error || "Failed to generate suggestions");
       }
     } catch (error) {
       console.error("Failed to generate suggestions:", error);
-      alert("Failed to generate suggestions");
     } finally {
       setGeneratingSuggestions(false);
     }
   };
 
-  const handleUseSuggestedObjective = async () => {
+  const handleAcceptObjective = async () => {
     if (suggestions?.objective) {
       setObjective(suggestions.objective);
       if (preMeeting) {
@@ -159,17 +178,25 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
     }
   };
 
-  const handleUseSuggestedQuestion = async (question: string) => {
-    const id = user?.id || "";
-    const authorName = user?.name || t("preMeetingSection.anonymous");
-    const questionData = {
-      id,
-      author: authorName,
-      authorInitial: authorName.charAt(0),
-      content: question,
-    };
-    await addQuestionData(questionData);
+  const handleAcceptAllQuestions = async () => {
+    if (suggestions?.questions) {
+      for (const question of suggestions.questions) {
+        const questionData = {
+          id: 'ai-assistant',
+          author: 'AI 助手',
+          authorInitial: 'AI',
+          content: question,
+        };
+        await addQuestionData(questionData);
+      }
+      setSuggestions(null);
+    }
   };
+
+  const handleRejectSuggestions = () => {
+    setSuggestions(null);
+  };
+
 
   if (preMeetingLoading) {
     return (
@@ -213,107 +240,81 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* AI Suggestions Button */}
-      {contextCapsules.length > 0 && !suggestions && (
-        <div className="flex justify-center">
-          <Button
-            onClick={handleGenerateSuggestions}
-            disabled={generatingSuggestions}
-            variant="outline"
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 hover:from-purple-100 hover:to-blue-100"
-          >
-            {generatingSuggestions ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {t("preMeetingSection.generating")}
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                {t("preMeetingSection.generateSuggestions")}
-              </>
-            )}
-          </Button>
-        </div>
-      )}
-
-      {/* AI Suggestions Display */}
-      {suggestions && (
-        <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-purple-900 flex items-center gap-2">
-              <Sparkles className="w-5 h-5" />
-              AI Suggestions
-            </h3>
+      {/* 会前目标 */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-gray-600" />
+            <h4 className="text-lg font-semibold text-gray-900">
+              {t("preMeetingSection.objectiveLabel")}
+            </h4>
+          </div>
+          {hasContextCapsules && (
             <Button
+              onClick={handleGenerateSuggestions}
+              disabled={generatingSuggestions || contextCapsules.length === 0}
               variant="ghost"
               size="sm"
-              onClick={() => setSuggestions(null)}
-              className="text-gray-500 hover:text-gray-700"
+              className="flex items-center gap-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
             >
-              {t("preMeetingSection.dismissSuggestions")}
+              {generatingSuggestions ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-xs">{t("preMeetingSection.optimizing")}</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span className="text-xs">{t("preMeetingSection.optimizePreMeeting")}</span>
+                </>
+              )}
             </Button>
-          </div>
-
-          {/* Suggested Objective */}
-          <div className="bg-white rounded-lg p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-700">
-                {t("preMeetingSection.suggestedObjective")}
-              </p>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleUseSuggestedObjective}
-                className="text-purple-600 hover:text-purple-700"
-              >
-                <CheckCircle className="w-4 h-4 mr-1" />
-                {t("preMeetingSection.useSuggestion")}
-              </Button>
-            </div>
-            <p className="text-sm text-gray-600">{suggestions.objective}</p>
-          </div>
-
-          {/* Suggested Questions */}
-          {suggestions.questions.length > 0 && (
-            <div className="bg-white rounded-lg p-3 space-y-2">
-              <p className="text-sm font-medium text-gray-700">
-                {t("preMeetingSection.suggestedQuestions")}
-              </p>
-              <div className="space-y-2">
-                {suggestions.questions.map((question, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start justify-between gap-2 p-2 bg-gray-50 rounded"
-                  >
-                    <p className="text-sm text-gray-600 flex-1">{question}</p>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleUseSuggestedQuestion(question)}
-                      className="text-purple-600 hover:text-purple-700 flex-shrink-0"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
           )}
         </div>
-      )}
 
-      {/* 会前目标 */}
-      <InputBox
-        label={t("preMeetingSection.objectiveLabel")}
-        labelIcon={<Target className="w-5 h-5 text-gray-600" />}
-        value={objective}
-        onChange={handleObjectiveChange}
-        placeholder={t("preMeetingSection.objectivePlaceholder")}
-        rows={4}
-        saving={objectiveSaving}
-        saved={objectiveSaved}
-      />
+        {/* Suggestion for Objective */}
+        {suggestions?.objective && (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <p className="text-xs text-purple-700 font-medium mb-2 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  {t("preMeetingSection.suggestedObjective")}
+                </p>
+                <p className="text-sm text-gray-800 leading-relaxed">{suggestions.objective}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAcceptObjective}
+                size="sm"
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <CheckCircle className="w-3 h-3 mr-1" />
+                {t("preMeetingSection.acceptSuggestion")}
+              </Button>
+              <Button
+                onClick={handleRejectSuggestions}
+                size="sm"
+                variant="ghost"
+                className="text-gray-600"
+              >
+                {t("preMeetingSection.dismiss")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <InputBox
+          label=""
+          value={objective}
+          onChange={handleObjectiveChange}
+          placeholder={t("preMeetingSection.objectivePlaceholder")}
+          rows={4}
+          saving={objectiveSaving}
+          saved={objectiveSaved}
+        />
+      </div>
 
       {/* 会前问题 */}
       <div className="space-y-4">
@@ -327,6 +328,46 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
           submitting={questionAdding}
           placeholder={t("preMeetingSection.questionPlaceholder")}
         />
+
+        {/* Suggestions for Questions */}
+        {suggestions?.questions && suggestions.questions.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-blue-700 font-medium flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                {t("preMeetingSection.suggestedQuestions")}
+              </p>
+            </div>
+            <div className="space-y-2">
+              {suggestions.questions.map((question, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg p-3 text-sm text-gray-800 border border-blue-100"
+                >
+                  {question}
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                onClick={handleAcceptAllQuestions}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <CheckCircle className="w-3 h-3 mr-1" />
+                {t("preMeetingSection.acceptAllQuestions")}
+              </Button>
+              <Button
+                onClick={handleRejectSuggestions}
+                size="sm"
+                variant="ghost"
+                className="text-gray-600"
+              >
+                {t("preMeetingSection.dismiss")}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

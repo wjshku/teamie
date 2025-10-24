@@ -107,12 +107,13 @@ export const deleteMeetingCapsule = async (
  * 生成会议建议（使用 AI）
  */
 export const generateMeetingSuggestions = async (
-  capsuleIds: string[]
+  capsuleIds: string[],
+  currentObjective?: string
 ): Promise<ApiResponse<{ objective: string; questions: string[] }>> => {
   try {
     const response = await api.post<ApiResponse<{ objective: string; questions: string[] }>>(
       '/meetingCapsules/generateSuggestions',
-      { capsuleIds }
+      { capsuleIds, currentObjective }
     );
     return response.data;
   } catch (error: any) {

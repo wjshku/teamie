@@ -63,9 +63,18 @@ router.post('/generate', async (req, res) => {
         const preMeetingData = preMeetingDoc.exists ? preMeetingDoc.data() : null;
         const inMeetingData = inMeetingDoc.exists ? inMeetingDoc.data() : null;
         const postMeetingData = postMeetingDoc.exists ? postMeetingDoc.data() : null;
-        // 使用 AI 生成摘要和关键点（这里先用简单逻辑，实际应该调用 AI API）
-        const summary = generateSummary(preMeetingData, inMeetingData, postMeetingData, meetingData);
-        const keyPoints = extractKeyPoints(preMeetingData, inMeetingData, postMeetingData);
+        // 使用 AI 生成摘要和关键点
+        const aiResult = await (0, aiService_1.generateMeetingCapsule)({
+            meetingTitle: (meetingData === null || meetingData === void 0 ? void 0 : meetingData.title) || '未命名会议',
+            objective: preMeetingData === null || preMeetingData === void 0 ? void 0 : preMeetingData.objective,
+            questions: preMeetingData === null || preMeetingData === void 0 ? void 0 : preMeetingData.questions,
+            notes: inMeetingData === null || inMeetingData === void 0 ? void 0 : inMeetingData.notes,
+            summary: postMeetingData === null || postMeetingData === void 0 ? void 0 : postMeetingData.summary,
+            feedbacks: postMeetingData === null || postMeetingData === void 0 ? void 0 : postMeetingData.feedbacks,
+            actionItems: postMeetingData === null || postMeetingData === void 0 ? void 0 : postMeetingData.actionItems,
+        });
+        const summary = aiResult.summary;
+        const keyPoints = aiResult.keyPoints;
         // 创建会议胶囊
         const capsuleData = {
             userId: uid,
@@ -77,7 +86,7 @@ router.post('/generate', async (req, res) => {
             metadata: {
                 participants: ((_a = meetingData === null || meetingData === void 0 ? void 0 : meetingData.participants) === null || _a === void 0 ? void 0 : _a.map((p) => p.name)) || [],
                 meetingDate: (meetingData === null || meetingData === void 0 ? void 0 : meetingData.time) || '',
-                topics: extractTopics(preMeetingData)
+                topics: (preMeetingData === null || preMeetingData === void 0 ? void 0 : preMeetingData.objective) ? preMeetingData.objective.split(/[，。、；：\s]+/).filter((w) => w.length > 2).slice(0, 3) : []
             }
         };
         const capsuleRef = await firebase_1.db.collection('meetingCapsules').add(capsuleData);
@@ -193,75 +202,15 @@ router.delete('/:capsuleId', async (req, res) => {
         res.status(500).json({ success: false, error: '删除会议胶囊失败' });
     }
 });
-// ==================== Helper Functions ====================
-/**
- * 生成会议摘要（简化版本，实际应该调用 AI API）
- */
-function generateSummary(preMeeting, inMeeting, postMeeting, meeting) {
-    const parts = [];
-    if (meeting === null || meeting === void 0 ? void 0 : meeting.title) {
-        parts.push(`会议主题：${meeting.title}`);
-    }
-    if (preMeeting === null || preMeeting === void 0 ? void 0 : preMeeting.objective) {
-        parts.push(`会议目标：${preMeeting.objective}`);
-    }
-    if (postMeeting === null || postMeeting === void 0 ? void 0 : postMeeting.summary) {
-        parts.push(`会议总结：${postMeeting.summary}`);
-    }
-    else if ((inMeeting === null || inMeeting === void 0 ? void 0 : inMeeting.notes) && inMeeting.notes.length > 0) {
-        const notesPreview = inMeeting.notes.slice(0, 2).map((n) => n.content).join('; ');
-        parts.push(`会议记录摘要：${notesPreview}`);
-    }
-    return parts.join('\n\n') || '暂无摘要';
-}
-/**
- * 提取关键点
- */
-function extractKeyPoints(preMeeting, inMeeting, postMeeting) {
-    const keyPoints = [];
-    // 从会前问题提取
-    if ((preMeeting === null || preMeeting === void 0 ? void 0 : preMeeting.questions) && preMeeting.questions.length > 0) {
-        preMeeting.questions.slice(0, 2).forEach((q) => {
-            keyPoints.push(`问题：${q.content}`);
-        });
-    }
-    // 从会议笔记提取
-    if ((inMeeting === null || inMeeting === void 0 ? void 0 : inMeeting.notes) && inMeeting.notes.length > 0) {
-        inMeeting.notes.slice(0, 3).forEach((n) => {
-            if (n.content.length < 100) {
-                keyPoints.push(n.content);
-            }
-        });
-    }
-    // 从反馈提取
-    if ((postMeeting === null || postMeeting === void 0 ? void 0 : postMeeting.feedbacks) && postMeeting.feedbacks.length > 0) {
-        postMeeting.feedbacks.slice(0, 2).forEach((f) => {
-            if (f.content.length < 100) {
-                keyPoints.push(`反馈：${f.content}`);
-            }
-        });
-    }
-    return keyPoints.slice(0, 5); // 最多5个关键点
-}
-/**
- * 提取主题
- */
-function extractTopics(preMeeting) {
-    if (!(preMeeting === null || preMeeting === void 0 ? void 0 : preMeeting.objective))
-        return [];
-    // 简单分词提取关键词（实际应该用 NLP）
-    const words = preMeeting.objective.split(/[，。、；：\s]+/);
-    return words.filter((w) => w.length > 2).slice(0, 3);
-}
 /**
  * 生成会议建议（使用 AI）
  * POST /meetingCapsules/generateSuggestions
- * Body: { capsuleIds: string[] }
+ * Body: { capsuleIds: string[], currentObjective?: string }
  */
 router.post('/generateSuggestions', async (req, res) => {
     try {
         const uid = await (0, client_1.verifyAuth)(req);
-        const { capsuleIds } = req.body;
+        const { capsuleIds, currentObjective } = req.body;
         if (!capsuleIds || !Array.isArray(capsuleIds) || capsuleIds.length === 0) {
             res.status(400).json({ success: false, error: '缺少 capsuleIds' });
             return;
@@ -288,7 +237,10 @@ router.post('/generateSuggestions', async (req, res) => {
             return;
         }
         // 调用 AI 服务生成建议
-        const suggestions = await (0, aiService_1.generateMeetingSuggestions)({ capsules: capsulesData });
+        const suggestions = await (0, aiService_1.generateMeetingSuggestions)({
+            capsules: capsulesData,
+            currentObjective: currentObjective
+        });
         res.json({ success: true, data: suggestions });
     }
     catch (error) {

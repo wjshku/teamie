@@ -68,6 +68,7 @@
     "edit": "编辑",
     "save": "保存",
     "saving": "保存中...",
+    "saved": "已保存",
     "cancel": "取消",
     "loading": "加载中...",
     "loadFailed": "加载失败",
@@ -103,12 +104,13 @@
     "error": "加载失败",
     "retry": "重试",
     "anonymous": "匿名用户",
-    "generateSuggestions": "根据上下文生成 AI 建议",
-    "generating": "生成建议中...",
-    "suggestedObjective": "建议的目标",
-    "suggestedQuestions": "建议的问题",
-    "useSuggestion": "使用此建议",
-    "dismissSuggestions": "关闭"
+    "optimizePreMeeting": "优化",
+    "optimizing": "优化中...",
+    "suggestedObjective": "AI 建议的目标",
+    "suggestedQuestions": "AI 建议的问题",
+    "acceptSuggestion": "采纳",
+    "acceptAllQuestions": "全部采纳",
+    "dismiss": "忽略"
   },
   "InMeetingNote": {
     "label": "会议笔记",
@@ -134,6 +136,14 @@
     "generateSuccess": "会议胶囊生成成功！",
     "generateError": "生成会议胶囊失败",
     "viewCapsule": "查看胶囊"
+  },
+  "capsuleDetail": {
+    "created": "创建时间",
+    "summary": "总结",
+    "keyPoints": "关键要点",
+    "meetingDate": "会议时间",
+    "participants": "参与者",
+    "topics": "主题"
   },
   "MessageBox": {
     "submit": "提交",

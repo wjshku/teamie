@@ -68,6 +68,7 @@
     "edit": "Edit",
     "save": "Save",
     "saving": "Saving...",
+    "saved": "Saved",
     "cancel": "Cancel",
     "loading": "Loading...",
     "loadFailed": "Load Failed",
@@ -103,12 +104,13 @@
     "error": "Failed to load",
     "retry": "Retry",
     "anonymous": "Anonymous",
-    "generateSuggestions": "Generate AI Suggestions from Context",
-    "generating": "Generating suggestions...",
-    "suggestedObjective": "Suggested Objective",
-    "suggestedQuestions": "Suggested Questions",
-    "useSuggestion": "Use This",
-    "dismissSuggestions": "Dismiss"
+    "optimizePreMeeting": "Optimize",
+    "optimizing": "Optimizing...",
+    "suggestedObjective": "AI Suggested Objective",
+    "suggestedQuestions": "AI Suggested Questions",
+    "acceptSuggestion": "Accept",
+    "acceptAllQuestions": "Accept All",
+    "dismiss": "Dismiss"
   },
   "InMeetingNote": {
     "label": "Meeting Notes",
@@ -134,6 +136,14 @@
     "generateSuccess": "Meeting capsule generated successfully!",
     "generateError": "Failed to generate meeting capsule",
     "viewCapsule": "View Capsule"
+  },
+  "capsuleDetail": {
+    "created": "Created",
+    "summary": "Summary",
+    "keyPoints": "Key Points",
+    "meetingDate": "Meeting Date",
+    "participants": "Participants",
+    "topics": "Topics"
   },
   "MessageBox": {
     "submit": "Submit",
