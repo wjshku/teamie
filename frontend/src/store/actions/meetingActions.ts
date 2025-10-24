@@ -15,15 +15,40 @@ import { Meeting, CreateMeetingRequest } from '../../types/api';
 export const useMeetingActions = () => {
   const meetingSlice = useMeetingSlice();
 
-  // 获取会议列表（带缓存）
+  // 获取会议列表（带缓存和stale-while-revalidate）
   const fetchMeetings = useCallback(async (options?: { force?: boolean }) => {
     const force = options?.force === true;
+    const now = Date.now();
+    const STALE_TIME = 5 * 60 * 1000; // 5 minutes - data is considered fresh
+    const timeSinceLastFetch = now - meetingSlice.lastFetchTime;
 
-    // 如果已有数据且不强制刷新，直接返回缓存，避免重复请求
-    if (!force && Array.isArray(meetingSlice.meetings) && meetingSlice.meetings.length > 0) {
-      return { success: true, data: meetingSlice.meetings };
+    // If data is fresh and not forcing refresh, return cached data immediately
+    if (!force && meetingSlice.meetings.length > 0 && timeSinceLastFetch < STALE_TIME) {
+      return { success: true, data: meetingSlice.meetings, cached: true };
     }
 
+    // If we have stale data, return it immediately and fetch in background
+    const hasStaleData = !force && meetingSlice.meetings.length > 0;
+
+    if (hasStaleData) {
+      // Return stale data immediately (non-blocking)
+      setTimeout(async () => {
+        try {
+          const meetingsList = await getMeetings();
+          if (meetingsList.success) {
+            meetingSlice.setMeetings(meetingsList.data as Meeting[]);
+            meetingSlice.setLastFetchTime(Date.now());
+          }
+        } catch (error) {
+          console.warn('Background refresh failed:', error);
+          // Don't show error for background refresh
+        }
+      }, 0);
+
+      return { success: true, data: meetingSlice.meetings, stale: true };
+    }
+
+    // No data or force refresh - fetch synchronously
     try {
       meetingSlice.setLoading(true);
       meetingSlice.clearError();
@@ -32,15 +57,22 @@ export const useMeetingActions = () => {
         throw new Error(meetingsList.error);
       }
       meetingSlice.setMeetings(meetingsList.data as Meeting[]);
+      meetingSlice.setLastFetchTime(Date.now());
       return { success: true, data: meetingsList };
     } catch (error: any) {
       console.error('获取会议列表失败:', error);
       meetingSlice.setError(error.message || '获取会议列表失败');
+
+      // If we have old cached data, return it even on error
+      if (meetingSlice.meetings.length > 0) {
+        return { success: true, data: meetingSlice.meetings, error: error.message, fallback: true };
+      }
+
       return { success: false, error: error.message };
     } finally {
       meetingSlice.setLoading(false);
     }
-  }, []);
+  }, [meetingSlice.meetings, meetingSlice.lastFetchTime]);
 
   // 创建会议及其所有子文档
   const createNewMeeting = useCallback(async (data: {
@@ -86,7 +118,8 @@ export const useMeetingActions = () => {
 
       // 4. 添加会议到状态管理
       meetingSlice.addMeeting(newMeeting);
-      
+      meetingSlice.setLastFetchTime(Date.now()); // Update cache timestamp
+
       // 5. 返回结果
       if (errors.length > 0) {
         console.warn('会议创建成功，但部分子文档创建失败:', errors);

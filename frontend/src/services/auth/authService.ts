@@ -15,6 +15,11 @@ import { User } from '../../types/api';
 // 创建 Google 认证提供者
 const googleProvider = new GoogleAuthProvider();
 
+// ==================== Token Cache ====================
+// Cache token to avoid repeated Firebase calls
+let cachedToken: string | null = null;
+let tokenExpirationTime: number = 0;
+
 /**
  * Google 账户登录
  * @returns Promise<{ token: string; user: User }>
@@ -48,6 +53,7 @@ export const loginWithGoogle = async (): Promise<{ token: string; user: User }> 
  */
 export const logoutUser = async (): Promise<{ success: true }> => {
   try {
+    clearTokenCache(); // Clear cached token on logout
     await signOut(auth);
     return { success: true };
   } catch (error: any) {
@@ -75,26 +81,51 @@ export const getCurrentUser = async (): Promise<User | null> => {
 };
 
 /**
- * 获取 Firebase ID Token
+ * 获取 Firebase ID Token (with caching)
  * @param forceRefresh 是否强制刷新 token
  * @returns Promise<string | null>
  */
-export const getCurrentUserToken = async (): Promise<string | null> => {
+export const getCurrentUserToken = async (forceRefresh: boolean = false): Promise<string | null> => {
+  // Return cached token if valid and not forcing refresh
+  const now = Date.now();
+  if (!forceRefresh && cachedToken && tokenExpirationTime > now) {
+    return cachedToken;
+  }
+
   // 如果 auth.currentUser 是 null，等待 Firebase Auth 初始化
   if (!auth.currentUser) {
     return new Promise((resolve) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         unsubscribe();
         if (user) {
-          user.getIdToken().then(resolve);
+          user.getIdToken(forceRefresh).then((token) => {
+            // Cache token for 50 minutes (Firebase tokens expire in 1 hour)
+            cachedToken = token;
+            tokenExpirationTime = now + 50 * 60 * 1000;
+            resolve(token);
+          });
         } else {
           resolve(null);
         }
       });
     });
   }
-  
-  return await auth.currentUser.getIdToken();
+
+  const token = await auth.currentUser.getIdToken(forceRefresh);
+
+  // Cache token for 50 minutes (Firebase tokens expire in 1 hour)
+  cachedToken = token;
+  tokenExpirationTime = now + 50 * 60 * 1000;
+
+  return token;
+};
+
+/**
+ * Clear cached token (call this on logout)
+ */
+export const clearTokenCache = (): void => {
+  cachedToken = null;
+  tokenExpirationTime = 0;
 };
 
 /**

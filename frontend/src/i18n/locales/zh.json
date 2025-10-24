@@ -45,7 +45,7 @@
     "createFirst": "开始创建您的第一个会议吧！"
   },
   "meetingManagement": {
-    "delete": "删除会议",
+    "delete": "删除",
     "deleting": "删除中..."
   },
   "meetingScheduler": {
@@ -59,7 +59,9 @@
     "save": "保存",
     "saving": "保存中...",
     "cancel": "取消",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "loadFailed": "加载失败",
+    "retry": "重试"
   },
   "meetingPrinciples": {
     "title": "会议指引 - ACTION 原则",
@@ -72,7 +74,7 @@
   },
   "meetingInvitation": {
     "title": "邀请链接",
-    "generate": "生成邀请链接",
+    "generate": "生成",
     "generating": "生成中...",
     "copy": "复制",
     "close": "关闭",
@@ -118,12 +120,26 @@
     "basicInfo": "基本信息",
     "preMeeting": "会前准备",
     "collabNotes": "协作笔记",
-    "postSummary": "会后总结"
+    "postSummary": "会后总结",
+    "copyToNotion": "复制到 Notion",
+    "copying": "复制中...",
+    "copied": "已复制！",
+    "downloadMarkdown": "下载 Markdown",
+    "exporting": "导出中...",
+    "exported": "已导出！",
+    "exportError": "无可导出的会议数据",
+    "exportFailed": "导出会议数据失败",
+    "copyFailed": "复制到剪贴板失败"
   },
   "propaganda": {
     "message": "群里信息一大堆，要开会前还得爬楼找资料？\n每次有人问重复问题，会议快结束又忘记分任务？\nTeamie 全程整合所有信息，让会前、会中、会后都清清楚楚~\n小组作业快、准、轻松搞定！"
   },
   "language": {
     "current": "中文"
+  },
+  "errors": {
+    "requestTimeout": "请求超时，请检查网络连接或稍后重试。",
+    "networkError": "网络错误，请检查您的连接。",
+    "serverError": "服务器错误，请稍后重试。"
   }
 }

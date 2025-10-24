@@ -2,6 +2,7 @@
 // 会前准备状态管理切片
 
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { PreMeeting, Question } from '../../types/api';
 
 interface PreMeetingSliceState {
@@ -9,17 +10,17 @@ interface PreMeetingSliceState {
   preMeeting: PreMeeting | null;
   preMeetingLoading: boolean;
   preMeetingError: string | null;
-  
+
   // 细粒度 loading 状态
   objectiveSaving: boolean;
   questionAdding: boolean;
   objectiveSaved: boolean;
-  
+
   // 会前准备操作
   setPreMeeting: (preMeeting: PreMeeting | null) => void;
   updateObjective: (meetingId: string, objective: string) => void;
   addQuestion: (meetingId: string, question: Question) => void;
-  
+
   // 状态管理
   setPreMeetingLoading: (loading: boolean) => void;
   setPreMeetingError: (error: string | null) => void;
@@ -28,16 +29,18 @@ interface PreMeetingSliceState {
   setObjectiveSaved: (saved: boolean) => void;
 }
 
-export const usePreMeetingSlice = create<PreMeetingSliceState>((set) => ({
-  // 会前准备数据
-  preMeeting: null,
-  preMeetingLoading: false,
-  preMeetingError: null,
-  
-  // 细粒度 loading 状态
-  objectiveSaving: false,
-  questionAdding: false,
-  objectiveSaved: false,
+export const usePreMeetingSlice = create<PreMeetingSliceState>()(
+  persist(
+    (set) => ({
+      // 会前准备数据
+      preMeeting: null,
+      preMeetingLoading: false,
+      preMeetingError: null,
+
+      // 细粒度 loading 状态
+      objectiveSaving: false,
+      questionAdding: false,
+      objectiveSaved: false,
 
   // 会前准备操作
   setPreMeeting: (preMeeting) => {
@@ -85,4 +88,13 @@ export const usePreMeetingSlice = create<PreMeetingSliceState>((set) => ({
   setObjectiveSaved: (saved) => {
     set({ objectiveSaved: saved });
   },
-}));
+}),
+    {
+      name: 'premeeting-storage',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        preMeeting: state.preMeeting
+      }),
+    }
+  )
+);

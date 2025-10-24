@@ -4,7 +4,10 @@ import { useAuth } from "../../hooks/useAuth";
 import InputBox from "../molecules/InputBox";
 import MessageBox from "../molecules/MessageBox";
 import { useTranslation } from "react-i18next";
-import { CheckCircle, MessageCircle } from "lucide-react";
+import { CheckCircle, MessageCircle, Loader2, AlertCircle } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Button } from "../ui/button";
 
 interface PostMeetingSummarySectionProps {
   meetingId: string;
@@ -80,30 +83,43 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
 
   const feedbacks = postMeeting?.feedbacks || [];
 
-  {
-    /* 这里的 loading 和 error 每个 tab 都有可以优化 */
+  if (postMeetingLoading) {
+    return (
+      <div className={`space-y-6 ${className}`}>
+        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground font-medium">{t("PostMeetingNote.loading")}</p>
+          <div className="space-y-3 w-full">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
+      </div>
+    );
   }
-  if (postMeetingLoading)
-    return (
-      <div className={`space-y-6 ${className}`}>
-        {t("PostMeetingNote.loading")}
-      </div>
-    );
 
-  if (postMeetingError)
+  if (postMeetingError) {
     return (
       <div className={`space-y-6 ${className}`}>
-        <p className="text-red-600">
-          {t("PostMeetingNote.error")}: {postMeetingError}
-        </p>
-        <button
-          onClick={() => fetchPostMeeting()}
-          className="btn btn-primary btn-sm mt-2"
-        >
-          {t("PostMeetingNote.retry")}
-        </button>
+        <Alert variant="destructive" className="my-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              {t("PostMeetingNote.error")}: {postMeetingError}
+            </span>
+            <Button
+              onClick={() => fetchPostMeeting()}
+              variant="outline"
+              size="sm"
+              className="ml-4"
+            >
+              {t("PostMeetingNote.retry")}
+            </Button>
+          </AlertDescription>
+        </Alert>
       </div>
     );
+  }
 
   return (
     <div className={`space-y-6 ${className}`}>

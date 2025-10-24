@@ -1,5 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { getCurrentUserToken } from '../auth';
+import i18n from '../../i18n/i18n';
 
 // API 基础配置
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -7,7 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 // 创建 axios 实例
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 2000,
+  timeout: 1000, // 1 second timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,13 +35,48 @@ api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  (error: AxiosError) => {
     // 统一错误处理
+    let errorMessage: string | undefined;
+
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      // Timeout error - add localized message
+      errorMessage = i18n.t('errors.requestTimeout', {
+        defaultValue: 'Request timeout. Please check your network connection.'
+      });
+      console.warn(errorMessage);
+    } else if (error.code === 'ERR_NETWORK' || error.message.toLowerCase().includes('network')) {
+      // Network error - add localized message
+      errorMessage = i18n.t('errors.networkError', {
+        defaultValue: 'Network error. Please check your connection.'
+      });
+      console.warn(errorMessage);
+    } else if (error.response?.status && error.response.status >= 500) {
+      // Server error - add localized message
+      errorMessage = i18n.t('errors.serverError', {
+        defaultValue: 'Server error. Please try again later.'
+      });
+      console.warn(errorMessage);
+    }
+
+    // Enhance error with localized message
+    if (errorMessage && error.response) {
+      const existingData = typeof error.response.data === 'object' && error.response.data !== null
+        ? error.response.data
+        : {};
+
+      error.response.data = {
+        ...existingData,
+        error: errorMessage
+      };
+    }
+
     // if (error.response?.status === 401) {
     //   // 未授权，跳转登录
     //   // Firebase Auth 会自动处理 token 过期，这里只需要跳转
     //   window.location.href = '/login';
     // }
+
     return Promise.reject(error);
   }
 );

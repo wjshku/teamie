@@ -1,6 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import TopNavBar from "../organisms/TopNavBar";
-import { Button } from "../atoms/Button";
+import { Button } from "../ui/button";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertCircle, XCircle } from "lucide-react";
 
 interface FullScreenErrorProps {
   title?: string;
@@ -11,47 +14,49 @@ interface FullScreenErrorProps {
 }
 
 const FullScreenError: React.FC<FullScreenErrorProps> = ({
-  title = "加载失败",
+  title,
   message,
   onRetry,
   minHeight = "min-h-screen",
   icon,
 }) => {
+  const { t } = useTranslation();
+  const displayTitle = title ?? t("common.loadFailed");
+
   return (
     <div className={`min-h-screen bg-background`}>
       <TopNavBar />
       <main className="container mx-auto section">
-        <div className="container-max flex items-center justify-center">
-          <div className={`flex items-center justify-center ${minHeight}`}>
-            <div className="text-center max-w-md">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
-                  {icon ?? (
-                    <svg
-                      className="w-6 h-6 text-red-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  )}
+        <div className="container-max">
+          <div className="pt-8 pb-4">
+            <div className="max-w-2xl mx-auto px-4">
+              <Alert variant="destructive" className="text-left">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    {icon ?? <XCircle className="h-5 w-5" />}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <AlertTitle className="text-base font-semibold">
+                      {displayTitle}
+                    </AlertTitle>
+                    <AlertDescription className="text-sm">
+                      {message}
+                    </AlertDescription>
+                    {onRetry && (
+                      <div className="pt-2">
+                        <Button
+                          onClick={onRetry}
+                          variant="outline"
+                          size="sm"
+                          className="w-full sm:w-auto"
+                        >
+                          {t("common.retry")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <h2 className="text-lg font-semibold text-red-800 mb-2">
-                  {title}
-                </h2>
-                <p className="text-red-600 mb-4">{message}</p>
-                {onRetry && (
-                  <Button onClick={onRetry} variant="default" size="sm">
-                    重试
-                  </Button>
-                )}
-              </div>
+              </Alert>
             </div>
           </div>
         </div>
