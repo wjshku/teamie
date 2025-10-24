@@ -57,7 +57,7 @@ const PreMeetingSection: React.FC<PreMeetingSectionProps> = ({
 
   const fetchContextCapsules = async () => {
     try {
-      const meeting = await getMeetingById(meetingId);
+      const meeting = getMeetingById(meetingId);
       if (meeting && meeting.contextCapsuleIds && meeting.contextCapsuleIds.length > 0) {
         const capsulesResponse = await getMeetingCapsules();
         if (capsulesResponse.success) {

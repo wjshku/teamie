@@ -30,6 +30,7 @@ export const useMeetings = () => {
     // 操作（仅列表相关）
     fetchMeetings: meetingActions.fetchMeetings,
     createNewMeeting: meetingActions.createNewMeeting,
+    getMeetingById: meetingActions.getMeetingById,
     clearError: meetingSlice.clearError,
   };
 };

@@ -77,14 +77,16 @@ export const useMeetingActions = () => {
   // 创建会议及其所有子文档
   const createNewMeeting = useCallback(async (data: {
     title: string;
+    contextCapsuleIds?: string[];
   }) => {
     try {
       meetingSlice.setLoading(true);
       meetingSlice.clearError();
-      
+
       // 转换数据格式以匹配新的API
       const newMeetingData: CreateMeetingRequest = {
         title: data.title,
+        contextCapsuleIds: data.contextCapsuleIds,
       };
       
       // 1. 创建主会议
@@ -140,9 +142,14 @@ export const useMeetingActions = () => {
     }
   }, []);
 
+  // 根据ID获取会议
+  const getMeetingById = useCallback((meetingId: string): Meeting | undefined => {
+    return meetingSlice.meetings.find(m => m.meetingid === meetingId);
+  }, [meetingSlice.meetings]);
 
   return {
     fetchMeetings,
     createNewMeeting,
+    getMeetingById,
   };
 };

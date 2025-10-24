@@ -25,13 +25,11 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({
   const [title, setTitle] = useState("");
   const [capsules, setCapsules] = useState<MeetingCapsule[]>([]);
   const [selectedCapsuleIds, setSelectedCapsuleIds] = useState<string[]>([]);
-  const [capsulesLoading, setCapsulesLoading] = useState(false);
 
   useEffect(() => {
     const fetchCapsules = async () => {
       if (!isAuthenticated) return;
 
-      setCapsulesLoading(true);
       try {
         const response = await getMeetingCapsules();
         if (response.success) {
@@ -39,8 +37,6 @@ const MeetingCreationForm: React.FC<MeetingCreationFormProps> = ({
         }
       } catch (error) {
         console.error("Failed to fetch capsules:", error);
-      } finally {
-        setCapsulesLoading(false);
       }
     };
 
