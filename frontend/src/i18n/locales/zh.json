@@ -144,7 +144,8 @@
     "keyPoints": "关键要点",
     "meetingDate": "会议时间",
     "participants": "参与者",
-    "topics": "主题"
+    "topics": "主题",
+    "dateUnavailable": "日期不可用"
   },
   "importCapsule": {
     "title": "导入会议记录",

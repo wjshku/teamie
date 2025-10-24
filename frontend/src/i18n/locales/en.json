@@ -144,7 +144,8 @@
     "keyPoints": "Key Points",
     "meetingDate": "Meeting Date",
     "participants": "Participants",
-    "topics": "Topics"
+    "topics": "Topics",
+    "dateUnavailable": "Date unavailable"
   },
   "importCapsule": {
     "title": "Import Meeting Transcript",

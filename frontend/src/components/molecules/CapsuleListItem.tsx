@@ -70,7 +70,7 @@ const CapsuleListItem: React.FC<CapsuleListItemProps> = ({
             {capsule.metadata?.meetingDate && (
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                <span>{new Date(capsule.metadata.meetingDate).toLocaleDateString()}</span>
+                <span>{capsule.metadata.meetingDate}</span>
               </div>
             )}
             {capsule.metadata?.participants && capsule.metadata.participants.length > 0 && (
