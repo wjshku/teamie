@@ -149,31 +149,33 @@ const MeetingLobbyTemplate: React.FC<MeetingLobbyTemplateProps> = ({
   return (
     <div className={`min-h-screen bg-background ${className}`}>
       <TopNavBar />
-      <main className="container mx-auto px-6 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="card">
-            <div className="mt-4">
+      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 w-full overflow-x-hidden">
+        <div className="max-w-6xl mx-auto w-full">
+          <div className="card w-full overflow-hidden">
+            <div className="mt-2 sm:mt-4">
               <div className="card-content">
                 {/* Export Buttons */}
-                <div className="flex justify-end gap-2 mb-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-2 mb-4">
                   <Button
                     onClick={handleCopyToNotion}
                     disabled={isCopying || !currentMeeting}
                     variant={copySuccess ? "default" : "outline"}
                     size="sm"
-                    className="gap-2"
+                    className="gap-2 w-full sm:w-auto"
                   >
                     {copySuccess ? (
                       <>
-                        <Check className="w-4 h-4" />
-                        {t("MeetingLobbyTemplate.copied") || "Copied!"}
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">{t("MeetingLobbyTemplate.copied") || "Copied!"}</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4" />
-                        {isCopying
-                          ? t("MeetingLobbyTemplate.copying") || "Copying..."
-                          : t("MeetingLobbyTemplate.copyToNotion") || "Copy to Notion"}
+                        <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">
+                          {isCopying
+                            ? t("MeetingLobbyTemplate.copying") || "Copying..."
+                            : t("MeetingLobbyTemplate.copyToNotion") || "Copy to Notion"}
+                        </span>
                       </>
                     )}
                   </Button>
@@ -182,19 +184,21 @@ const MeetingLobbyTemplate: React.FC<MeetingLobbyTemplateProps> = ({
                     disabled={isExporting || !currentMeeting}
                     variant={exportSuccess ? "default" : "outline"}
                     size="sm"
-                    className="gap-2"
+                    className="gap-2 w-full sm:w-auto"
                   >
                     {exportSuccess ? (
                       <>
-                        <Check className="w-4 h-4" />
-                        {t("MeetingLobbyTemplate.exported") || "Exported!"}
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">{t("MeetingLobbyTemplate.exported") || "Exported!"}</span>
                       </>
                     ) : (
                       <>
-                        <Download className="w-4 h-4" />
-                        {isExporting
-                          ? t("MeetingLobbyTemplate.exporting") || "Exporting..."
-                          : t("MeetingLobbyTemplate.downloadMarkdown") || "Download Markdown"}
+                        <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">
+                          {isExporting
+                            ? t("MeetingLobbyTemplate.exporting") || "Exporting..."
+                            : t("MeetingLobbyTemplate.downloadMarkdown") || "Download Markdown"}
+                        </span>
                       </>
                     )}
                   </Button>

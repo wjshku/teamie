@@ -82,13 +82,13 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
-            <Upload className="w-6 h-6 text-purple-600" />
-            <DialogTitle className="text-2xl">{t("importCapsule.title")}</DialogTitle>
+            <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
+            <DialogTitle className="text-xl sm:text-2xl">{t("importCapsule.title")}</DialogTitle>
           </div>
-          <DialogDescription className="text-left">
+          <DialogDescription className="text-left text-sm">
             {t("importCapsule.description")}
           </DialogDescription>
         </DialogHeader>
@@ -105,7 +105,7 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("importCapsule.meetingTitlePlaceholder")}
               disabled={importing || success}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
             />
           </div>
 
@@ -120,7 +120,7 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
               placeholder={t("importCapsule.transcriptPlaceholder")}
               disabled={importing || success}
               rows={12}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
             />
           </div>
 
@@ -128,7 +128,7 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription className="text-sm">{error}</AlertDescription>
             </Alert>
           )}
 
@@ -136,23 +136,24 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
           {success && (
             <Alert className="bg-green-50 border-green-200 text-green-800">
               <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription>{t("importCapsule.importSuccess")}</AlertDescription>
+              <AlertDescription className="text-sm">{t("importCapsule.importSuccess")}</AlertDescription>
             </Alert>
           )}
         </div>
 
-        <DialogFooter className="mt-6">
+        <DialogFooter className="mt-6 flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
             onClick={handleClose}
             disabled={importing || success}
+            className="w-full sm:w-auto"
           >
             {t("common.cancel")}
           </Button>
           <Button
             onClick={handleImport}
             disabled={importing || success || !title.trim() || !content.trim()}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+            className="bg-yellow-600 hover:bg-yellow-700 text-white w-full sm:w-auto"
           >
             {importing ? (
               <>

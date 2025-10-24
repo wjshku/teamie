@@ -219,13 +219,16 @@
   }
   /* ===== 按钮系统 ===== */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
     box-shadow: var(--shadow-sm);
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .btn:hover {
-    box-shadow: var(--shadow);
-    transform: translateY(-1px);
+  @media (min-width: 768px) {
+    .btn:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-1px);
+    }
   }
 
   .btn:active {
@@ -254,11 +257,11 @@
   }
 
   .btn-sm {
-    @apply h-8 px-3 text-xs;
+    @apply h-7 px-2 text-xs sm:h-8 sm:px-3;
   }
 
   .btn-md {
-    @apply h-10 px-4 py-2;
+    @apply h-9 px-3 py-2 sm:h-10 sm:px-4;
   }
 
   .btn-lg {
@@ -271,8 +274,9 @@
 
   /* ===== 输入框系统 ===== */
   .input-field {
-    @apply flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-9 sm:h-10 w-full rounded-md sm:rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
     box-shadow: var(--shadow-sm);
+    -webkit-tap-highlight-color: transparent;
   }
 
   .input-field:focus {
@@ -280,17 +284,20 @@
     box-shadow: var(--shadow), 0 0 0 3px hsl(var(--ring) / 0.1);
   }
 
-  .input-field:hover:not(:focus) {
-    @apply border-muted-foreground/50;
+  @media (min-width: 768px) {
+    .input-field:hover:not(:focus) {
+      @apply border-muted-foreground/50;
+    }
   }
 
   .label {
-    @apply text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
+    @apply text-xs sm:text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
   }
 
   .textarea {
-    @apply flex min-h-[80px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex min-h-[80px] w-full rounded-md sm:rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
     box-shadow: var(--shadow-sm);
+    -webkit-tap-highlight-color: transparent;
   }
 
   .textarea:focus {
@@ -299,8 +306,9 @@
   }
 
   .dropdown {
-    @apply flex h-10 w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-9 sm:h-10 w-full items-center justify-between rounded-md sm:rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
     box-shadow: var(--shadow-sm);
+    -webkit-tap-highlight-color: transparent;
   }
 
   .dropdown:focus {
@@ -310,33 +318,38 @@
 
   /* ===== 卡片系统 ===== */
   .card {
-    @apply rounded-xl border border-border bg-card text-card-foreground transition-all duration-200;
+    @apply rounded-lg md:rounded-xl border border-border bg-card text-card-foreground transition-all duration-200;
     box-shadow: var(--shadow-sm);
   }
 
   .card:hover {
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+  }
+
+  @media (min-width: 768px) {
+    .card:hover {
+      transform: translateY(-2px);
+    }
   }
 
   .card-header {
-    @apply flex flex-col space-y-1.5 p-4 md:p-6;
+    @apply flex flex-col space-y-1 sm:space-y-1.5 p-4 sm:p-5 md:p-6;
   }
 
   .card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight;
+    @apply text-lg sm:text-xl md:text-2xl font-semibold leading-tight tracking-tight;
   }
 
   .card-description {
-    @apply text-sm text-muted-foreground;
+    @apply text-xs sm:text-sm text-muted-foreground;
   }
 
   .card-content {
-    @apply p-4 md:p-6 md:pt-0;
+    @apply p-3 sm:p-4 md:p-6 md:pt-0;
   }
 
   .card-footer {
-    @apply flex items-center p-4 md:p-6 md:pt-0;
+    @apply flex items-center flex-wrap gap-2 p-3 sm:p-4 md:p-6 md:pt-0;
   }
 
   /* ===== 标签系统 ===== */
@@ -437,12 +450,18 @@
   }
 
   .tab-header {
-    @apply flex space-x-1 rounded-lg bg-muted p-1 overflow-x-auto snap-x snap-mandatory;
+    @apply flex space-x-0.5 sm:space-x-1 rounded-md sm:rounded-lg bg-muted p-0.5 sm:p-1 overflow-x-auto snap-x snap-mandatory;
     box-shadow: var(--shadow-sm);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tab-header::-webkit-scrollbar {
+    display: none;
   }
 
   .tab-button {
-    @apply rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap shrink-0 snap-start md:flex-1;
+    @apply rounded-sm sm:rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap shrink-0 snap-start md:flex-1;
   }
 
   .tab-active {
@@ -450,12 +469,12 @@
   }
 
   .tab-content {
-    @apply mt-4;
+    @apply mt-3 sm:mt-4;
   }
 
   /* 移动端当前标签显示条 */
   .tab-current {
-    @apply flex items-center justify-center rounded-lg bg-muted px-3 py-2 text-sm font-medium text-foreground;
+    @apply flex items-center justify-center rounded-md sm:rounded-lg bg-muted px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-foreground;
     box-shadow: var(--shadow-sm);
   }
 
@@ -483,13 +502,15 @@
 
   /* ===== 会议卡片系统 ===== */
   .meeting-card {
-    @apply relative rounded-xl border border-border bg-card p-4 md:p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
+    @apply relative rounded-lg md:rounded-xl border border-border bg-card p-3 sm:p-4 md:p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
     box-shadow: var(--shadow-sm);
   }
 
-  .meeting-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+  @media (min-width: 768px) {
+    .meeting-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
   }
 
   .meeting-card:focus {
@@ -497,35 +518,35 @@
   }
 
   .meeting-card:active {
-    transform: translateY(-2px);
+    transform: translateY(0);
   }
 
   .meeting-card-header {
-    @apply flex items-start justify-between mb-4;
+    @apply flex items-start justify-between mb-3 sm:mb-4;
   }
 
   .meeting-card-title {
-    @apply text-lg font-semibold text-card-foreground transition-colors duration-200;
+    @apply text-base sm:text-lg md:text-xl font-semibold text-card-foreground transition-colors duration-200;
   }
-  
+
   .group:hover .meeting-card-title {
     @apply text-gray-900;
   }
 
   .meeting-card-meta {
-    @apply flex items-center gap-4 text-sm text-muted-foreground;
+    @apply flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground;
   }
 
   .meeting-card-description {
-    @apply text-sm text-muted-foreground mb-4 line-clamp-2;
+    @apply text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-2;
   }
 
   .meeting-card-members {
-    @apply flex items-center gap-2;
+    @apply flex items-center gap-1.5 sm:gap-2;
   }
 
   .meeting-card-status {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs font-medium;
   }
 
   .status-completed {
@@ -542,21 +563,23 @@
 
   /* ===== 团队卡片系统 ===== */
   .team-card {
-    @apply relative rounded-xl border border-border bg-card p-4 md:p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
+    @apply relative rounded-lg md:rounded-xl border border-border bg-card p-3 sm:p-4 md:p-6 transition-all duration-200 hover:shadow-lg cursor-pointer;
     box-shadow: var(--shadow-sm);
   }
 
-  .team-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+  @media (min-width: 768px) {
+    .team-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
   }
 
   .team-card-header {
-    @apply flex items-center gap-3 mb-4;
+    @apply flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4;
   }
 
   .team-indicator {
-    @apply h-3 w-3 rounded-full;
+    @apply h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full flex-shrink-0;
   }
 
   .team-indicator-primary {
@@ -576,27 +599,27 @@
   }
 
   .team-name {
-    @apply text-lg font-semibold text-card-foreground transition-colors duration-200;
+    @apply text-base sm:text-lg md:text-xl font-semibold text-card-foreground transition-colors duration-200;
   }
-  
+
   .group:hover .team-name {
     @apply text-gray-900;
   }
 
   .team-meta {
-    @apply flex items-center gap-2 text-sm text-muted-foreground ml-auto;
+    @apply flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground ml-auto;
   }
 
   .team-description {
-    @apply text-sm text-muted-foreground mb-4 line-clamp-2;
+    @apply text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-2;
   }
 
   .team-members {
-    @apply flex flex-wrap gap-2;
+    @apply flex flex-wrap gap-1.5 sm:gap-2;
   }
 
   .member-tag {
-    @apply inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted-hover;
+    @apply inline-flex items-center rounded-full border border-border bg-muted px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted-hover;
   }
 
   /* ===== 工具类 ===== */

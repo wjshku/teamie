@@ -174,17 +174,17 @@ const PostMeetingSummarySection: React.FC<PostMeetingSummarySectionProps> = ({
         <Button
           onClick={handleGenerateCapsule}
           disabled={capsuleGenerating}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto hover:bg-yellow-50 hover:border-yellow-300"
           variant="outline"
         >
           {capsuleGenerating ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Loader2 className="w-4 h-4 mr-2 animate-spin text-yellow-600" />
               {t("MeetingCapsule.generating")}
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 mr-2" />
+              <Sparkles className="w-4 h-4 mr-2 text-yellow-600" />
               {t("MeetingCapsule.generateButton")}
             </>
           )}

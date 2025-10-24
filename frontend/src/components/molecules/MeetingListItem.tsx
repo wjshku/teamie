@@ -31,7 +31,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
 
   return (
     <div
-      className={`meeting-card group ${className}`}
+      className={`meeting-card group w-full overflow-hidden ${className}`}
       onClick={onView}
       role="button"
       tabIndex={0}
@@ -43,12 +43,12 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
       }}
     >
       <div className="meeting-card-header">
-        <div className="flex-1">
-          <h4 className="meeting-card-title">{title}</h4>
-          <div className="meeting-card-meta">
-            <span className="flex items-center gap-1">
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <h4 className="meeting-card-title text-base sm:text-lg">{title}</h4>
+          <div className="meeting-card-meta flex-col sm:flex-row gap-1 sm:gap-4">
+            <span className="flex items-center gap-1 text-xs sm:text-sm">
               <svg
-                className="w-4 h-4"
+                className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -60,11 +60,11 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              {formatTime(time)}
+              <span className="truncate">{formatTime(time)}</span>
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-xs sm:text-sm">
               <svg
-                className="w-4 h-4"
+                className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -81,27 +81,28 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="meeting-card-members">
           <div className="flex -space-x-2">
             {participantInitials.map((initial, index) => (
               <div key={index} className="avatar avatar-sm">
-                <div className="avatar-placeholder">{initial}</div>
+                <div className="avatar-placeholder text-xs">{initial}</div>
               </div>
             ))}
             {participants.length > 4 && (
               <div className="avatar avatar-sm">
-                <div className="avatar-placeholder bg-gray-300 text-gray-600">
+                <div className="avatar-placeholder bg-gray-300 text-gray-600 text-xs">
                   +{participants.length - 4}
                 </div>
               </div>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-1 text-muted-foreground text-sm">
-          <span>{t("MeetingListItem.clickToView")}</span>
+        <div className="flex items-center gap-1 text-muted-foreground text-xs sm:text-sm">
+          <span className="hidden sm:inline">{t("MeetingListItem.clickToView")}</span>
+          <span className="sm:hidden">查看</span>
           <svg
-            className="w-4 h-4"
+            className="w-3 h-3 sm:w-4 sm:h-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

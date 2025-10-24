@@ -34,64 +34,70 @@ const CapsuleListItem: React.FC<CapsuleListItemProps> = ({
 
   return (
     <div
-      className={`group relative border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer bg-gradient-to-br from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 ${className}`}
+      className={`group relative border-2 border-yellow-200 rounded-lg p-3 sm:p-4 hover:shadow-lg hover:border-yellow-300 transition-all cursor-pointer bg-gradient-to-br from-yellow-50 to-amber-50 hover:from-yellow-100 hover:to-amber-100 w-full overflow-hidden ${className}`}
       onClick={handleClick}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          {/* Title */}
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0" />
-            <h3 className="font-semibold text-lg truncate">{capsule.title}</h3>
+      {/* Delete button - positioned absolute */}
+      {onDelete && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 h-7 w-7 p-0"
+          onClick={handleDelete}
+        >
+          <Trash2 className="w-3.5 h-3.5 text-red-500" />
+        </Button>
+      )}
+
+      <div className="flex flex-col gap-2.5">
+        {/* Title with icon */}
+        <div className="flex items-start gap-2 pr-8">
+          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <h3 className="font-semibold text-base sm:text-lg leading-tight">{capsule.title}</h3>
+        </div>
+
+        {/* Summary */}
+        <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-2 pl-6 sm:pl-7">
+          {capsule.summary}
+        </p>
+
+        {/* Key Points - More compact */}
+        {capsule.keyPoints && capsule.keyPoints.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pl-6 sm:pl-7">
+            {capsule.keyPoints.slice(0, 3).map((point, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/80 backdrop-blur-sm rounded-md text-xs text-gray-700 border border-yellow-200"
+              >
+                <Tag className="w-3 h-3 text-yellow-600 flex-shrink-0" />
+                <span className="hidden sm:inline max-w-[200px] truncate">{point}</span>
+                <span className="sm:hidden max-w-[120px] truncate">{point}</span>
+              </span>
+            ))}
+            {capsule.keyPoints.length > 3 && (
+              <span className="inline-flex items-center px-2 py-0.5 bg-yellow-100 rounded-md text-xs text-yellow-700 font-medium">
+                +{capsule.keyPoints.length - 3}
+              </span>
+            )}
           </div>
+        )}
 
-          {/* Summary */}
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-            {capsule.summary}
-          </p>
-
-          {/* Key Points */}
-          {capsule.keyPoints && capsule.keyPoints.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {capsule.keyPoints.slice(0, 3).map((point, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-white/70 rounded text-xs text-gray-700 border border-gray-200"
-                >
-                  <Tag className="w-3 h-3" />
-                  {point.length > 30 ? `${point.substring(0, 30)}...` : point}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Metadata */}
-          <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+        {/* Metadata - Inline and compact */}
+        {(capsule.metadata?.meetingDate || (capsule.metadata?.participants && capsule.metadata.participants.length > 0)) && (
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 pl-6 sm:pl-7 pt-1 border-t border-yellow-100">
             {capsule.metadata?.meetingDate && (
-              <div className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                <span>{capsule.metadata.meetingDate}</span>
+              <div className="flex items-center gap-1 pt-1.5">
+                <Calendar className="w-3 h-3 text-yellow-600" />
+                <span className="font-medium">{capsule.metadata.meetingDate}</span>
               </div>
             )}
             {capsule.metadata?.participants && capsule.metadata.participants.length > 0 && (
-              <div className="flex items-center gap-1">
-                <Users className="w-3 h-3" />
-                <span>{capsule.metadata.participants.length} {t("MeetingListItem.participants")}</span>
+              <div className="flex items-center gap-1 pt-1.5">
+                <Users className="w-3 h-3 text-yellow-600" />
+                <span className="font-medium">{capsule.metadata.participants.length} {t("MeetingListItem.participants")}</span>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Delete button */}
-        {onDelete && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={handleDelete}
-          >
-            <Trash2 className="w-4 h-4 text-red-500" />
-          </Button>
         )}
       </div>
     </div>

@@ -91,49 +91,52 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
   };
 
   return (
-    <section className={`space-y-8 ${className}`}>
-      <div className="card relative">
-        {/* Toggle and Import buttons in top right */}
-        <div className="absolute top-6 right-6 flex gap-2">
+    <section className={`space-y-8 w-full ${className}`}>
+      <div className="card relative w-full overflow-hidden">
+        {/* Toggle and Import buttons - responsive positioning */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex flex-col sm:flex-row gap-2 z-10">
           {viewMode === "capsules" && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setImportModalOpen(true)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-xs sm:text-sm"
             >
-              <Upload className="w-4 h-4" />
-              {t("personalCenter.importCapsule")}
+              <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{t("personalCenter.importCapsule")}</span>
+              <span className="sm:hidden">导入</span>
             </Button>
           )}
           <Button
             variant="outline"
             size="sm"
             onClick={toggleView}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-xs sm:text-sm"
           >
             {viewMode === "meetings" ? (
               <>
-                <Sparkles className="w-4 h-4" />
-                {t("personalCenter.switchToCapsules")}
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600" />
+                <span className="hidden sm:inline">{t("personalCenter.switchToCapsules")}</span>
+                <span className="sm:hidden">胶囊</span>
               </>
             ) : (
               <>
-                <History className="w-4 h-4" />
-                {t("personalCenter.switchToHistory")}
+                <History className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">{t("personalCenter.switchToHistory")}</span>
+                <span className="sm:hidden">历史</span>
               </>
             )}
           </Button>
         </div>
 
-        {/* Header in upper left */}
-        <div className="card-header">
-          <h2 className="card-title">
+        {/* Header in upper left - with padding to accommodate buttons */}
+        <div className="card-header pr-20 sm:pr-32">
+          <h2 className="card-title text-lg sm:text-xl">
             {viewMode === "meetings"
               ? t("personalCenter.historyTitle")
               : t("personalCenter.capsulesTitle")}
           </h2>
-          <p className="card-description">
+          <p className="card-description text-xs sm:text-sm">
             {viewMode === "meetings"
               ? t("personalCenter.historyDesc")
               : t("personalCenter.capsulesDesc")}
@@ -143,7 +146,7 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
         <div className="card-content">
           {/* Meetings View */}
           {viewMode === "meetings" && (
-            <div className="grid gap-4">
+            <div className="grid gap-3 sm:gap-4 w-full">
               {meetings.length > 0 ? (
                 meetings.map((meeting) => (
                   <MeetingListItem
@@ -154,8 +157,8 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
                 ))
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>{t("personalCenter.noHistory")}</p>
-                  <p className="text-sm mt-2">
+                  <p className="text-sm sm:text-base">{t("personalCenter.noHistory")}</p>
+                  <p className="text-xs sm:text-sm mt-2">
                     {t("personalCenter.createFirst")}
                   </p>
                 </div>
@@ -168,15 +171,15 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
             <>
               {capsulesLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <Loader2 className="w-8 h-8 animate-spin text-yellow-600" />
                 </div>
               ) : capsulesError ? (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{capsulesError}</AlertDescription>
+                  <AlertDescription className="text-sm">{capsulesError}</AlertDescription>
                 </Alert>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid gap-3 sm:gap-4 w-full">
                   {capsules.length > 0 ? (
                     capsules.map((capsule) => (
                       <CapsuleListItem
@@ -188,8 +191,8 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
                     ))
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      <p>{t("personalCenter.noCapsules")}</p>
-                      <p className="text-sm mt-2">
+                      <p className="text-sm sm:text-base">{t("personalCenter.noCapsules")}</p>
+                      <p className="text-xs sm:text-sm mt-2">
                         {t("personalCenter.generateFirst")}
                       </p>
                     </div>
