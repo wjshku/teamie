@@ -131,9 +131,6 @@
     "exportFailed": "Failed to export meeting data",
     "copyFailed": "Failed to copy to clipboard"
   },
-  "propaganda": {
-    "message": "All those scattered messages in the group?\nRepeated questions?\nTasks forgotten at the end of the meeting?\nTeamie gathers everything for you, making pre-, during-, and post-meeting smooth.\nGroup projects done fast, clear, and easy!"
-  },
   "language": {
     "current": "EN"
   },
