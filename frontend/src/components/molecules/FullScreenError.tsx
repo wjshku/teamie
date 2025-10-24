@@ -3,13 +3,12 @@ import { useTranslation } from "react-i18next";
 import TopNavBar from "../organisms/TopNavBar";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { AlertCircle, XCircle } from "lucide-react";
+import { XCircle } from "lucide-react";
 
 interface FullScreenErrorProps {
   title?: string;
   message: string;
   onRetry?: () => void;
-  minHeight?: string;
   icon?: React.ReactNode;
 }
 
@@ -17,7 +16,6 @@ const FullScreenError: React.FC<FullScreenErrorProps> = ({
   title,
   message,
   onRetry,
-  minHeight = "min-h-screen",
   icon,
 }) => {
   const { t } = useTranslation();
