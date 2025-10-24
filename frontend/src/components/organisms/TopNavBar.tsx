@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../atoms/Button";
 import { useAuth } from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Globe, Check } from "lucide-react";
 
 interface TopNavBarProps {
   className?: string;
@@ -12,6 +14,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated, loginUser, logout } = useAuth();
   const { t, i18n } = useTranslation();
+  const [langOpen, setLangOpen] = useState(false);
 
   const handleBrandClick = () => {
     navigate("/");
@@ -44,9 +47,9 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
     navigate("/personal");
   };
 
-  const toggleLanguage = () => {
-    const nextLang = i18n.language === "en" ? "zh" : "en";
-    i18n.changeLanguage(nextLang);
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+    setLangOpen(false);
   };
 
   return (
@@ -60,9 +63,38 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ className = "" }) => {
       </div>
 
       <div className="nav-actions flex items-center gap-3">
-        <Button onClick={toggleLanguage} variant="outline" size="sm">
-          {t("language.current")}
-        </Button>
+        <Popover open={langOpen} onOpenChange={setLangOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Globe className="w-4 h-4" />
+              <span className="hidden sm:inline">
+                {i18n.language === "en" ? t("language.english") : t("language.chinese")}
+              </span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2" align="end">
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => changeLanguage("en")}
+                className={`flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors ${
+                  i18n.language === "en" ? "bg-muted font-medium" : ""
+                }`}
+              >
+                <span>{t("language.english")}</span>
+                {i18n.language === "en" && <Check className="w-4 h-4 text-primary" />}
+              </button>
+              <button
+                onClick={() => changeLanguage("zh")}
+                className={`flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors ${
+                  i18n.language === "zh" ? "bg-muted font-medium" : ""
+                }`}
+              >
+                <span>{t("language.chinese")}</span>
+                {i18n.language === "zh" && <Check className="w-4 h-4 text-primary" />}
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
 
         {isAuthenticated ? (
           <div className="flex items-center gap-3">

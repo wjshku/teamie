@@ -104,7 +104,7 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
             >
               <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{t("personalCenter.importCapsule")}</span>
-              <span className="sm:hidden">导入</span>
+              <span className="sm:hidden">{t("personalCenter.importShort")}</span>
             </Button>
           )}
           <Button
@@ -117,13 +117,13 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
               <>
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600" />
                 <span className="hidden sm:inline">{t("personalCenter.switchToCapsules")}</span>
-                <span className="sm:hidden">胶囊</span>
+                <span className="sm:hidden">{t("personalCenter.capsulesShort")}</span>
               </>
             ) : (
               <>
                 <History className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">{t("personalCenter.switchToHistory")}</span>
-                <span className="sm:hidden">历史</span>
+                <span className="sm:hidden">{t("personalCenter.historyShort")}</span>
               </>
             )}
           </Button>

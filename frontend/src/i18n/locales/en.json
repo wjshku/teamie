@@ -2,10 +2,17 @@
   "home": "Home",
   "login": "Login",
   "logout": "Logout",
+  "language": {
+    "select": "Select Language",
+    "english": "EN",
+    "chinese": "中文",
+    "current": "EN"
+  },
   "MeetingListItem": {
     "timePending": "Time Pending",
     "participants": "participants",
-    "clickToView": "Click to view details"
+    "clickToView": "Click to view details",
+    "view": "View"
   },
   "meetingJoin": {
     "missingToken": "Missing invitation token",
@@ -53,7 +60,10 @@
     "generateFirst": "Generate capsules from your past meetings!",
     "switchToHistory": "Switch to Meeting History",
     "switchToCapsules": "Switch to Meeting Capsules",
-    "importCapsule": "Import"
+    "importCapsule": "Import",
+    "importShort": "Import",
+    "capsulesShort": "Capsules",
+    "historyShort": "History"
   },
   "meetingManagement": {
     "delete": "Delete",
@@ -179,9 +189,6 @@
     "exportError": "No meeting data to export",
     "exportFailed": "Failed to export meeting data",
     "copyFailed": "Failed to copy to clipboard"
-  },
-  "language": {
-    "current": "EN"
   },
   "errors": {
     "requestTimeout": "Request timeout. Please check your network connection or try again later.",

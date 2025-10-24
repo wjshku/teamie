@@ -534,7 +534,13 @@
   }
 
   .meeting-card-meta {
-    @apply flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground;
+    @apply flex items-start gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground;
+  }
+
+  @media (min-width: 640px) {
+    .meeting-card-meta {
+      @apply items-center;
+    }
   }
 
   .meeting-card-description {
