@@ -1,0 +1,8 @@
+# Render Static Site Configuration
+# 这个文件告诉 Render 将所有路径重定向到 index.html，让前端路由处理
+
+rewrites:
+  - from: /*
+    to: /index.html
+    status: 200
+
