@@ -1,7 +1,7 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/*",
+      "source": "/<*>",
       "destination": "/index.html"
     }
   ]
