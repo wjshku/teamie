@@ -2,18 +2,18 @@
   "landing": {
     "brandTitle": "You are Your Team",
     "hero": {
-      "title": "Think faster. Work smarter.",
-      "subtitle": "Teamie keeps every project and meeting on track — with instant summaries of key points, decisions, and next steps. For professionals juggling multiple projects at once, meetings shouldn't drain your time and focus.",
+      "title": "Think faster, Work smarter",
+      "subtitle": "For ambitious <strong>side-questers</strong> juggling multiple projects and passions, meetings shouldn’t drain your time and focus. <strong>Teamie</strong> keeps every project and meeting on track with instant summaries of key points, decisions, and next steps.",
       "description": "",
       "cta": "Let AI write the notes — you do the thinking.",
       "button": "Try Teamie in your next meeting"
     },
     "solution": {
-      "title": "Teamie keeps all your meetings connected and actionable.",
+      "title": "Meetings made Quick, Actionable, and Efficient",
       "features": {
         "capsules": {
           "title": "Meeting Capsules",
-          "description": "Every meeting can be stored as a capsule, and new ones build on the last — no more isolated discussions. AI organizes past conversations into clear context so you always know the full story."
+          "description": "Past meetings are distilled into capsules, which then provide context for new meetings."
         },
         "import": {
           "title": "Import Meetings",
