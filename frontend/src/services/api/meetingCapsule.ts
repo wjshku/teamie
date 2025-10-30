@@ -1,4 +1,4 @@
-import api from './client';
+import api, { guestApi } from './client';
 import {
   MeetingCapsule,
   CreateMeetingCapsuleRequest,
@@ -99,6 +99,26 @@ export const deleteMeetingCapsule = async (
     return {
       success: false,
       error: error.response?.data?.error || '删除会议胶囊失败',
+    };
+  }
+};
+
+/**
+ * 游客模式导入会议记录（使用 AI 总结，无需认证）
+ */
+export const guestImportMeetingCapsule = async (
+  request: ImportMeetingCapsuleRequest
+): Promise<ApiResponse<GenerateMeetingCapsuleResponse>> => {
+  try {
+    const response = await guestApi.post<ApiResponse<GenerateMeetingCapsuleResponse>>(
+      '/meetingCapsules/guestImport',
+      request
+    );
+    return response.data;
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.response?.data?.error || '导入会议胶囊失败',
     };
   }
 };

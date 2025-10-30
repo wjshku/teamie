@@ -161,6 +161,8 @@ export interface ImportMeetingCapsuleRequest {
     participants?: string[];
     meetingDate?: string;
     topics?: string[];
+    guestImportedAt?: string;
+    [key: string]: any; // Allow additional metadata fields
   };
 }
 

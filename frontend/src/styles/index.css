@@ -489,7 +489,7 @@
   }
 
   .brand-text {
-    @apply text-xl font-bold text-foreground hidden sm:inline;
+    @apply text-lg sm:text-xl font-bold text-foreground;
   }
 
   .nav-tabs {

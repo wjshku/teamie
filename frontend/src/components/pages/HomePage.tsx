@@ -19,12 +19,9 @@ const HomePage: React.FC<HomePageProps> = ({
     onViewMeeting(meetingId);
   };
 
-  // 只有在用户登录时才显示会议列表
-  const recentMeetings = isAuthenticated ? meetings : [];
-
   return (
     <HomeTemplate
-      recentMeetings={recentMeetings}
+      recentMeetings={meetings}
       onViewMeeting={handleViewMeeting}
       onNavigateToCreate={onNavigateToCreate}
       isAuthenticated={isAuthenticated}

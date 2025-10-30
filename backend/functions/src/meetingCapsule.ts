@@ -241,6 +241,39 @@ router.delete('/:capsuleId', async (req: Request, res: Response) => {
 });
 
 /**
+ * 游客模式导入会议记录（使用 AI 总结，无需认证）
+ * POST /meetingCapsules/guestImport
+ * Body: { title: string, content: string }
+ */
+router.post('/guestImport', async (req: Request, res: Response) => {
+  try {
+    const { title, content } = req.body;
+
+    if (!title || !content) {
+      res.status(400).json({ success: false, error: '缺少 title 或 content' });
+      return;
+    }
+
+    // 使用 AI 处理导入的会议记录（无需认证）
+    const aiResult = await generateCapsuleFromTranscript({ title, content });
+
+    // 返回胶囊数据但不保存到数据库
+    const capsuleData = {
+      title,
+      summary: aiResult.summary,
+      keyPoints: aiResult.keyPoints,
+      createdAt: new Date().toISOString(),
+      isGuest: true // 标记为游客胶囊
+    };
+
+    res.json({ success: true, data: { capsule: capsuleData } });
+  } catch (error) {
+    console.error('游客导入会议胶囊失败:', error);
+    res.status(500).json({ success: false, error: '导入会议胶囊失败' });
+  }
+});
+
+/**
  * 生成会议建议（使用 AI）
  * POST /meetingCapsules/generateSuggestions
  * Body: { capsuleIds: string[], currentObjective?: string }

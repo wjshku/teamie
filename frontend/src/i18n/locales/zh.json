@@ -1,4 +1,31 @@
 {
+  "landing": {
+    "brandTitle": "一个人就是一支队伍",
+    "hero": {
+      "title": "更快思考，高效工作。",
+      "subtitle": "Teamie 让每个项目和会议都井井有条 —— 自动生成关键要点、决策和下一步行动的即时摘要。对于同时管理多个项目的专业人士来说，会议不应消耗你的时间和精力。",
+      "description": "",
+      "cta": "让 Teamie 记住一切 —— 而你专注思考。",
+      "button": "在你的下一次会议中试试 Teamie"
+    },
+    "solution": {
+      "title": "Teamie 让你的每次会议都互相关联、直达重点。",
+      "features": {
+        "capsules": {
+          "title": "会议胶囊",
+          "description": "每次会议都可以存为一个胶囊，以引导新会议在之前的基础上进行。AI 会整理过去的讨论，为你提供清晰上下文，让你随时掌握完整情况。"
+        },
+        "import": {
+          "title": "导入会议",
+          "description": "将任何外部会议纪要导入为胶囊，为新会议提供上下文。"
+        },
+        "summaries": {
+          "title": "即时摘要",
+          "description": "30 秒掌握核心内容 —— 清楚知道会议决策和下一步行动。"
+        }
+      }
+    }
+  },
   "home": "首页",
   "login": "登录",
   "logout": "登出",
@@ -38,7 +65,9 @@
     "contextLabel": "上下文胶囊（可选）",
     "contextDesc": "选择历史会议胶囊为本次会议提供上下文",
     "noCapsules": "暂无可用胶囊",
-    "selectCapsules": "选择胶囊..."
+    "selectCapsules": "选择胶囊...",
+    "serverCapsules": "服务器胶囊",
+    "guestCapsules": "游客胶囊"
   },
   "quickJoin": {
     "recentMeetingsTitle": "最近会议",
@@ -169,7 +198,9 @@
     "imported": "已导入",
     "importSuccess": "会议胶囊导入成功！",
     "importError": "导入会议胶囊失败",
-    "emptyFieldsError": "请填写所有字段"
+    "emptyFieldsError": "请填写所有字段",
+    "guestMode": "游客模式：您还可以使用 {{remaining}}/{{max}} 次导入功能",
+    "guestLimitReached": "游客模式已达到最大导入次数 ({{max}} 次)，请登录以继续使用"
   },
   "MessageBox": {
     "submit": "提交",

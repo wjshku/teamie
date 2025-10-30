@@ -81,4 +81,51 @@ api.interceptors.response.use(
   }
 );
 
+// 游客模式 API 实例（无需认证）
+export const guestApi = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 60000, // 60 second timeout for AI operations
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// 游客API响应拦截器（简化版）
+guestApi.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error: AxiosError) => {
+    // 简化的错误处理
+    let errorMessage: string | undefined;
+
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      errorMessage = i18n.t('errors.requestTimeout', {
+        defaultValue: 'Request timeout. Please check your network connection.'
+      });
+    } else if (error.code === 'ERR_NETWORK' || error.message.toLowerCase().includes('network')) {
+      errorMessage = i18n.t('errors.networkError', {
+        defaultValue: 'Network error. Please check your connection.'
+      });
+    } else if (error.response?.status && error.response.status >= 500) {
+      errorMessage = i18n.t('errors.serverError', {
+        defaultValue: 'Server error. Please try again later.'
+      });
+    }
+
+    if (errorMessage && error.response) {
+      const existingData = typeof error.response.data === 'object' && error.response.data !== null
+        ? error.response.data
+        : {};
+
+      error.response.data = {
+        ...existingData,
+        error: errorMessage
+      };
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;

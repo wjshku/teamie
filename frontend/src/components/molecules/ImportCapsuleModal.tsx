@@ -8,8 +8,10 @@ import {
   DialogFooter,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Upload, Loader2, AlertCircle, CheckCircle, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../hooks/useAuth";
+import { useGuestImport } from "../../hooks/useGuestImport";
 import { importMeetingCapsule } from "../../services/api/meetingCapsule";
 import { Alert, AlertDescription } from "../ui/alert";
 
@@ -25,6 +27,8 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
   onImportSuccess,
 }) => {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
+  const { canImport, getRemainingImports, addGuestImport, maxImports } = useGuestImport();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [importing, setImporting] = useState(false);
@@ -37,31 +41,59 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
       return;
     }
 
+    // Check if guest can import
+    if (!isAuthenticated && !canImport()) {
+      setError(t("importCapsule.guestLimitReached", { max: maxImports }));
+      return;
+    }
+
     setImporting(true);
     setError(null);
     setSuccess(false);
 
     try {
-      const response = await importMeetingCapsule({
-        title: title.trim(),
-        content: content.trim(),
-      });
+      if (isAuthenticated) {
+        // Authenticated user - import to server
+        const response = await importMeetingCapsule({
+          title: title.trim(),
+          content: content.trim(),
+        });
 
-      if (response.success) {
-        setSuccess(true);
-        setTimeout(() => {
-          // Reset form
-          setTitle("");
-          setContent("");
-          setSuccess(false);
-          onOpenChange(false);
-          // Trigger refresh
-          if (onImportSuccess) {
-            onImportSuccess();
-          }
-        }, 1500);
+        if (response.success) {
+          setSuccess(true);
+          setTimeout(() => {
+            // Reset form
+            setTitle("");
+            setContent("");
+            setSuccess(false);
+            onOpenChange(false);
+            // Trigger refresh
+            if (onImportSuccess) {
+              onImportSuccess();
+            }
+          }, 1500);
+        } else {
+          setError(response.error || t("importCapsule.importError"));
+        }
       } else {
-        setError(response.error || t("importCapsule.importError"));
+        // Guest user - save locally
+        try {
+          addGuestImport(title.trim(), content.trim());
+          setSuccess(true);
+          setTimeout(() => {
+            // Reset form
+            setTitle("");
+            setContent("");
+            setSuccess(false);
+            onOpenChange(false);
+            // Trigger refresh
+            if (onImportSuccess) {
+              onImportSuccess();
+            }
+          }, 1500);
+        } catch (err: any) {
+          setError(err.message || t("importCapsule.importError"));
+        }
       }
     } catch (err) {
       setError(t("importCapsule.importError"));
@@ -88,8 +120,19 @@ const ImportCapsuleModal: React.FC<ImportCapsuleModalProps> = ({
             <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
             <DialogTitle className="text-xl sm:text-2xl">{t("importCapsule.title")}</DialogTitle>
           </div>
-          <DialogDescription className="text-left text-sm">
-            {t("importCapsule.description")}
+          <DialogDescription className="text-left text-sm space-y-2">
+            <p>{t("importCapsule.description")}</p>
+            {!isAuthenticated && (
+              <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                <User className="w-4 h-4 text-blue-600" />
+                <p className="text-sm text-blue-700">
+                  {t("importCapsule.guestMode", {
+                    remaining: getRemainingImports(),
+                    max: maxImports
+                  })}
+                </p>
+              </div>
+            )}
           </DialogDescription>
         </DialogHeader>
 

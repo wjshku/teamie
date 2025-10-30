@@ -1,4 +1,31 @@
 {
+  "landing": {
+    "brandTitle": "You are Your Team",
+    "hero": {
+      "title": "Think faster. Work smarter.",
+      "subtitle": "Teamie keeps every project and meeting on track — with instant summaries of key points, decisions, and next steps. For professionals juggling multiple projects at once, meetings shouldn't drain your time and focus.",
+      "description": "",
+      "cta": "Let AI write the notes — you do the thinking.",
+      "button": "Try Teamie in your next meeting"
+    },
+    "solution": {
+      "title": "Teamie keeps all your meetings connected and actionable.",
+      "features": {
+        "capsules": {
+          "title": "Meeting Capsules",
+          "description": "Every meeting can be stored as a capsule, and new ones build on the last — no more isolated discussions. AI organizes past conversations into clear context so you always know the full story."
+        },
+        "import": {
+          "title": "Import Meetings",
+          "description": "Turn any external meeting notes into a Capsule to provide context for your new meetings."
+        },
+        "summaries": {
+          "title": "Instant Summaries",
+          "description": "Get the core insights in 30 seconds — know exactly what decisions were made and what you need to do next."
+        }
+      }
+    }
+  },
   "home": "Home",
   "login": "Login",
   "logout": "Logout",
@@ -47,7 +74,9 @@
     "contextLabel": "Context Capsules (Optional)",
     "contextDesc": "Select past meeting capsules to provide context for this meeting",
     "noCapsules": "No capsules available",
-    "selectCapsules": "Select capsules..."
+    "selectCapsules": "Select capsules...",
+    "serverCapsules": "Server Capsules",
+    "guestCapsules": "Guest Capsules"
   },
   "personalCenter": {
     "historyTitle": "My Past Meetings",
@@ -169,7 +198,9 @@
     "imported": "Imported",
     "importSuccess": "Meeting capsule imported successfully!",
     "importError": "Failed to import meeting capsule",
-    "emptyFieldsError": "Please fill in all fields"
+    "emptyFieldsError": "Please fill in all fields",
+    "guestMode": "Guest mode: You can use {{remaining}}/{{max}} more imports",
+    "guestLimitReached": "Guest mode has reached maximum imports ({{max}} times), please login to continue"
   },
   "MessageBox": {
     "submit": "Submit",
