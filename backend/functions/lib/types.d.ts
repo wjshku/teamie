@@ -91,6 +91,7 @@ export interface UpdateMeetingRequest {
     time?: string;
     participants?: User[];
     votelink?: string;
+    contextCapsuleIds?: string[];
 }
 export interface MeetingListResponse {
     meetings: Meeting[];

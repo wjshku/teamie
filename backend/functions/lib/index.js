@@ -60,6 +60,8 @@ app.use((0, cors_1.default)({
         'http://localhost:3000', // 备用端口
         'https://spiffy-tulumba-616f2c.netlify.app', // 生产域名
         'https://*.netlify.app',
+        'https://test.teamie.work',
+        'https://teamie.onrender.com',
         'https://teamie.work', // 生产域名（如果有）
         'http://teamie.work',
         'https://www.teamie.work', // 生产域名（如果有）
