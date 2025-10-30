@@ -62,12 +62,14 @@
     "creating": "创建中...",
     "createButton": "创建会议",
     "createFailed": "创建会议失败:",
-    "contextLabel": "上下文胶囊（可选）",
-    "contextDesc": "选择历史会议胶囊为本次会议提供上下文",
+    "contextLabel": "历史会议胶囊",
+    "contextDesc": "选择历史会议以提供上下文，双击预览",
     "noCapsules": "暂无可用胶囊",
     "selectCapsules": "选择胶囊...",
     "serverCapsules": "服务器胶囊",
-    "guestCapsules": "游客胶囊"
+    "guestCapsules": "游客胶囊",
+    "linkCapsule": "链接胶囊",
+    "linkCapsuleDesc": "选择要链接到此会议的胶囊"
   },
   "quickJoin": {
     "recentMeetingsTitle": "最近会议",
@@ -112,7 +114,8 @@
     "cancel": "取消",
     "loading": "加载中...",
     "loadFailed": "加载失败",
-    "retry": "重试"
+    "retry": "重试",
+    "linked": "已链接"
   },
   "meetingPrinciples": {
     "title": "会议指引 - ACTION 原则",

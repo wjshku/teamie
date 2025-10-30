@@ -1,6 +1,6 @@
 import React from "react";
 import { MeetingCapsule } from "../../types/api";
-import { Sparkles, Calendar, Users, Tag, Trash2 } from "lucide-react";
+import { Sparkles, Calendar, Users, Tag, Trash2, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
 
@@ -8,6 +8,7 @@ interface CapsuleListItemProps {
   capsule: MeetingCapsule;
   onView?: (capsuleId: string) => void;
   onDelete?: (capsuleId: string) => void;
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -15,12 +16,13 @@ const CapsuleListItem: React.FC<CapsuleListItemProps> = ({
   capsule,
   onView,
   onDelete,
+  isLoading = false,
   className = "",
 }) => {
   const { t } = useTranslation();
 
   const handleClick = () => {
-    if (onView) {
+    if (!isLoading && onView) {
       onView(capsule.capsuleId);
     }
   };
@@ -34,7 +36,7 @@ const CapsuleListItem: React.FC<CapsuleListItemProps> = ({
 
   return (
     <div
-      className={`group relative border-2 border-yellow-200 rounded-lg p-3 sm:p-4 hover:shadow-lg hover:border-yellow-300 transition-all cursor-pointer bg-gradient-to-br from-yellow-50 to-amber-50 hover:from-yellow-100 hover:to-amber-100 w-full overflow-hidden ${className}`}
+      className={`group relative border-2 border-yellow-200 rounded-lg p-3 sm:p-4 hover:shadow-lg hover:border-yellow-300 transition-all ${isLoading ? 'cursor-wait' : 'cursor-pointer'} bg-gradient-to-br from-yellow-50 to-amber-50 hover:from-yellow-100 hover:to-amber-100 w-full overflow-hidden ${className}`}
       onClick={handleClick}
     >
       {/* Delete button - positioned absolute */}
@@ -54,15 +56,25 @@ const CapsuleListItem: React.FC<CapsuleListItemProps> = ({
         <div className="flex items-start gap-2 pr-8">
           <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
           <h3 className="font-semibold text-base sm:text-lg leading-tight">{capsule.title}</h3>
+          {isLoading && (
+            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 animate-spin flex-shrink-0 mt-0.5 ml-auto" />
+          )}
         </div>
 
         {/* Summary */}
-        <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-2 pl-6 sm:pl-7">
-          {capsule.summary}
-        </p>
+        {isLoading ? (
+          <div className="pl-6 sm:pl-7">
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+          </div>
+        ) : (
+          <p className="text-xs sm:text-sm text-gray-700 leading-relaxed line-clamp-2 pl-6 sm:pl-7">
+            {capsule.summary}
+          </p>
+        )}
 
         {/* Key Points - More compact */}
-        {capsule.keyPoints && capsule.keyPoints.length > 0 && (
+        {!isLoading && capsule.keyPoints && capsule.keyPoints.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pl-6 sm:pl-7">
             {capsule.keyPoints.slice(0, 3).map((point, index) => (
               <span
@@ -83,7 +95,7 @@ const CapsuleListItem: React.FC<CapsuleListItemProps> = ({
         )}
 
         {/* Metadata - Inline and compact */}
-        {(capsule.metadata?.meetingDate || (capsule.metadata?.participants && capsule.metadata.participants.length > 0)) && (
+        {!isLoading && (capsule.metadata?.meetingDate || (capsule.metadata?.participants && capsule.metadata.participants.length > 0)) && (
           <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 pl-6 sm:pl-7 pt-1 border-t border-yellow-100">
             {capsule.metadata?.meetingDate && (
               <div className="flex items-center gap-1 pt-1.5">

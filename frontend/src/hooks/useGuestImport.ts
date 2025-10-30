@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from './useAuth';
 
 export interface GuestImport {
@@ -19,6 +19,12 @@ export const useGuestImport = () => {
   const [guestImports, setGuestImports] = useState<GuestImport[]>([]);
   const [usageCount, setUsageCount] = useState(0);
   const { isAuthenticated, user } = useAuth();
+  const syncingRef = useRef(false);
+  const syncedRef = useRef<Set<string>>(new Set());
+  const wasAuthenticatedRef = useRef<boolean>(false);
+  const importingRef = useRef<Set<string>>(new Set()); // Track ongoing imports by title+content key
+  const hasSyncedRef = useRef(false); // Track if syncing has been triggered for current session
+  const syncedCountRef = useRef(0); // Track count of synced imports to avoid duplicate cleanup
 
   // Load guest imports from localStorage on mount
   useEffect(() => {
@@ -27,7 +33,7 @@ export const useGuestImport = () => {
 
     if (savedImports) {
       try {
-        const parsedImports = JSON.parse(savedImports);
+        const parsedImports: GuestImport[] = JSON.parse(savedImports);
         setGuestImports(parsedImports);
       } catch (error) {
         console.error('Failed to parse guest imports from localStorage:', error);
@@ -39,14 +45,75 @@ export const useGuestImport = () => {
       const count = parseInt(savedCount, 10);
       setUsageCount(count);
     }
+
+    // Initialize ref with current authentication state
+    wasAuthenticatedRef.current = isAuthenticated;
   }, []);
 
-  // Sync guest imports to server when user logs in
+  // Sync guest imports to server when user logs in (only trigger once on login)
   useEffect(() => {
-    if (isAuthenticated && user && guestImports.length > 0) {
+    // Only sync when user first logs in (isAuthenticated changes from false to true)
+    if (isAuthenticated && user && guestImports.length > 0 && !syncingRef.current && !hasSyncedRef.current) {
+      hasSyncedRef.current = true;
       syncGuestImportsToServer();
     }
+    // Reset flag when user logs out
+    if (!isAuthenticated) {
+      hasSyncedRef.current = false;
+    }
   }, [isAuthenticated, user]);
+
+  // Clear synced guest imports after sync completes
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    const savedImports = localStorage.getItem(GUEST_IMPORTS_KEY);
+    if (!savedImports) return;
+
+    let currentImports: GuestImport[];
+    try {
+      currentImports = JSON.parse(savedImports);
+    } catch {
+      return;
+    }
+
+    const syncedCount = currentImports.filter(imp => imp.isSynced).length;
+    // Only proceed if synced count changed
+    if (syncedCount === 0 || syncedCount === syncedCountRef.current) return;
+    
+    syncedCountRef.current = syncedCount;
+
+    // Remove synced imports after a short delay to ensure sync completed
+    const timer = setTimeout(() => {
+      const remainingImports = currentImports.filter(imp => !imp.isSynced);
+      setGuestImports(remainingImports);
+      syncedCountRef.current = remainingImports.filter(imp => imp.isSynced).length;
+      if (remainingImports.length === 0) {
+        localStorage.removeItem(GUEST_IMPORTS_KEY);
+        localStorage.removeItem(GUEST_USAGE_COUNT_KEY);
+        setUsageCount(0);
+      } else {
+        localStorage.setItem(GUEST_IMPORTS_KEY, JSON.stringify(remainingImports));
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, guestImports]);
+
+  // Clear all guest imports when user logs out (only when transitioning from authenticated to unauthenticated)
+  useEffect(() => {
+    // Only clear if user was previously authenticated and now is not
+    if (wasAuthenticatedRef.current && !isAuthenticated) {
+      // User logged out, clear all guest imports
+      setGuestImports([]);
+      setUsageCount(0);
+      localStorage.removeItem(GUEST_IMPORTS_KEY);
+      localStorage.removeItem(GUEST_USAGE_COUNT_KEY);
+      syncedRef.current.clear();
+    }
+    // Update ref to track current authentication state
+    wasAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated]);
 
   const canImport = () => {
     return usageCount < MAX_GUEST_IMPORTS;
@@ -61,55 +128,99 @@ export const useGuestImport = () => {
       throw new Error('Maximum guest imports reached');
     }
 
-    // Import the API function dynamically to avoid circular dependencies
-    const { guestImportMeetingCapsule } = await import('../services/api/meetingCapsule');
-
-    // Call AI API to generate capsule
-    const response = await guestImportMeetingCapsule({
-      title,
-      content,
-    });
-
-    if (!response.success) {
-      throw new Error(response.error || 'Failed to import capsule');
+    const importKey = `${title.trim()}|${content.trim()}`;
+    
+    // Prevent duplicate API calls - if already importing, throw error
+    if (importingRef.current.has(importKey)) {
+      throw new Error('Import already in progress');
     }
 
-    const capsuleData = response.data.capsule;
+    // Mark as importing immediately to prevent duplicate calls
+    importingRef.current.add(importKey);
 
-    const newImport: GuestImport = {
-      id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      title: capsuleData.title,
-      content, // Keep original content for potential re-processing
-      summary: capsuleData.summary,
-      keyPoints: capsuleData.keyPoints,
-      createdAt: capsuleData.createdAt,
-      isSynced: false,
-    };
+    try {
+      // Import the API function dynamically to avoid circular dependencies
+      const { guestImportMeetingCapsule } = await import('../services/api/meetingCapsule');
 
-    const updatedImports = [...guestImports, newImport];
-    setGuestImports(updatedImports);
-    setUsageCount(prev => prev + 1);
+      // Call AI API to generate capsule
+      const response = await guestImportMeetingCapsule({
+        title,
+        content,
+      });
 
-    // Save to localStorage
-    localStorage.setItem(GUEST_IMPORTS_KEY, JSON.stringify(updatedImports));
-    localStorage.setItem(GUEST_USAGE_COUNT_KEY, (usageCount + 1).toString());
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to import capsule');
+      }
 
-    return newImport;
+      const capsuleData = response.data.capsule;
+
+      const newImport: GuestImport = {
+        id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: capsuleData.title,
+        content, // Keep original content for potential re-processing
+        summary: capsuleData.summary,
+        keyPoints: capsuleData.keyPoints,
+        createdAt: capsuleData.createdAt,
+        isSynced: false,
+      };
+
+      // Add to state and localStorage
+      setGuestImports((prevImports) => {
+        const updatedImports = [...prevImports, newImport];
+        localStorage.setItem(GUEST_IMPORTS_KEY, JSON.stringify(updatedImports));
+        return updatedImports;
+      });
+
+      setUsageCount(prev => {
+        const newCount = prev + 1;
+        localStorage.setItem(GUEST_USAGE_COUNT_KEY, newCount.toString());
+        return newCount;
+      });
+
+      return newImport;
+    } finally {
+      // Remove from importing set
+      importingRef.current.delete(importKey);
+    }
   };
 
   const syncGuestImportsToServer = async () => {
-    if (!isAuthenticated || guestImports.length === 0) return;
+    if (!isAuthenticated || syncingRef.current) return;
+
+    // Get current guest imports from localStorage to ensure we have the latest
+    const savedImports = localStorage.getItem(GUEST_IMPORTS_KEY);
+    if (!savedImports) return;
+
+    let currentImports: GuestImport[];
+    try {
+      currentImports = JSON.parse(savedImports);
+    } catch {
+      return;
+    }
+
+    if (currentImports.length === 0) return;
+
+    syncingRef.current = true;
 
     try {
       // Import the API function dynamically to avoid circular dependencies
       const { importMeetingCapsule } = await import('../services/api/meetingCapsule');
 
-      const unsyncedImports = guestImports.filter(imp => !imp.isSynced);
+      const unsyncedImports = currentImports.filter(
+        imp => !imp.isSynced && !syncedRef.current.has(imp.id)
+      );
 
+      if (unsyncedImports.length === 0) {
+        syncingRef.current = false;
+        return;
+      }
+
+      // Sync each unsynced import sequentially to avoid race conditions
       for (const guestImport of unsyncedImports) {
         try {
-          // Since the guest import already has AI-generated summary and keyPoints,
-          // we can directly create the capsule with the processed data
+          // Mark as syncing to prevent duplicates
+          syncedRef.current.add(guestImport.id);
+
           const response = await importMeetingCapsule({
             title: guestImport.title,
             content: guestImport.content,
@@ -120,18 +231,26 @@ export const useGuestImport = () => {
 
           if (response.success) {
             // Mark as synced
-            const updatedImports = guestImports.map(imp =>
+            const updatedImports = currentImports.map(imp =>
               imp.id === guestImport.id ? { ...imp, isSynced: true } : imp
             );
+            currentImports = updatedImports;
             setGuestImports(updatedImports);
             localStorage.setItem(GUEST_IMPORTS_KEY, JSON.stringify(updatedImports));
+          } else {
+            // Failed to sync, remove from synced set to retry later
+            syncedRef.current.delete(guestImport.id);
           }
         } catch (error) {
           console.error(`Failed to sync guest import ${guestImport.id}:`, error);
+          // Failed to sync, remove from synced set to retry later
+          syncedRef.current.delete(guestImport.id);
         }
       }
     } catch (error) {
       console.error('Failed to sync guest imports:', error);
+    } finally {
+      syncingRef.current = false;
     }
   };
 

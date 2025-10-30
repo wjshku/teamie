@@ -32,6 +32,7 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
   const [selectedCapsule, setSelectedCapsule] = useState<MeetingCapsule | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [pendingCapsules, setPendingCapsules] = useState<Map<string, { title: string; timestamp: number }>>(new Map());
 
   useEffect(() => {
     // Only fetch if switching to capsules view and haven't fetched yet
@@ -85,9 +86,19 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
     setViewMode(viewMode === "meetings" ? "capsules" : "meetings");
   };
 
+  const handleImportStart = (title: string) => {
+    const pendingId = `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    setPendingCapsules(prev => new Map(prev).set(pendingId, { title, timestamp: Date.now() }));
+  };
+
   const handleImportSuccess = () => {
     // Refresh capsules list after successful import
     fetchCapsules();
+    // Clear pending capsules after a delay (they should be replaced by real ones)
+    // The delay ensures the new capsule appears in the list first
+    setTimeout(() => {
+      setPendingCapsules(new Map());
+    }, 2000);
   };
 
   return (
@@ -180,6 +191,23 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
                 </Alert>
               ) : (
                 <div className="grid gap-3 sm:gap-4 w-full">
+                  {/* Pending (loading) capsules */}
+                  {Array.from(pendingCapsules.entries()).map(([pendingId, pending]) => (
+                    <CapsuleListItem
+                      key={pendingId}
+                      capsule={{
+                        capsuleId: pendingId,
+                        userId: '',
+                        title: pending.title,
+                        summary: '',
+                        keyPoints: [],
+                        createdAt: new Date(pending.timestamp).toISOString(),
+                        metadata: {},
+                      }}
+                      isLoading={true}
+                    />
+                  ))}
+                  {/* Actual capsules */}
                   {capsules.length > 0 ? (
                     capsules.map((capsule) => (
                       <CapsuleListItem
@@ -189,14 +217,14 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
                         onDelete={handleDeleteCapsule}
                       />
                     ))
-                  ) : (
+                  ) : pendingCapsules.size === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <p className="text-sm sm:text-base">{t("personalCenter.noCapsules")}</p>
                       <p className="text-xs sm:text-sm mt-2">
                         {t("personalCenter.generateFirst")}
                       </p>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               )}
             </>
@@ -214,6 +242,7 @@ const PersonalCenterSection: React.FC<PersonalCenterSectionProps> = ({
         open={importModalOpen}
         onOpenChange={setImportModalOpen}
         onImportSuccess={handleImportSuccess}
+        onImportStart={(title) => handleImportStart(title)}
       />
     </section>
   );

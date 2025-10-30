@@ -71,12 +71,14 @@
     "creating": "Creating...",
     "createButton": "Create Meeting",
     "createFailed": "Failed to create meeting:",
-    "contextLabel": "Context Capsules (Optional)",
-    "contextDesc": "Select past meeting capsules to provide context for this meeting",
+    "contextLabel": "Historical Meeting Capsules",
+    "contextDesc": "Select past meeting capsules to provide context. Double-click to preview.",
     "noCapsules": "No capsules available",
     "selectCapsules": "Select capsules...",
     "serverCapsules": "Server Capsules",
-    "guestCapsules": "Guest Capsules"
+    "guestCapsules": "Guest Capsules",
+    "linkCapsule": "Link Capsule",
+    "linkCapsuleDesc": "Select capsules to link to this meeting"
   },
   "personalCenter": {
     "historyTitle": "My Past Meetings",
@@ -112,7 +114,8 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "loadFailed": "Load Failed",
-    "retry": "Retry"
+    "retry": "Retry",
+    "linked": "Linked"
   },
   "meetingPrinciples": {
     "title": "Meeting Guide - ACTION Principles",
