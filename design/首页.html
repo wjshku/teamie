@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamie - 一个人就是一支队伍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #fff;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 60px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            margin-left: 32px;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #333;
+        }
+
+        .nav-cta {
+            background: #333;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .nav-cta:hover {
+            background: #555;
+            transform: translateY(-1px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .hero-right {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: #333;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #f0f0f0 0%, #ffffff 100%);
+            padding: 0 8px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+
+
+        /* Dimensions Gallery */
+        .dimensions-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dimensions-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 0 8px;
+            scrollbar-width: none;
+            scroll-snap-type: x mandatory;
+            width: 336px;
+            margin: 0 auto;
+        }
+
+        .dimensions-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .dimension-card {
+            flex: 0 0 auto;
+            width: 320px;
+            padding: 32px;
+            background: #f8f8f8;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            scroll-snap-align: center;
+        }
+
+        .dimension-card:hover {
+            background: #fff;
+            border-color: #333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .dimension-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .dimension-desc {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .gallery-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 0;
+        }
+
+        .gallery-btn.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .gallery-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .gallery-btn:hover {
+            background: #f8f8f8;
+            border-color: #333;
+        }
+
+        /* Problem Section */
+        .problem {
+            padding: 60px 60px;
+            background: #f8f8f8;
+        }
+
+        .problem h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .problem-item {
+            padding-bottom: 32px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .problem-item:last-child {
+            border-bottom: none;
+        }
+
+        .problem-item h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .problem-item p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 60px;
+            text-align: center;
+            background: #fff;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .cta-primary {
+            display: inline-block;
+            background: #333;
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-primary:hover {
+            background: #555;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 60px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .hero-right {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            nav a {
+                margin: 10px 0;
+            }
+
+            .hero {
+                padding: 40px 20px;
+                gap: 30px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .problem,
+            .cta-section,
+            footer {
+                padding: 40px 20px;
+            }
+
+            .problem-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .dimension-card {
+                width: 280px;
+            }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Teamie</div>
+        <div style="flex: 1;"></div>
+        <button class="nav-cta">开始使用</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-left">
+            <h1>一个人就是<span class="highlight">一支队伍</span></h1>
+            <p>每周一份进展汇报：你完成了什么、还差什么、下一步怎么办。在一个界面中掌握所有项目的全景，精准决策，减少认知负担。</p>
+        </div>
+        <div class="hero-right">
+            <div class="dimensions-gallery">
+                <div class="dimensions-scroll">
+                    <div class="dimension-card">
+                        <div class="dimension-title">动机与方向</div>
+                        <div class="dimension-desc">
+                            明确每个项目的目标和意图，确保决策方向一致。
+                        </div>
+                    </div>
+                    <div class="dimension-card">
+                        <div class="dimension-title">已完成事项</div>
+                        <div class="dimension-desc">
+                            快速回顾每周的成果和进展，清晰看到工作产出。
+                        </div>
+                    </div>
+                    <div class="dimension-card">
+                        <div class="dimension-title">未完成事项</div>
+                        <div class="dimension-desc">
+                            了解阻碍，理解为什么没有完成，找到下步突破口。
+                        </div>
+                    </div>
+                    <div class="dimension-card">
+                        <div class="dimension-title">内部反思</div>
+                        <div class="dimension-desc">
+                            记录自己的思考、学习和改进方向，积累经验。
+                        </div>
+                    </div>
+                    <div class="dimension-card">
+                        <div class="dimension-title">外部反馈</div>
+                        <div class="dimension-desc">
+                            收集他人的意见和建议，不遗漏关键信息。
+                        </div>
+                    </div>
+                    <div class="dimension-card">
+                        <div class="dimension-title">下一步计划</div>
+                        <div class="dimension-desc">
+                            清晰的行动计划，让每周的工作都有明确方向。
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-nav">
+                    <button class="gallery-btn">&lt;</button>
+                    <button class="gallery-btn">&gt;</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem">
+        <h2>你的困扰，我们懂</h2>
+        <div class="problem-grid">
+            <div class="problem-item">
+                <h3>大脑在多个世界间切换</h3>
+                <p>科研需要严谨的逻辑，创业需要快速决策，工程需要细节管理。每个项目都要切换思维方式，频繁的上下文切换让你的脑力消耗成倍增长，工作效率直线下降。</p>
+            </div>
+            <div class="problem-item">
+                <h3>决策前要做半小时功课</h3>
+                <p>想做出一个决定，却要翻出各种文档、会议记录、反馈邮件。重新整理、重新理解、还要担心遗漏关键细节。这样的决策成本太高，而你能做的决策就太少。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>准备开启高效决策时代？</h2>
+        <p>加入已在用 Teamie 的研究者与创业者。免费体验，无需信用卡。</p>
+        <button class="cta-primary">开始免费试用</button>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Teamie. All rights reserved. | <a href="#" style="color: #999;">隐私政策</a> | <a href="#" style="color: #999;">联系我们</a></p>
+    </footer>
+
+    <script>
+        // Gallery loop functionality
+        document.querySelectorAll('.gallery-nav').forEach(nav => {
+            const scrollContainer = nav.parentElement.querySelector('.dimensions-scroll');
+            const leftBtn = nav.querySelector('.gallery-btn:first-child');
+            const rightBtn = nav.querySelector('.gallery-btn:last-child');
+
+            // Configuration
+            const cardWidth = 336; // card width + gap (320 + 16)
+            const totalCards = 6; // total number of cards
+
+            // Start at first card
+            let currentIndex = 0;
+            scrollContainer.scrollLeft = 0;
+
+            function updateButtons() {
+                leftBtn.classList.toggle('hidden', currentIndex === 0);
+                rightBtn.classList.toggle('hidden', currentIndex === totalCards - 1);
+            }
+
+            function scrollToIndex(index) {
+                const targetScroll = index * cardWidth;
+                scrollContainer.scrollTo({
+                    left: targetScroll,
+                    behavior: 'smooth'
+                });
+                currentIndex = index;
+                updateButtons();
+            }
+
+            // Initialize button states
+            updateButtons();
+
+            leftBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    scrollToIndex(currentIndex - 1);
+                }
+            });
+
+            rightBtn.addEventListener('click', () => {
+                if (currentIndex < totalCards - 1) {
+                    scrollToIndex(currentIndex + 1);
+                }
+            });
+
+            // Update currentIndex on manual scroll
+            scrollContainer.addEventListener('scroll', () => {
+                const newIndex = Math.round(scrollContainer.scrollLeft / cardWidth);
+                if (newIndex >= 0 && newIndex < totalCards && newIndex !== currentIndex) {
+                    currentIndex = newIndex;
+                    updateButtons();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

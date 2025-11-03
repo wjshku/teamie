@@ -1,3 +1,0 @@
-# Netlify SPA Redirects
-# 将所有路径重定向到 index.html，让 React Router 处理路由
-/*    /index.html   200

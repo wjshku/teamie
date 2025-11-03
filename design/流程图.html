@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamie 项目流程图 - 用户操作流程与系统响应</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            color: #666;
+        }
+        
+        .flowchart-wrapper {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+        }
+        
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+        
+        .tab-btn:hover {
+            border-color: #333;
+        }
+        
+        .flow-description {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            border: 1px solid #ddd;
+        }
+        
+        .description-section {
+            margin-bottom: 25px;
+        }
+        
+        .description-section h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .description-section p {
+            color: #555;
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            color: #555;
+            position: relative;
+            line-height: 1.6;
+        }
+        
+        .feature-list li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .legend-item {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 3px solid #333;
+        }
+        
+        .legend-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        
+        .legend-desc {
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .legend-desc strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Teamie 项目管理工具</h1>
+            <p>用户操作流程与系统响应流程图</p>
+        </div>
+        
+        <div class="flow-description">
+            <div class="description-section">
+                <h3>产品定位</h3>
+                <p>为科研创业者设计的高效项目管理软件。帮助研究生/研究员在一个界面中快速了解各项目的整体进展，并通过周进展分析报告实现高效决策与复盘。</p>
+            </div>
+            
+            <div class="description-section">
+                <h3>核心功能</h3>
+                <ul class="feature-list">
+                    <li><strong>F1 导入 Notion 项目内容</strong>：用户上传 Notion HTML 导出文件，系统自动读取会议记录、任务、文档等信息</li>
+                    <li><strong>F2 信息提取与分析</strong>：系统自动解析页面层级，提取关键要素（标题、摘要、日期、标签、任务状态）</li>
+                    <li><strong>F3 周进展分析报告</strong>：系统生成六个维度的结构化报告（动机与方向、达成事项、未达成事项、内部反思、外部反馈、下一步计划）</li>
+                </ul>
+            </div>
+            
+            <div class="description-section">
+                <h3>核心流程</h3>
+                <p>用户导入 Notion HTML → 系统解析信息 → <strong>对比上周"下一步计划"</strong> → 生成六个维度的周进展分析报告（动机与方向、达成事项、未达成事项、内部反思、外部反馈、下一步计划）→ 存储报告供查看/对比</p>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showFlowchart('main')">完整流程</button>
+            <button class="tab-btn" onclick="showFlowchart('firstimport')">初次导入</button>
+            <button class="tab-btn" onclick="showFlowchart('subsequentimport')">二次导入</button>
+            <button class="tab-btn" onclick="showFlowchart('analysis')">进展分析</button>
+        </div>
+        
+        <!-- 完整流程图 -->
+        <div id="main" class="flowchart-wrapper" style="display: block;">
+            <div class="mermaid">
+graph TD
+    A["开始"] --> B{"用户操作"}
+    B -->|导入项目| C{"有历史数据?"}
+    B -->|查看项目进展| H["查看项目进展"]
+    C -->|否| D["初次导入"]
+    C -->|是| E["二次导入<br/>读取上周报告"]
+    D --> F["解析HTML<br/>提取信息"]
+    E --> F
+    F --> G["对比上周<br/>下一步计划"]
+    G --> I["生成周进展汇报"]
+    I --> J["存储汇报"]
+    H --> K{"继续操作?"}
+    J --> K
+    K -->|是| B
+    K -->|否| L["结束"]
+            </div>
+        </div>
+        
+        <!-- 初次导入流程 -->
+        <div id="firstimport" class="flowchart-wrapper" style="display: block;">
+            <div class="mermaid">
+graph TD
+    A["开始"] --> B["上传HTML"]
+    B --> C{"格式有效?"}
+    C -->|否| D["错误"]
+    D --> B
+    C -->|是| E["解析HTML"]
+    E --> F["提取信息"]
+    F --> G["分析本周"]
+    G --> H["生成报告"]
+    H --> I["存储报告"]
+    I --> J["完成"]
+            </div>
+        </div>
+        
+        <!-- 二次导入流程 -->
+        <div id="subsequentimport" class="flowchart-wrapper" style="display: block;">
+            <div class="mermaid">
+graph TD
+    A["开始"] --> B["上传新HTML"]
+    B --> C{"格式有效?"}
+    C -->|否| D["错误"]
+    D --> B
+    C -->|是| E["读取上周报告"]
+    E --> F["解析新HTML"]
+    F --> G["提取本周数据"]
+    G --> H["对比上周计划"]
+    H --> I["分析完成情况"]
+    I --> J["生成进展报告"]
+    J --> K["存储新报告"]
+    K --> L["完成"]
+            </div>
+        </div>
+        
+        <!-- 进展分析报告 -->
+        <div id="analysis" class="flowchart-wrapper" style="display: block;">
+            <div class="mermaid">
+graph TD
+    A["开始分析"] --> B["动机与方向<br/>（为什么这样做）"]
+    B --> C["达成事项<br/>（做了什么）"]
+    C --> D["未达成事项<br/>（没做什么）"]
+    D --> E["内部反思<br/>（为什么没做）"]
+    E --> F["外部反馈<br/>（成效反馈）"]
+    F --> G["下一步计划<br/>（下一步做什么）"]
+    G --> H["整合六个维度报告"]
+    H --> I["完成"]
+            </div>
+        </div>
+        
+        <!-- 图例说明 -->
+        <div class="flowchart-wrapper">
+            <h2 style="margin-bottom: 20px; color: #333;">流程图说明</h2>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-title">椭圆形 - 开始/结束</div>
+                    <div class="legend-desc">流程的入口和出口点</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-title">矩形 - 处理步骤</div>
+                    <div class="legend-desc">系统或用户执行的具体操作</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-title">菱形 - 判断/决策</div>
+                    <div class="legend-desc">条件判断和分支逻辑</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-title">箭头 - 流程方向</div>
+                    <div class="legend-desc">业务流程的推进顺序</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 功能映射 -->
+        <div class="flowchart-wrapper">
+            <h2 style="margin-bottom: 20px; color: #333;">关键功能映射</h2>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-title">F1 - 导入 Notion 项目内容</div>
+                    <div class="legend-desc">
+                        <strong>触发：</strong>用户选择"导入项目"<br/>
+                        <strong>执行：</strong>上传 HTML → 文件验证 → 解析完成<br/>
+                        <strong>价值：</strong>快速接入现有项目资料，无需手动输入
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-title">F2 - 信息提取与分析</div>
+                    <div class="legend-desc">
+                        <strong>触发：</strong>文件解析成功<br/>
+                        <strong>执行：</strong>识别层级 → 提取字段 → 分析数据<br/>
+                        <strong>价值：</strong>将零散页面转化为结构化信息
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-title">F3 - 周进展分析报告</div>
+                    <div class="legend-desc">
+                        <strong>触发：</strong>信息提取完成<br/>
+                        <strong>执行：</strong>分析内容 → 整理报告 → 生成输出<br/>
+                        <strong>价值：</strong>帮助用户快速恢复上下文，便于复盘和决策
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-title">初次导入 vs 二次导入</div>
+                    <div class="legend-desc">
+                        <strong>初次导入：</strong>无历史数据 → 直接生成第一周报告 → 作为基准<br/>
+                        <strong>二次导入：</strong>读取上周报告 → 对比上周"下一步计划" → 分析任务完成情况 → 生成六个维度的进展报告
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-title">六个维度进展分析</div>
+                    <div class="legend-desc">
+                        <strong>1. 动机与方向：</strong>为什么这样做<br/>
+                        <strong>2. 达成事项：</strong>本周实际完成了什么<br/>
+                        <strong>3. 未达成事项：</strong>计划要做但没做的事情<br/>
+                        <strong>4. 内部反思：</strong>没做的原因分析<br/>
+                        <strong>5. 外部反馈：</strong>成效和用户反馈<br/>
+                        <strong>6. 下一步计划：</strong>下周的具体行动计划
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+        mermaid.contentLoaded();
+        
+        function showFlowchart(id) {
+            // 点击按钮滚动到对应部分
+            const element = document.getElementById(id);
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // 高亮按钮状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

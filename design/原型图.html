@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamie 原型图 - 低保真框架设计</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 30px 0 10px;
+            font-size: 24px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .screen-section {
+            margin-bottom: 60px;
+            page-break-inside: avoid;
+        }
+        
+        .screen-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+        }
+        
+        .wireframe {
+            border: 2px solid #333;
+            background: white;
+            aspect-ratio: 9/16;
+            position: relative;
+            margin-bottom: 30px;
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            border-bottom: 1px solid #333;
+            padding: 12px;
+            font-weight: bold;
+            background: #f0f0f0;
+        }
+        
+        .content {
+            padding: 12px;
+            min-height: 300px;
+        }
+        
+        .box {
+            border: 1px solid #333;
+            padding: 8px;
+            margin: 8px 0;
+            background: #fafafa;
+        }
+        
+        .box-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        
+        .box-content {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .button {
+            border: 1px solid #333;
+            padding: 6px 12px;
+            margin: 4px 4px 4px 0;
+            display: inline-block;
+            background: #f0f0f0;
+            font-size: 11px;
+        }
+        
+        .button.primary {
+            background: #e0e0e0;
+            font-weight: bold;
+        }
+        
+        .list-item {
+            border: 1px solid #ddd;
+            padding: 8px;
+            margin: 4px 0;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .list-item::before {
+            content: "▢";
+            margin-right: 8px;
+            font-size: 10px;
+        }
+        
+        .section-block {
+            border: 1px dashed #999;
+            padding: 8px;
+            margin: 8px 0;
+            font-size: 10px;
+            background: #f9f9f9;
+        }
+        
+        .section-label {
+            font-weight: bold;
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+        
+        .note {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        .flow-diagram {
+            background: white;
+            border: 1px solid #333;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .flow-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            align-items: center;
+        }
+        
+        .flow-box {
+            border: 1px solid #333;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            width: 120px;
+            background: #f9f9f9;
+        }
+        
+        .flow-arrow {
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .legend {
+            background: white;
+            border: 1px solid #333;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .legend-item {
+            margin: 8px 0;
+            font-size: 12px;
+        }
+        
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+        
+        .tab-btn:hover {
+            border-color: #333;
+        }
+        
+        .screen-section.hidden {
+            display: none;
+        }
+        
+        @media print {
+            body { margin: 0; }
+            .screen-section { page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teamie 项目管理工具</h1>
+        <p class="subtitle">低保真原型图 - 信息架构与交互流程</p>
+        
+        <!-- 手机版标题 -->
+        <div style="text-align: center; margin: 40px 0 20px; padding-bottom: 15px; border-bottom: 2px solid #333;">
+            <h2 style="font-size: 16px; color: #333;">📱 手机版原型图</h2>
+        </div>
+        
+        <!-- Tab 导航 -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showScreen('screen1')">1. 主菜单</button>
+            <button class="tab-btn" onclick="showScreen('screen2')">2. 导入页面</button>
+            <button class="tab-btn" onclick="showScreen('screen3')">3. 分析进行中</button>
+            <button class="tab-btn" onclick="showScreen('screen4')">4. 进展汇报</button>
+            <button class="tab-btn" onclick="showScreen('screen5')">5. 项目列表</button>
+        </div>
+        
+        <!-- 屏幕 1: 主菜单 -->
+        <div id="screen1" class="screen-section">
+            <div class="screen-title">1. 主菜单屏幕</div>
+            <div class="wireframe">
+                <div class="header">Teamie</div>
+                <div class="content">
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="font-weight: bold; margin-bottom: 30px;">选择操作</div>
+                        <div class="button primary" style="display: block; margin: 20px auto; width: 80%; padding: 12px;">导入项目</div>
+                        <div class="button primary" style="display: block; margin: 20px auto; width: 80%; padding: 12px;">查看项目进展</div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 系统首屏，用户选择主要操作</div>
+        </div>
+        
+        <!-- 屏幕 2: 导入页面 -->
+        <div id="screen2" class="screen-section">
+            <div class="screen-title">2. 导入 Notion HTML 页面</div>
+            <div class="wireframe">
+                <div class="header">导入项目</div>
+                <div class="content">
+                    <div class="box">
+                        <div class="box-title">选择文件</div>
+                        <div class="button" style="display: block; width: 100%; text-align: center; padding: 20px;">选择 HTML 文件</div>
+                    </div>
+                    <div class="note">支持 Notion 导出的 HTML 文件(含子页面)</div>
+                    
+                    <div class="box" style="margin-top: 20px;">
+                        <div class="box-title">文件状态</div>
+                        <div class="box-content">[ 等待上传 ]</div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div class="button primary">上传并分析</div>
+                        <div class="button">返回</div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 用户上传 Notion HTML，系统开始解析</div>
+        </div>
+        
+        <!-- 屏幕 3: 分析进行中 -->
+        <div id="screen3" class="screen-section">
+            <div class="screen-title">3. 分析进行中页面</div>
+            <div class="wireframe">
+                <div class="header">处理中...</div>
+                <div class="content">
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="margin-bottom: 20px;">⟳</div>
+                        <div style="font-size: 12px;">正在解析文件...</div>
+                        
+                        <div class="section-block" style="margin-top: 30px;">
+                            <div class="section-label">进度</div>
+                            <div style="height: 4px; background: #ddd; margin: 8px 0;"></div>
+                            <div style="font-size: 10px; color: #999;">提取信息中</div>
+                        </div>
+                        
+                        <div class="section-block">
+                            <div class="section-label">已识别</div>
+                            <div style="font-size: 11px; text-align: left;">
+                                页面数: ? <br/>
+                                任务数: ? <br/>
+                                日期范围: ?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 系统后台处理，实时显示进度</div>
+        </div>
+        
+        <!-- 屏幕 4: 进展汇报 -->
+        <div id="screen4" class="screen-section">
+            <div class="screen-title">4. 进展汇报</div>
+            <div class="wireframe">
+                <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 11px; cursor: pointer;">← 上一周</div>
+                    <div style="text-align: center; flex: 1;">第 N 周</div>
+                    <div style="font-size: 11px; cursor: pointer;">下一周 →</div>
+                </div>
+                <div class="content" style="font-size: 11px; overflow-y: auto;">
+                    <div class="section-block">
+                        <div class="section-label">做了什么</div>
+                        <div style="margin: 4px 0;">✓ 任务 1</div>
+                        <div style="margin: 4px 0;">✓ 任务 2</div>
+                        <div style="color: #999; font-size: 10px;">共 5 个任务完成</div>
+                    </div>
+                    
+                    <div class="section-block">
+                        <div class="section-label">为什么这样做</div>
+                        <div style="margin: 4px 0;">优先级: 高</div>
+                        <div style="margin: 4px 0;">影响: 业务价值</div>
+                    </div>
+                    
+                    <div class="section-block">
+                        <div class="section-label">没做什么</div>
+                        <div style="margin: 4px 0;">○ 任务 3</div>
+                        <div style="margin: 4px 0;">○ 任务 4</div>
+                    </div>
+                    
+                    <div class="section-block">
+                        <div class="section-label">成效与反馈</div>
+                        <div style="margin: 4px 0;">完成率: 71%</div>
+                        <div style="margin: 4px 0;">输出物: 3 个</div>
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <div class="button">查看详情</div>
+                        <div class="button">返回</div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 进展汇报支持查看不同周期的数据，包含 6 个维度的分析</div>
+        </div>
+        
+        <!-- 屏幕 5: 项目列表和进展概览 -->
+        <div id="screen5" class="screen-section">
+            <div class="screen-title">5. 项目列表和进展概览</div>
+            <div class="wireframe">
+                <div class="header">项目进展一览</div>
+                <div class="content" style="padding: 0;">
+                    <div class="list-item" style="cursor: pointer; background: #f5f5f5;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold;">项目 A</div>
+                            <div style="font-size: 10px; color: #999;">第 N 周 | 71% 完成</div>
+                        </div>
+                    </div>
+                    <div class="list-item" style="cursor: pointer; background: #f5f5f5;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold;">项目 B</div>
+                            <div style="font-size: 10px; color: #999;">第 N 周 | 58% 完成</div>
+                        </div>
+                    </div>
+                    <div class="list-item" style="cursor: pointer; background: #f5f5f5;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold;">项目 C</div>
+                            <div style="font-size: 10px; color: #999;">第 N 周 | 100% 完成</div>
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 12px; border-top: 1px solid #ddd; background: #f9f9f9;">
+                        <div class="button primary">导入新项目</div>
+                        <div class="button">返回菜单</div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 所有项目的快速一览，点击项目跳转到进展汇报；点击"导入新项目"可添加新项目</div>
+        </div>
+        
+        <!-- 电脑版标题 -->
+        <div style="text-align: center; margin: 60px 0 20px; padding-bottom: 15px; border-bottom: 2px solid #333;">
+            <h2 style="font-size: 16px; color: #333;">💻 电脑版原型图</h2>
+        </div>
+        
+        <!-- 电脑版 Tab 导航 -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showScreen('screen6')">1. 主菜单</button>
+            <button class="tab-btn" onclick="showScreen('screen7')">2. 导入页面</button>
+            <button class="tab-btn" onclick="showScreen('screen8')">3. 分析进行中</button>
+            <button class="tab-btn" onclick="showScreen('screen9')">4. 进展汇报</button>
+            <button class="tab-btn" onclick="showScreen('screen10')">5. 项目列表</button>
+        </div>
+        
+        <!-- 电脑版屏幕 1: 主菜单 -->
+        <div id="screen6" class="screen-section hidden">
+            <div class="screen-title">1. 主菜单 (Desktop)</div>
+            <div class="wireframe" style="aspect-ratio: 16/9; max-width: 900px;">
+                <div style="display: flex; height: 100%; border: 1px solid #333;">
+                    <div style="width: 200px; border-right: 1px solid #333; background: #f5f5f5; padding: 20px; display: flex; flex-direction: column;">
+                        <div style="font-weight: bold; margin-bottom: 30px;">Teamie</div>
+                        <div style="border: 1px solid #333; padding: 8px; margin-bottom: 10px; text-align: center; cursor: pointer; font-size: 11px;">导入项目</div>
+                        <div style="border: 1px solid #333; padding: 8px; margin-bottom: 10px; text-align: center; cursor: pointer; font-size: 11px;">查看项目进展</div>
+                    </div>
+                    <div style="flex: 1; padding: 40px; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 30px;">选择操作</div>
+                            <div class="button primary" style="display: block; margin: 10px auto; width: 200px; padding: 12px;">导入项目</div>
+                            <div class="button primary" style="display: block; margin: 10px auto; width: 200px; padding: 12px;">查看项目进展</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 左侧导航栏 + 中间内容区域，便于快速切换</div>
+        </div>
+        
+        <!-- 电脑版屏幕 2: 导入页面 -->
+        <div id="screen7" class="screen-section hidden">
+            <div class="screen-title">2. 导入页面 (Desktop)</div>
+            <div class="wireframe" style="aspect-ratio: 16/9; max-width: 900px;">
+                <div style="display: flex; height: 100%; border: 1px solid #333;">
+                    <div style="width: 200px; border-right: 1px solid #333; background: #f5f5f5; padding: 20px; font-size: 11px;">
+                        <div style="font-weight: bold; margin-bottom: 20px;">Teamie</div>
+                        <div style="border: 1px solid #333; padding: 8px; margin-bottom: 10px; text-align: center; cursor: pointer;">导入项目</div>
+                        <div style="border: 1px solid #333; padding: 8px; text-align: center; cursor: pointer;">查看项目进展</div>
+                    </div>
+                    <div style="flex: 1; padding: 30px; overflow-y: auto; font-size: 11px;">
+                        <div style="font-weight: bold; margin-bottom: 20px; font-size: 13px;">导入项目</div>
+                        <div class="box">
+                            <div class="box-title">选择 Notion HTML 文件</div>
+                            <div style="border: 2px dashed #999; padding: 40px; text-align: center; font-size: 11px; background: #fafafa;">
+                                拖拽文件或点击选择<br/>(支持含子页面的HTML)
+                            </div>
+                        </div>
+                        <div class="box" style="margin-top: 15px;">
+                            <div class="box-title">文件状态</div>
+                            <div class="box-content">[ 等待上传 ]</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="button primary" style="display: inline-block; margin-right: 10px;">上传并分析</div>
+                            <div class="button" style="display: inline-block;">返回</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 拖拽上传区域更明显，左侧导航便于快速切换</div>
+        </div>
+        
+        <!-- 电脑版屏幕 3: 分析进行中 -->
+        <div id="screen8" class="screen-section hidden">
+            <div class="screen-title">3. 分析进行中 (Desktop)</div>
+            <div class="wireframe" style="aspect-ratio: 16/9; max-width: 900px;">
+                <div style="display: flex; height: 100%; border: 1px solid #333;">
+                    <div style="width: 200px; border-right: 1px solid #333; background: #f5f5f5; padding: 20px; font-size: 11px;">
+                        <div style="font-weight: bold; margin-bottom: 20px;">Teamie</div>
+                        <div style="border: 1px solid #333; padding: 8px; margin-bottom: 10px; text-align: center; cursor: pointer;">导入项目</div>
+                        <div style="border: 1px solid #333; padding: 8px; text-align: center; cursor: pointer;">查看项目进展</div>
+                    </div>
+                    <div style="flex: 1; padding: 30px; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 20px; margin-bottom: 15px;">⟳</div>
+                            <div style="font-weight: bold; margin-bottom: 20px; font-size: 12px;">正在处理您的文件...</div>
+                            <div style="background: #f0f0f0; padding: 20px; border-radius: 4px; margin-bottom: 20px; font-size: 10px;">
+                                <div style="margin-bottom: 8px;">进度: ████░░░░░░ 40%</div>
+                                <div style="margin-bottom: 8px;">已识别页面: 12</div>
+                                <div style="margin-bottom: 8px;">已识别任务: 28</div>
+                                <div>日期范围: 2025-11-01 ~ 2025-11-07</div>
+                            </div>
+                            <div style="font-size: 10px; color: #999;">预计还需 30 秒</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 详细的实时进度显示</div>
+        </div>
+        
+        <!-- 电脑版屏幕 4: 进展汇报 -->
+        <div id="screen9" class="screen-section hidden">
+            <div class="screen-title">4. 进展汇报 (Desktop)</div>
+            <div class="wireframe" style="aspect-ratio: 16/9; max-width: 900px;">
+                <div style="display: flex; height: 100%; border: 1px solid #333;">
+                    <div style="width: 200px; border-right: 1px solid #333; background: #f5f5f5; padding: 20px; font-size: 10px;">
+                        <div style="font-weight: bold; margin-bottom: 20px;">Teamie</div>
+                        <div style="border: 1px solid #333; padding: 8px; margin-bottom: 10px; text-align: center; cursor: pointer;">导入项目</div>
+                        <div style="border: 1px solid #333; padding: 8px; text-align: center; cursor: pointer;">查看项目进展</div>
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 9px; color: #999;">
+                            当前项目: 项目 A
+                        </div>
+                    </div>
+                    <div style="flex: 1; padding: 20px; overflow-y: auto; font-size: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div style="font-weight: bold; font-size: 12px;">进展汇报</div>
+                            <div>
+                                <span style="cursor: pointer; margin-right: 8px;">← 上一周</span>
+                                <span style="font-weight: bold;">第 44 周</span>
+                                <span style="cursor: pointer; margin-left: 8px;">下一周 →</span>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="section-block">
+                                <div class="section-label">做了什么</div>
+                                <div style="margin: 3px 0; font-size: 9px;">✓ 任务1</div>
+                                <div style="margin: 3px 0; font-size: 9px;">✓ 任务2</div>
+                                <div style="color: #999; font-size: 8px;">共5个完成</div>
+                            </div>
+                            <div class="section-block">
+                                <div class="section-label">为什么这样做</div>
+                                <div style="margin: 3px 0; font-size: 9px;">优先级: 高</div>
+                                <div style="margin: 3px 0; font-size: 9px;">影响: 业务价值</div>
+                            </div>
+                            <div class="section-block">
+                                <div class="section-label">没做什么</div>
+                                <div style="margin: 3px 0; font-size: 9px;">○ 任务3</div>
+                                <div style="margin: 3px 0; font-size: 9px;">○ 任务4</div>
+                            </div>
+                            <div class="section-block">
+                                <div class="section-label">为什么没做</div>
+                                <div style="margin: 3px 0; font-size: 9px;">优先级调整</div>
+                                <div style="margin: 3px 0; font-size: 9px;">资源限制</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="section-block">
+                                <div class="section-label">成效与反馈</div>
+                                <div style="margin: 3px 0; font-size: 9px;">完成率: 71%</div>
+                                <div style="margin: 3px 0; font-size: 9px;">输出物: 3个</div>
+                            </div>
+                            <div class="section-block">
+                                <div class="section-label">下一步计划</div>
+                                <div style="margin: 3px 0; font-size: 9px;">优先级排序</div>
+                                <div style="margin: 3px 0; font-size: 9px;">时间: 1-2周</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="button" style="display: inline-block; margin-right: 10px; font-size: 9px;">查看详情</div>
+                            <div class="button" style="display: inline-block; font-size: 9px;">返回</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 6维度并列展示，易于对比。支持周期导航</div>
+        </div>
+        
+        <!-- 电脑版屏幕 5: 项目列表 -->
+        <div id="screen10" class="screen-section hidden">
+            <div class="screen-title">5. 项目列表 (Desktop)</div>
+            <div class="wireframe" style="aspect-ratio: 16/9; max-width: 900px;">
+                <div style="display: flex; height: 100%; border: 1px solid #333;">
+                    <div style="width: 200px; border-right: 1px solid #333; background: #f5f5f5; padding: 20px; font-size: 11px;">
+                        <div style="font-weight: bold; margin-bottom: 20px;">Teamie</div>
+                        <div style="border: 1px solid #333; padding: 8px; margin-bottom: 10px; text-align: center; cursor: pointer;">导入项目</div>
+                        <div style="border: 1px solid #333; padding: 8px; text-align: center; cursor: pointer;">查看项目进展</div>
+                    </div>
+                    <div style="flex: 1; padding: 20px; overflow-y: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div style="font-weight: bold; font-size: 12px;">项目进展一览</div>
+                            <div class="button primary" style="font-size: 9px; padding: 6px 12px;">导入新项目</div>
+                        </div>
+                        <div style="border: 1px solid #333; font-size: 9px;">
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px; background: #f0f0f0; font-weight: bold; border-bottom: 1px solid #333;">
+                                <div>项目名称</div>
+                                <div>当前周期</div>
+                                <div>完成率</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; background: #fafafa;">
+                                <div style="font-weight: bold;">项目 A</div>
+                                <div>第 44 周</div>
+                                <div>71%</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; background: #fafafa;">
+                                <div style="font-weight: bold;">项目 B</div>
+                                <div>第 44 周</div>
+                                <div>58%</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; padding: 10px; cursor: pointer; background: #fafafa;">
+                                <div style="font-weight: bold;">项目 C</div>
+                                <div>第 44 周</div>
+                                <div>100%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">说明: 表格形式展示所有项目，点击项目跳转到进展汇报</div>
+        </div>
+        
+        <!-- 信息架构 -->
+        <div class="screen-section">
+            <div class="screen-title">信息架构（IA）</div>
+            <div style="background: white; border: 1px solid #333; padding: 30px; margin-bottom: 30px;">
+                <div style="text-align: center; margin-bottom: 30px; font-weight: bold; font-size: 14px;">Teamie 系统页面结构</div>
+                
+                <div style="font-family: monospace; font-size: 12px; line-height: 2; color: #333;">
+                    <div>Teamie 系统</div>
+                    <div style="margin-left: 20px;">│</div>
+                    <div style="margin-left: 20px;">├─ 主菜单</div>
+                    <div style="margin-left: 40px;">│</div>
+                    <div style="margin-left: 40px;">├─ 导入项目</div>
+                    <div style="margin-left: 60px;">│</div>
+                    <div style="margin-left: 60px;">├─ 分析进行中 (Processing Page)</div>
+                    <div style="margin-left: 80px;">│</div>
+                    <div style="margin-left: 80px;">└─ 进展汇报 (Report Page)</div>
+                    <div style="margin-left: 40px;">│</div>
+                    <div style="margin-left: 40px;">└─ 查看项目进展</div>
+                    <div style="margin-left: 60px;">│</div>
+                    <div style="margin-left: 60px;">├─ 项目列表 (Dashboard Page)</div>
+                    <div style="margin-left: 80px;">│</div>
+                    <div style="margin-left: 80px;">└─ 进展汇报 (Report Page)</div>
+                </div>
+                
+                <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+                    <div style="font-weight: bold; font-size: 12px; margin-bottom: 10px;">5 个主要屏幕：</div>
+                    <div style="font-size: 11px; line-height: 1.8; color: #555;">
+                        1. <strong>主菜单</strong> - 系统首屏，选择主要操作<br/>
+                        2. <strong>导入页面</strong> - 上传 Notion HTML 文件<br/>
+                        3. <strong>分析进行中</strong> - 实时显示处理进度<br/>
+                        4. <strong>进展汇报</strong> - 展示 6 维度分析，支持查看不同周期<br/>
+                        5. <strong>项目列表</strong> - 所有项目一览，点击跳转到进展汇报
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 关键组件库 -->
+        <div class="screen-section">
+            <div class="screen-title">关键 UI 组件库</div>
+            <div class="flow-diagram">
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: bold; margin-bottom: 8px;">按钮组件</div>
+                    <div class="button">标准按钮</div>
+                    <div class="button primary">主要按钮</div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: bold; margin-bottom: 8px;">卡片组件</div>
+                    <div class="box">
+                        <div class="box-title">卡片标题</div>
+                        <div class="box-content">卡片内容</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: bold; margin-bottom: 8px;">列表组件</div>
+                    <div class="list-item">列表项 1</div>
+                    <div class="list-item">列表项 2</div>
+                    <div class="list-item">列表项 3</div>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <div style="font-weight: bold; margin-bottom: 8px;">分组块</div>
+                    <div class="section-block">
+                        <div class="section-label">分组标签</div>
+                        <div class="box-content">分组内容</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 设计说明 -->
+        <div class="screen-section">
+            <div class="screen-title">设计说明</div>
+            <div class="legend">
+                <div class="legend-title">原型图设计原则</div>
+                <div class="legend-item">
+                    <strong>1. 信息优先级清晰</strong><br/>
+                    关键信息通过位置、大小和视觉层级突出显示，用户能快速找到关键操作
+                </div>
+                <div class="legend-item">
+                    <strong>2. 操作流程直观</strong><br/>
+                    从导入 → 分析 → 查看报告 → 对比的完整链路，每一步都有明确的下一步操作提示
+                </div>
+                <div class="legend-item">
+                    <strong>3. 信息密度合理</strong><br/>
+                    每个屏幕信息量适中，避免过载，用户可快速扫描理解内容
+                </div>
+                <div class="legend-item">
+                    <strong>4. 交互逻辑明确</strong><br/>
+                    按钮、链接位置一致，操作结果可预期，减少用户困惑
+                </div>
+                <div class="legend-item">
+                    <strong>5. 模块化设计</strong><br/>
+                    可复用的组件（卡片、列表、按钮等），便于后续高保真设计和开发实现
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+
+<script>
+    function showScreen(screenId) {
+        // 隐藏所有屏幕
+        document.getElementById('screen1').classList.add('hidden');
+        document.getElementById('screen2').classList.add('hidden');
+        document.getElementById('screen3').classList.add('hidden');
+        document.getElementById('screen4').classList.add('hidden');
+        document.getElementById('screen5').classList.add('hidden');
+        document.getElementById('screen6').classList.add('hidden');
+        document.getElementById('screen7').classList.add('hidden');
+        document.getElementById('screen8').classList.add('hidden');
+        document.getElementById('screen9').classList.add('hidden');
+        document.getElementById('screen10').classList.add('hidden');
+        
+        // 显示选中的屏幕
+        document.getElementById(screenId).classList.remove('hidden');
+        
+        // 更新按钮状态
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+</script>
+</html>

@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamie - 项目管理工具</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #fff;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 200px;
+            border-right: 1px solid #ddd;
+            background: #f8f8f8;
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            font-weight: 700;
+            font-size: 16px;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            color: #555;
+        }
+        
+        .nav-item:hover {
+            background: #eee;
+            color: #333;
+        }
+        
+        .nav-item.active {
+            background: #fff;
+            border: 1px solid #333;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .project-info {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        /* 主内容区 */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            border-bottom: 1px solid #ddd;
+            padding: 16px 24px;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        /* Tab 样式 */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 12px;
+        }
+        
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -14px;
+            font-weight: 500;
+        }
+        
+        .tab-btn:hover {
+            color: #333;
+        }
+        
+        .tab-btn.active {
+            color: #333;
+            border-bottom-color: #333;
+        }
+        
+        /* 屏幕样式 */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid #333;
+            background: #fff;
+            color: #333;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn.primary {
+            background: #333;
+            color: #fff;
+            border-color: #333;
+        }
+        
+        .btn.primary:hover {
+            background: #555;
+            border-color: #555;
+        }
+        
+        /* 卡片组件 */
+        .card {
+            border: 1px solid #ddd;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fff;
+            border-radius: 4px;
+        }
+        
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        /* 网格布局 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        /* 表格 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .table thead {
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .table tbody tr:hover {
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        /* 状态单元格样式 */
+        .status-cell {
+            cursor: pointer;
+            padding: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .status-cell:hover {
+            background: #f0f0f0;
+        }
+
+        .status-cell.editing {
+            padding: 0;
+        }
+
+        .status-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .status-input:focus {
+            outline: none;
+            border-color: #333;
+        }
+
+        /* 任务列表表格样式 */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .task-table th {
+            background: #f8f8f8;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border: 1px solid #ddd;
+            border-bottom: 2px solid #bbb;
+        }
+
+        .task-table td {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+            background: #fff;
+        }
+
+        .task-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .task-table tr:hover td {
+            background: #f0f0f0;
+        }
+
+        .task-table .task-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .task-table .task-desc {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        .task-table .priority-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #333;
+            color: #fff;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* 维度控制样式 */
+        .dimension-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .dimension-controls.hidden {
+            display: none;
+        }
+
+        /* 维度切换按钮样式 */
+        .dimension-toggle-btn {
+            margin-left: auto;
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .dimension-toggle-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .dimension-toggle {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .dimension-toggle:hover {
+            background: #f0f0f0;
+        }
+
+        .dimension-toggle.active {
+            background: #333;
+            color: #fff;
+            border-color: #333;
+        }
+
+        .dimension-toggle.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Z字型布局 - 两列 */
+        .report-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .report-section {
+            flex: 0 0 calc(50% - 8px);
+            min-width: 300px;
+            position: relative;
+        }
+
+        /* 当有3个元素时，最后一个元素也只占50%宽度 */
+        .report-section:nth-child(3):last-child,
+        .report-section:nth-child(5):last-child,
+        .report-section:nth-child(7):last-child {
+            flex: 0 0 calc(50% - 8px);
+            margin-left: calc(25% + 8px); /* 居中显示 */
+        }
+
+        .report-section.hidden {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 反馈按钮样式 - ChatGPT 风格 */
+        .feedback-buttons {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .report-section:hover .feedback-buttons {
+            opacity: 1;
+        }
+
+        .feedback-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 2px;
+            opacity: 0.4;
+        }
+
+        .feedback-btn:hover {
+            opacity: 0.7;
+        }
+
+        .feedback-btn.liked,
+        .feedback-btn.disliked {
+            opacity: 1;
+        }
+
+        .feedback-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .feedback-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.1);
+            color: #6b7280;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: slideDown 2s ease-in-out;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideDown {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            10% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            90% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        /* 达成事项表格列宽 */
+        #completed-tasks .task-table th:nth-child(1),
+        #completed-tasks .task-table td:nth-child(1) {
+            width: 30%;
+        }
+        #completed-tasks .task-table th:nth-child(2),
+        #completed-tasks .task-table td:nth-child(2) {
+            width: 70%;
+        }
+
+        /* 未达成事项表格列宽 */
+        #not-completed-tasks .task-table th:nth-child(1),
+        #not-completed-tasks .task-table td:nth-child(1) {
+            width: 30%;
+        }
+        #not-completed-tasks .task-table th:nth-child(2),
+        #not-completed-tasks .task-table td:nth-child(2) {
+            width: 30%;
+        }
+        #not-completed-tasks .task-table th:nth-child(3),
+        #not-completed-tasks .task-table td:nth-child(3) {
+            width: 40%;
+        }
+
+        /* 下一步计划表格列宽 */
+        #next-steps-list .task-table th:nth-child(1),
+        #next-steps-list .task-table td:nth-child(1) {
+            width: 10%;
+            text-align: center;
+        }
+        #next-steps-list .task-table th:nth-child(2),
+        #next-steps-list .task-table td:nth-child(2) {
+            width: 30%;
+        }
+        #next-steps-list .task-table th:nth-child(3),
+        #next-steps-list .task-table td:nth-child(3) {
+            width: 60%;
+        }
+
+        
+        
+        /* 上传区域 */
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            border-radius: 4px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 16px;
+        }
+        
+        .upload-area:hover {
+            border-color: #333;
+            background: #f5f5f5;
+        }
+        
+        .upload-area p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .upload-area small {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        /* 数据项 */
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+        }
+        
+        .data-item:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            color: #999;
+        }
+        
+        .data-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        /* 状态指示 */
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status.completed {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .status.processing {
+            background: #fffbf0;
+            color: #d97706;
+        }
+        
+        /* 文本 */
+        .text-muted {
+            color: #999;
+            font-size: 11px;
+        }
+        
+        .text-highlight {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* 周期导航 */
+        .week-nav {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .week-nav a {
+            color: #666;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .week-nav a:hover {
+            color: #333;
+            background: #f0f0f0;
+        }
+
+        .week-current {
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+            color: #333;
+        }
+        
+        /* 加载动画 */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* 编辑模式样式 - 参考 Notion */
+        .edit-mode {
+            background: #fafafa;
+        }
+
+        .editable-row {
+            position: relative;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 3px;
+            transition: background-color 0.15s ease;
+        }
+
+        .editable-row:hover {
+            background: rgba(55, 53, 47, 0.08);
+        }
+
+        .editable-row.selected {
+            background: rgba(55, 53, 47, 0.12);
+            box-shadow: 0 0 0 1px rgba(55, 53, 47, 0.2);
+        }
+
+        .editable-text {
+            cursor: text;
+            outline: none;
+            border: none;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            color: inherit;
+            min-height: 20px;
+            width: 100%;
+        }
+
+        .editable-text:focus {
+            outline: none;
+        }
+
+        .editable-text:empty::before {
+            content: attr(data-placeholder);
+            color: rgba(55, 53, 47, 0.4);
+            font-style: normal;
+        }
+
+        .row-actions {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .edit-mode .editable-row:hover .row-actions,
+        .edit-mode .editable-row.selected .row-actions {
+            display: flex;
+            opacity: 1;
+        }
+
+        .row-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            color: rgba(55, 53, 47, 0.6);
+        }
+
+        .row-action-btn:hover {
+            background: rgba(55, 53, 47, 0.1);
+            color: rgba(55, 53, 47, 0.8);
+        }
+
+        .row-action-btn.delete:hover {
+            background: rgba(235, 87, 87, 0.1);
+            color: rgb(235, 87, 87);
+        }
+
+        .add-row-btn {
+            width: 100%;
+            padding: 8px;
+            margin: 4px 0;
+            border: 1px dashed rgba(55, 53, 47, 0.2);
+            background: transparent;
+            border-radius: 3px;
+            cursor: pointer;
+            color: rgba(55, 53, 47, 0.6);
+            transition: all 0.15s ease;
+            font-size: 12px;
+            display: none;
+        }
+
+        .edit-mode .add-row-btn {
+            display: block;
+        }
+
+        .add-row-btn:hover {
+            border-color: rgba(55, 53, 47, 0.3);
+            background: rgba(55, 53, 47, 0.05);
+            color: rgba(55, 53, 47, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧导航 -->
+        <div class="sidebar">
+            <div class="logo">Teamie</div>
+            <div class="nav-item active" onclick="switchNav('import')">导入新项目</div>
+            <div class="nav-item" onclick="switchNav('dashboard')">查看项目进展</div>
+            <div class="project-info" id="projectInfo" style="display: none;">
+                当前项目:<br/>
+                <span id="currentProject">项目 A - Teamie 开发</span>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main">
+            <div class="header">
+                <h2 id="screenTitle">导入新项目</h2>
+                <div class="header-right">
+                    <span id="headerInfo"></span>
+                </div>
+            </div>
+            
+            <div class="content">
+                <!-- 屏幕 1: 导入页面 -->
+                <div id="screen1" class="screen active" style="display: block;">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchScreen(1)">上传文件</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">选择 Notion HTML 文件</div>
+                        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                            <p>📁 拖拽文件或点击选择</p>
+                            <small>支持 Notion 导出的 HTML 文件（含子页面）</small>
+                            <input type="file" id="fileInput" style="display: none;" accept=".html">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">文件状态</div>
+                        <div class="data-item">
+                            <span class="data-label">当前文件</span>
+                            <span class="data-value" id="fileName">未选择</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn primary" onclick="simulateUpload()">上传并分析</button>
+                        <button class="btn" onclick="cancelImport()">取消</button>
+                    </div>
+                </div>
+                
+                <!-- 屏幕 2: 分析进行中 -->
+                <div id="screen2" class="screen" style="display: none;">
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div class="spinner" style="margin: 0 auto 20px;"></div>
+                        <h3 style="margin-bottom: 10px;">处理中...</h3>
+                        <p class="text-muted">正在解析您的 Notion 文件</p>
+                        
+                        <div class="card" style="margin-top: 30px; text-align: left;">
+                            <div class="data-item">
+                                <span class="data-label">已识别页面</span>
+                                <span class="data-value">12</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">已识别任务</span>
+                                <span class="data-value">28</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">日期范围</span>
+                                <span class="data-value">2025-11-01 ~ 2025-11-07</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">预计完成</span>
+                                <span class="data-value">20 秒</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 屏幕 3: 进展汇报 -->
+                <div id="screen3" class="screen">
+                    <div class="week-nav">
+                        <a onclick="changeWeek(-1)">← 上一周</a>
+                        <span class="week-current">第 1 周</span>
+                        <a onclick="changeWeek(1)">下一周 →</a>
+                        <button class="btn primary" onclick="showScreen('screen1')">导入新进展</button>
+                        <button class="btn" onclick="toggleEditMode()" id="editBtn">编辑内容</button>
+                        <button class="dimension-toggle-btn" onclick="toggleDimensionControls()">自定义视图</button>
+                    </div>
+
+                    <!-- 维度控制 -->
+                    <div class="dimension-controls hidden">
+                        <button class="dimension-toggle active" data-section="motivation" onclick="toggleDimension(this)">动机与方向</button>
+                        <button class="dimension-toggle active" data-section="completed" onclick="toggleDimension(this)">达成事项</button>
+                        <button class="dimension-toggle active" data-section="incomplete" onclick="toggleDimension(this)">未达成事项</button>
+                        <button class="dimension-toggle" data-section="internal" onclick="toggleDimension(this)">内部反思</button>
+                        <button class="dimension-toggle" data-section="external" onclick="toggleDimension(this)">外部反馈</button>
+                        <button class="dimension-toggle active" data-section="next-steps" onclick="toggleDimension(this)">下一步计划</button>
+                    </div>
+
+                    <!-- Z字型布局：动机与方向 → 完成事项 → 未完成事项 → 内部反馈 → 外部反馈 → 下一步计划 -->
+                    <div class="report-flex">
+                        <!-- 第一行：动机与方向 -->
+                        <div class="report-section" data-section="motivation">
+                            <div class="section-title">动机与方向</div>
+                            <div id="reasons-list"></div>
+                            <div id="feedback-motivation" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第二行：达成事项 -->
+                        <div class="report-section" data-section="completed">
+                            <div class="section-title">达成事项</div>
+                            <div id="completed-tasks"></div>
+                            <div class="text-muted" id="completed-count" style="padding-top: 8px;"></div>
+                            <div id="feedback-completed" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第三行：未达成事项 -->
+                        <div class="report-section" data-section="incomplete">
+                            <div class="section-title">未达成事项</div>
+                            <div id="not-completed-tasks"></div>
+                            <div class="text-muted" id="not-completed-count" style="padding-top: 8px;"></div>
+                            <div id="feedback-incomplete" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第四行：内部反思 -->
+                        <div class="report-section hidden" data-section="internal">
+                            <div class="section-title">内部反思</div>
+                            <div id="why-not-list"></div>
+                            <div id="feedback-internal" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第五行：外部反馈 -->
+                        <div class="report-section hidden" data-section="external">
+                            <div class="section-title">外部反馈</div>
+                            <div id="achievements-list"></div>
+                            <div id="feedback-external" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第六行：下一步计划 -->
+                        <div class="report-section" data-section="next-steps">
+                            <div class="section-title">下一步计划</div>
+                            <div id="next-steps-list"></div>
+                            <div id="feedback-next-steps" class="feedback-buttons"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 屏幕 4: 项目列表 -->
+                <div id="screen4" class="screen" style="display: none;">
+                    <div style="margin-bottom: 16px;">
+                    </div>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>当前周期</th>
+                                <th>状态与评价</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="selectProject('项目 A - Teamie 开发')">
+                                <td><strong>项目 A - Teamie 开发</strong></td>
+                                <td>第 1 周</td>
+                                <td class="status-cell" data-project="项目 A - Teamie 开发" onclick="editStatus(this, event)">功能简化中，进度良好</td>
+                            </tr>
+                            <tr onclick="selectProject('项目 B - NeuroSci Delay Correction')">
+                                <td><strong>项目 B - NeuroSci Delay Correction</strong></td>
+                                <td>第 1 周</td>
+                                <td class="status-cell" data-project="项目 B - NeuroSci Delay Correction" onclick="editStatus(this, event)">MEG数据预处理优化完成，编码模型训练中</td>
+                            </tr>
+                            <tr onclick="selectProject('项目 C - 工程开发')">
+                                <td><strong>项目 C - 工程开发</strong></td>
+                                <td>第 1 周</td>
+                                <td class="status-cell" data-project="项目 C - 工程开发" onclick="editStatus(this, event)">项目按期交付，质量达标</td>
+                            </tr>
+                            <tr onclick="selectProject('项目 D - 湿三工程项目')">
+                                <td><strong>项目 D - 湿三工程项目</strong></td>
+                                <td>第 1 周</td>
+                                <td class="status-cell" data-project="项目 D - 湿三工程项目" onclick="editStatus(this, event)">厌氧系统接种完成，关键仪表修复中</td>
+                            </tr>
+                            <tr onclick="selectProject('项目 E - Memoid 开发')">
+                                <td><strong>项目 E - Memoid 开发</strong></td>
+                                <td>第 1 周</td>
+                                <td class="status-cell" data-project="项目 E - Memoid 开发" onclick="editStatus(this, event)">MVP核心功能完成，准备用户测试</td>
+                            </tr>
+                            <tr onclick="selectProject('项目 F - 负责任AI')">
+                                <td><strong>项目 F - 负责任AI</strong></td>
+                                <td>第 1 周</td>
+                                <td class="status-cell" data-project="项目 F - 负责任AI" onclick="editStatus(this, event)">DANN模型实现完成，需优化领域适应效果</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 全局状态
+        let currentProject = '项目 A - Teamie 开发';
+        let currentWeek = 1;
+        let isEditMode = false;
+        let previousScreen = 'screen4'; // 跟踪上一个屏幕
+
+        // 项目模拟数据
+        const projectsData = {
+            '项目 A - Teamie 开发': {
+                weeks: {
+                    1: {  // 第一周
+                        "completed_tasks": [
+                            {
+                                "task": "完成 Teamie 产品从 0 到 1 开发",
+                                "description": "实现团队管理、会议调度、时区转换、可用性热力图、投票系统等核心功能,并成功部署上线(https://app.trisure.me)"
+                            },
+                            {
+                                "task": "建立前后端完整技术架构",
+                                "description": "前端采用 Vue 3 + Vite + Pinia,后端使用 FastAPI,完成 MVC 分层和 RESTful API 设计"
+                            },
+                            {
+                                "task": "完成产品定位调整与功能聚焦",
+                                "description": "从跨时区小组协调转向任务导向小团队的高效会议管理,明确核心用户画像"
+                            },
+                            {
+                                "task": "完成产品文档体系搭建",
+                                "description": "编写完整的前后端开发文档、使用指南和 API 文档,为后续迭代奠定基础"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "AI 辅助功能未实现",
+                                "expected": "自动生成会议议程、会议总结和改进建议",
+                                "reason": "聚焦核心 MVP,AI 功能延后开发"
+                            },
+                            {
+                                "task": "数据持久化方案待优化",
+                                "expected": "从 JSON 文件存储迁移到数据库",
+                                "reason": "当前后端重连后数据重置,影响用户体验"
+                            },
+                            {
+                                "task": "产品推广与用户获取",
+                                "expected": "在 Reddit、产品经理圈等渠道获取早期用户反馈",
+                                "reason": "Launch 尝试未获得明显反响,推广策略需调整"
+                            },
+                            {
+                                "task": "移动端适配优化",
+                                "expected": "完善响应式设计,提升移动端使用体验",
+                                "reason": "设计细节在移动端显现问题,需专门优化"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "解决小团队会议调度低效的痛点:群里信息分散、会议目标不清晰、任务跟进困难",
+                            "践行 'Ask what you can do for Claude' 理念:通过向 AI 请教最佳实践来学习前后端开发规范",
+                            "快速验证产品假设:控制成本,通过快速迭代测试市场,避免过度投入未验证的功能"
+                        ],
+
+                        "internal_reflection": [
+                            "产品定位曾摇摆不定:从 when2meet 增强版到跨时区团队协调,最终聚焦小团队会议管理。核心功能不明确导致开发时走了弯路",
+                            "与 AI 协作的关键是提出好问题:刚开始不知道如何写 rules,后来学会先向 AI 请教前端项目架构、最佳实践,再提出具体需求",
+                            "开发流程认知提升:意识到应该先设计后端 API 文档(用 Postman/Apifox),再前后端并行开发,而非前端做完再对接后端",
+                            "Cursor 使用心得:需要主动用 @ 功能聚焦上下文,AI 记忆有限,context 满了会溢出导致表现下降",
+                            "Debug 态度转变:遇到问题不应反复让 AI 改代码(不负责任),而应先理解问题本质,手动介入关键决策"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "Yuxian(用户访谈)",
+                                "content": "需要整合会前、会中、会后信息流:从原始会议记录→飞书总结→知识卡片→新会议决策。当前痛点是慢慢忘记讨论过但无结果的话题,计划无准确衡量和追踪"
+                            },
+                            {
+                                "source": "Bobby(前端开发建议)",
+                                "content": "建议引入 Element Plus 等 UI 组件库;实现路由懒加载;完善 API 错误处理(401/403/404/500);用 Composables 封装可复用逻辑;API 中 token 应从 Pinia store 读取而非每次 localStorage"
+                            },
+                            {
+                                "source": "Vito(后端开发建议)",
+                                "content": "推荐使用 APIFOX/Postman 整理 API 文档,方便本地调试和文档维护"
+                            },
+                            {
+                                "source": "贝壳(用户测试)",
+                                "content": "会议列表显示重复(小 bug);建议日历选择改用 Google Calendar 式交互;最想要导出功能(导出为 Markdown 集成到 Obsidian/Notion)"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "修复核心 Bug 并优化用户体验",
+                                "goal": "1)迁移到数据库解决数据重置问题 2)修复前端刷新后 404 问题 3)优化移动端适配",
+                                "priority": 1
+                            },
+                            {
+                                "task": "补充关键功能缺失",
+                                "goal": "1)添加创建团队入口(在 TeamView 中) 2)支持北京时区 3)增加密码找回和账户删除功能",
+                                "priority": 2
+                            },
+                            {
+                                "task": "实现数据导出功能",
+                                "goal": "支持导出为 Markdown 格式,满足用户集成到 Obsidian/Notion 的需求(用户反馈强烈)",
+                                "priority": 3
+                            },
+                            {
+                                "task": "优化推广策略",
+                                "goal": "1)分析 Reddit Launch 失败原因 2)调整产品介绍文案突出核心价值 3)寻找更精准的目标用户渠道(如大学项目小组、远程协作社群)",
+                                "priority": 4
+                            },
+                            {
+                                "task": "规划 AI 功能实现路径",
+                                "goal": "基于用户反馈(会议总结、议程生成、改进建议),设计 AI 功能的最小可用版本",
+                                "priority": 5
+                            }
+                        ]
+                    },
+                    2: {  // 第二周
+                        "completed_tasks": [
+                            {
+                                "task": "明确核心用户定位",
+                                "description": "聚焦多会议、多线程、对行动跟进有高需求的职业人群，并验证现有行为模式（延续上周“优化推广策略”与目标用户定义方向）"
+                            },
+                            {
+                                "task": "完成新版 Landing Page 与 Slogan 迭代",
+                                "description": "解决用户“看不懂产品”问题，用更清晰定位阐述“会议后跟进管理”而非“帮开会”"
+                            },
+                            {
+                                "task": "发布新版本并新增会议胶囊与智能总结功能",
+                                "description": "Oct 25 上线新版本，加入会议要点结构化与自动总结能力，形成核心 MVP（延续上周计划“规划 AI 功能实现路径”）"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "隐私与数据安全策略",
+                                "expected": "明确数据处理、权限边界与用户内容可见性说明",
+                                "reason": "待在 LP/UI 后完成；用户对权限透明性仍有顾虑（上周 AI 功能规划相关延续）"
+                            },
+                            {
+                                "task": "UI 优化与用户引导",
+                                "expected": "通过 Figma 改进 onboarding 体验、增加快捷导入与胶囊生成流",
+                                "reason": "功能已上线但 onboarding 与导入体验仍需迭代；计划邀请朋友测试前完成"
+                            },
+                            {
+                                "task": "核心基础功能补齐与稳定性优化",
+                                "expected": "团队创建入口、移动端适配、账户管理、数据库迁移等",
+                                "reason": "本周重心在定位与 MVP 展示，基础体验优化尚未完成（上周 P1-P2 计划延续）"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "聚焦“会议后行动转化”场景，服务多线程高执行力用户，避免泛化为通用笔记/AI 助理方向",
+                            "利用 MVP 快速验证核心工作流：会议 → 胶囊 → 行动管理 → 跟进",
+                            "从“工具完整性”转向“核心体验打磨与用户教育”，优先解决理解门槛与 onboarding"
+                        ],
+
+                        "internal_reflection": [
+                            "快速完成 MVP 关键能力（会议胶囊＋智能总结）并对目标用户理解更深，比上周更聚焦核心价值",
+                            "Landing Page 明确产品定位显著提升产品表达，但用户引导仍不足（“不知道怎么用”信号强）",
+                            "与上周对比，从“修 Bug＋基础功能”转为“明确方向＋推出核心能力”，节奏更战略化",
+                            "产品仍需解决信任与隐私透明性，否则影响早期付费与团队用户落地",
+                            "onboarding 与导入效率是关键阻力：体验未完全跟上愿景，需打磨流程"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "用户洞察与反馈",
+                                "content": "落地页需更直观展示价值与场景，并提升 onboarding 体验"
+                            },
+                            {
+                                "source": "场景观察与行业对比",
+                                "content": "学术 vs 工业用户会议行为不同，工业用户行动更明确，学术场景需主线任务引导"
+                            },
+                            {
+                                "source": "潜在用户顾虑",
+                                "content": "需要清晰的数据隐私说明，避免对开发者可见性担忧"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "优化用户 onboarding + 导入入口",
+                                "goal": "增加一键导入与胶囊生成按钮，简化首次体验流程，提升激活率（基于本周反馈）",
+                                "priority": "P0"
+                            },
+                            {
+                                "task": "完善数据隐私说明与权限模型",
+                                "goal": "设计透明隐私策略与 UI 声明，解决用户信任问题（本周未完成延续）",
+                                "priority": "P0"
+                            },
+                            {
+                                "task": "修复基础问题并稳定核心体验",
+                                "goal": "继续推进数据库迁移、移动端适配、账户管理（上周计划延续）",
+                                "priority": "P1"
+                            },
+                            {
+                                "task": "UI/LP 打磨并进行外部测试",
+                                "goal": "通过 Figma 改版 LP/UI；邀请 1-2 位目标用户体验并收集行为数据",
+                                "priority": "P1"
+                            },
+                            {
+                                "task": "用户获取实验：精准人群触达",
+                                "goal": "优先接触高会议量职业人群（如 PM/咨询/投行/研究生 PI 方向），验证定位与使用频率",
+                                "priority": "P2"
+                            }
+                        ]
+                    },
+                    3: {  // 第三周
+                        "week_period": "2025-10-27 至 2025-11-02",
+
+                        "completed_tasks": [
+                            {
+                                "task": "完成产品 JTBD 分析与用户画像精准定位",
+                                "description": "通过用户访谈(父母)和反馈分析,明确核心用户为多线程工作、会议频繁且需要快速回顾与决策的人群,将产品定位从泛化的'会议管理'聚焦到'会后快速复盘与决策支持'"
+                            },
+                            {
+                                "task": "完成 Landing Page 文案重构(Version 2)",
+                                "description": "重写 Hero 和 Solution 模块,突出'Think faster. Work smarter'核心价值主张,明确服务年轻创业者和斜杠青年的多项目并行场景(延续上周未完成任务)"
+                            },
+                            {
+                                "task": "完成 MVP 功能精简与产品架构调整",
+                                "description": "基于 Kano 模型分析,确定三大核心功能(F1导入、F2信息整理、F3项目仪表盘),移除自动同步等复杂功能,降低用户认知负担"
+                            },
+                            {
+                                "task": "完成产品设计流程全套产出",
+                                "description": "交付用户故事地图、四力分析、Kano 模型、标准流程图、低保真原型图和 Figma 效果图,为开发提供完整设计文档"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "产品重新上线与自动部署到 AWS",
+                                "expected": "完成技术部署并上线测试",
+                                "reason": "本周重心转向用户调研和产品重新设计,技术开发让位于更紧迫的定位问题"
+                            },
+                            {
+                                "task": "在小红书获取用户与反馈",
+                                "expected": "通过营销渠道收集真实用户反馈",
+                                "reason": "Landing Page 和产品定位尚未完全确定,暂未启动市场推广"
+                            },
+                            {
+                                "task": "修复核心 Bug",
+                                "expected": "解决上周遗留的技术问题",
+                                "reason": "产品方向调整优先级更高,技术优化延后处理(上周计划延续)"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "解决多项目并行工作者的认知负担问题,通过'以周为单位的自动总结'帮助用户快速恢复项目上下文并做决策",
+                            "从'会议调度工具'转向'会后管理与决策辅助工具',区别于市场上的会议记录产品,聚焦任务导向的后续跟进",
+                            "本周方向发生重大调整:从功能驱动(技术优化、自动部署)转向用户理解驱动(Landing Page、用户画像、产品简化),确保先解决'用户不理解产品是什么'的根本问题"
+                        ],
+
+                        "internal_reflection": [
+                            "上周发布 Version 1 后收到的关键反馈让我意识到:用户根本不理解产品是什么、怎么用,这比技术功能完善更紧迫",
+                            "与父母和 Claire 的访谈揭示了一个认知盲区:我假设的'多会议场景'实际需要细化为'多会议+多线程+重视行动跟进'三个条件同时满足,否则产品价值无法体现",
+                            "本周最大突破是完成 Landing Page 和用户画像,这让产品目标用户群体从模糊变得具体——年轻创业者、斜杠青年才是核心受众,而非所有开会的人",
+                            "Claire 提出的'功能太复杂'警告非常及时,让我重新审视产品设计:原本为了节省时间而做的工具,如果操作复杂反而增加负担,违背初衷",
+                            "参加 UI 设计课后意识到:在开发阶段很容易把产品文档抛到脑后,但克制感才是高级感——需要时刻回归用户需求而非技术可行性",
+                            "本周相比上周最大的转变是工作重心从'技术实现'彻底转向'用户理解',虽然开发进度暂停,但产品方向更加清晰和可验证"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "父亲访谈",
+                                "content": "工作中的会议纪要大部分由人来写,且 AI 纪要工具需要付费,但会议主持人确实需要这类工具来整理要点和后续任务"
+                            },
+                            {
+                                "source": "母亲访谈",
+                                "content": "备忘录的核心需求是'每天要做的事情'和'临时记录',关键在于总结而非记录本身,信息越积累越多时容易遗忘"
+                            },
+                            {
+                                "source": "Claire 反馈",
+                                "content": "当前功能过于复杂,用户会觉得'东西越堆越多',应该简化操作流程,否则没人会用"
+                            },
+                            {
+                                "source": "周奇反馈",
+                                "content": "Landing Page 是必须的,否则大家根本不知道这个产品是做什么的"
+                            },
+                            {
+                                "source": "用户调研问卷",
+                                "content": "看起来是时间管理工具,解决'活多、需要统一管理'的问题,当前通过 Notion+禅道+飞书 等多工具拼接"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "完成 Figma 效果图优化并启动小范围测试",
+                                "goal": "基于本周完成的设计稿进一步打磨视觉呈现,邀请 2-3 位目标用户(年轻创业者)进行可用性测试,收集真实反馈",
+                                "priority": "P0"
+                            },
+                            {
+                                "task": "启动 MVP 核心功能开发(F1+F2+F3)",
+                                "goal": "聚焦三大核心功能(Notion 导入、信息整理、项目仪表盘),完成技术实现并确保基础可用性,暂不开发自动同步等复杂功能",
+                                "priority": "P0"
+                            },
+                            {
+                                "task": "完成产品重新上线与 AWS 自动部署",
+                                "goal": "将简化后的 MVP 版本部署上线,为下一步用户测试和市场推广做好技术准备(处理上周未完成任务)",
+                                "priority": "P1"
+                            },
+                            {
+                                "task": "制定小红书推广策略与内容规划",
+                                "goal": "基于新的产品定位和 Landing Page,设计针对年轻创业者的营销内容,准备首批推广素材",
+                                "priority": "P1"
+                            },
+                            {
+                                "task": "执行备忘录场景的深度访谈",
+                                "goal": "采访 2-3 位多项目并行的工作人士,了解他们在备忘录和会后跟进场景中的真实痛点,验证产品价值假设",
+                                "priority": "P2"
+                            }
+                        ]
+                    }
+                }
+            },
+            '项目 B - NeuroSci Delay Correction': {
+                weeks: {
+                    1: {  // 当前周
+                        "completed_tasks": [
+                            {
+                                "task": "解决下采样频谱失真问题",
+                                "description": "发现并修复 compute_psd() 中 n_fft 参数设置不当导致的频谱异常，数据本身下采样正常"
+                            },
+                            {
+                                "task": "优化延迟校正算法",
+                                "description": "通过迭代方法将延迟校正精度从 ±20ms 大幅提升至 ±2ms"
+                            },
+                            {
+                                "task": "完成重复故事相关性分析",
+                                "description": "对 Moth1 中 alternateithicatom 故事的两次测试进行通道间相关性计算，验证数据一致性"
+                            },
+                            {
+                                "task": "构建音素编码预测模型",
+                                "description": "基于 Ridge 回归训练跨会话编码模型，完成 Moth1 和 Moth2 的单会话及多会话预测实验"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "解释 20Hz 频段异常信号",
+                                "expected": "确定20Hz频段信号的来源和性质",
+                                "reason": "在高频率分辨率下发现非下采样数据也存在 20Hz 附近的尖峰，需进一步验证是噪声还是真实信号"
+                            },
+                            {
+                                "task": "获取 Moth3-Moth5 的音素标注数据",
+                                "expected": "从OpenNeuro获取额外的音素标注数据集",
+                                "reason": "多会话模型训练需要更多数据，提到需从 OpenNeuro 获取"
+                            },
+                            {
+                                "task": "建立参与者筛选标准",
+                                "expected": "制定基于数据质量指标的参与者纳入排除标准",
+                                "reason": "编码模型结果需要转化为实际的数据质量指标，用于指导后续参与者选择"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "提升 MEG 数据预处理质量，为编码模型分析建立可靠基础",
+                            "通过多种质量检验方法（听觉定位相关性、重复测试一致性、编码预测性能）建立数据质量评估体系",
+                            "探索跨会话编码模型的泛化能力，为大规模数据分析做准备"
+                        ],
+
+                        "internal_reflection": [
+                            "延迟校正的改进是本周最大突破，精度提升 10 倍将显著影响后续时间敏感分析",
+                            "发现非下采样数据的 20Hz 异常提示需要更系统地理解信号特征，不能只关注预处理步骤",
+                            "听觉定位器相关性分析显示 My 和 Erika 处理流程存在差异，需要统一或明确选择标准",
+                            "编码模型的跨会话预测性能（max=0.034-0.065）相对较低，需要探索是否因为数据质量、特征空间或模型容量限制",
+                            "当前分析主要集中在方法验证阶段，需要尽快转向实质性的神经科学问题"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "文档标注（黄色高亮）",
+                                "content": "需要检查 20Hz 尖峰是否跨被试存在，并验证 Welch 方法参数设置"
+                            },
+                            {
+                                "source": "文档标注（粉色高亮）",
+                                "content": "需要对比不同特征空间、更多会话、跨被试分析来确定最佳数据质量指标"
+                            },
+                            {
+                                "source": "文档标注",
+                                "content": "提醒从 OpenNeuro 获取 Moth3-5 的音素数据"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "系统分析 20Hz 频段信号",
+                                "goal": "确定是否为设备噪声、生理信号或分析伪影，检查跨被试一致性",
+                                "priority": 1
+                            },
+                            {
+                                "task": "统一和验证预处理流程",
+                                "goal": "对比 My 和 Erika 的 SSS 处理差异，选择最优方案并验证对下游分析的影响",
+                                "priority": 2
+                            },
+                            {
+                                "task": "扩展编码模型分析",
+                                "goal": "获取 Moth3-5 数据，测试不同特征空间（词汇、语义等），建立数据质量评分标准",
+                                "priority": 1
+                            },
+                            {
+                                "task": "制定参与者筛选标准",
+                                "goal": "基于编码模型性能、重复测试相关性等指标，建立明确的数据纳入/排除标准",
+                                "priority": 2
+                            },
+                            {
+                                "task": "从方法验证转向科学问题",
+                                "goal": "在确认数据质量后，开始探索实质性的语音处理神经机制问题",
+                                "priority": 3
+                            }
+                        ]
+                    },
+                    2: {  // 第二周
+                        "completed_tasks": [
+                            {
+                                "task": "完成 A 与 C 数据预处理",
+                                "description": "A 与 C 被试预处理流程跑通，已将代码和流程托管到 GitHub（延续上周统一预处理方向）"
+                            },
+                            {
+                                "task": "定位并确认高频噪声来源",
+                                "description": "排查 Welch PSD 高频 spike，确认来自 empty room noise，并非数据异常"
+                            },
+                            {
+                                "task": "对比下采样对 Aloc 结果影响",
+                                "description": "系统比较 downsampling vs. non-downsampling，在 A/C 都观察到空间模式差异，明确处理对定位影响"
+                            },
+                            {
+                                "task": "重复故事听刺激相关性分析",
+                                "description": "完成 repeated-story 可靠性分析，验证无下采样时结果表现正常（延续上周 20Hz/质量方向）"
+                            },
+                            {
+                                "task": "建立多种编码模型基线结果",
+                                "description": "完成 phoneme / semantic / spectrum 编码模型训练与跨故事验证，为后续建模与筛选提供基准"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "20 Hz 高频段系统分析",
+                                "expected": "明确 20Hz 信号来源（设备噪声 / 生理 / 算法）并建立质量检查框架",
+                                "reason": "已部分验证噪声来源，但尚未完成跨被试系统检验与文档化（上周任务延续）"
+                            },
+                            {
+                                "task": "对比 My vs. Erika SSS 流程",
+                                "expected": "统一并验证预处理 pipeline",
+                                "reason": "已展示 Erika pipeline 结果但仍需系统误差评估（上周任务延续）"
+                            },
+                            {
+                                "task": "扩展编码模型并纳入 Moth3-5",
+                                "expected": "获取和处理更多被试数据，测试多特征空间",
+                                "reason": "当前分析仍集中于 Moth1-2（上周计划延续）"
+                            },
+                            {
+                                "task": "参与者筛选标准制定",
+                                "expected": "形成 clear inclusion/exclusion 指标",
+                                "reason": "目前结果提示噪声与预处理差异仍需先行处理（上周计划延续）"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "建立稳定可靠的 MEG 数据质量与预处理 pipeline 作为后续科学问题的基础",
+                            "通过多模态编码模型探索语音加工神经机制，逐渐从技术验证过渡到科学假设",
+                            "确保不同被试与不同 preprocessing 设置下脑信号模式一致性"
+                        ],
+
+                        "internal_reflection": [
+                            "本周显著推进了质量验证：明确空房噪声来源、观察下采样对空间结果影响",
+                            "预处理差异（特别是 SSS 和 ICA）仍可能影响结果，需要系统比较",
+                            "编码模型 pipeline 已建立，但数据规模仍偏小，需扩展到更多被试与特征",
+                            "下采样对 Aloc 有显著影响，说明 pipeline 参数对脑定位敏感，后续需锁定参数",
+                            "当前处于\"质量奠基 + 模型验证\"阶段，科学问题探索还需等待更完整 pipeline"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "自我标记",
+                                "content": "建议改善 empty-room 投影以进一步消除高频噪声"
+                            },
+                            {
+                                "source": "自我标记",
+                                "content": "考虑使用 ICA 处理 A 被试因缺失 EOG/ECG 造成的幅度差异"
+                            },
+                            {
+                                "source": "数据观测",
+                                "content": "重复故事测试结果支持当前 preprocessing，提示 pipeline 正在趋稳"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "锁定预处理 pipeline（SSS vs ICA vs downsampling）",
+                                "priority": "P0",
+                                "goal": "完成 My vs Erika pipeline 对比 + ICA 尝试，确认标准流程并文档化（上周延续）"
+                            },
+                            {
+                                "task": "系统分析 20Hz 与高频噪声",
+                                "priority": "P0",
+                                "goal": "完成跨被试 noise pattern 量化 + empty-room 投影优化（上周延续）"
+                            },
+                            {
+                                "task": "扩展编码模型至 Moth3-5",
+                                "priority": "P1",
+                                "goal": "获取数据，跑 phoneme/semantic/spectrum pipeline，检查质量差异（上周延续）"
+                            },
+                            {
+                                "task": "制定参与者筛选标准",
+                                "priority": "P1",
+                                "goal": "基于 Aloc + reliability + encoding performance 制定 inclusion/exclusion 策略"
+                            },
+                            {
+                                "task": "增强特征空间",
+                                "priority": "P2",
+                                "goal": "补全特征并测试 smoke 平均预测方案（来自本周笔记）"
+                            }
+                        ]
+                    }
+                }
+            },
+            '项目 C - 工程开发': {
+                weeks: {
+                    1: {  // 当前周
+                        "completed_tasks": [
+                            {
+                                "task": "完善自动驾驶测试用例设计",
+                                "description": "针对Waymo的自动驾驶系统，设计了15个新的边缘测试用例，包括恶劣天气、复杂路况和异常传感器数据场景"
+                            },
+                            {
+                                "task": "执行回归测试并修复关键bug",
+                                "description": "完成了核心导航模块的回归测试，发现并修复了3个影响安全的关键bug，提升了系统稳定性"
+                            },
+                            {
+                                "task": "优化测试数据管道",
+                                "description": "重构了测试数据收集和处理流程，将数据处理效率提升30%，支持更大规模的测试场景"
+                            },
+                            {
+                                "task": "参与安全审查会议",
+                                "description": "与产品团队和安全工程师一起审查了新的测试协议，确保符合Waymo的安全标准和监管要求"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "完成端到端测试框架升级",
+                                "expected": "升级测试框架以支持新的传感器融合算法",
+                                "reason": "框架依赖的第三方库更新延迟"
+                            },
+                            {
+                                "task": "准备季度安全审计报告",
+                                "expected": "汇总测试数据并生成安全审计报告",
+                                "reason": "等待其他团队的数据整合"
+                            },
+                            {
+                                "task": "优化CI/CD测试流程",
+                                "expected": "减少测试执行时间，提高开发效率",
+                                "reason": "需要与DevOps团队协调资源分配"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "确保自动驾驶系统的安全性和可靠性是第一要务，每个测试用例都直接关系到乘客生命安全",
+                            "技术创新与工程卓越的结合：既要追求测试覆盖率的全面性，也要保证测试执行的高效性",
+                            "从测试工程师向测试架构师转型：不仅仅执行测试，还要设计更好的测试体系"
+                        ],
+
+                        "internal_reflection": [
+                            "测试用例设计需要更强的场景思维：不能只考虑正常情况，要重点关注edge cases和corner cases",
+                            "跨团队协作是关键：测试工作涉及产品、开发、安全等多个团队，需要更好的沟通协调机制",
+                            "技术债务积累问题严重：历史代码的可测试性差，新功能的测试成本越来越高",
+                            "数据驱动的测试决策：需要建立更好的指标体系来衡量测试的有效性和效率"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "产品经理",
+                                "content": "测试团队的响应速度需要进一步提升，新功能上线前的测试周期太长了"
+                            },
+                            {
+                                "source": "开发团队",
+                                "content": "测试用例的可维护性有待改善，代码变更后经常需要大量修改测试"
+                            },
+                            {
+                                "source": "安全审核团队",
+                                "content": "测试覆盖率不错，但对异常场景的测试深度还不够，需要增加更多stress test"
+                            },
+                            {
+                                "source": "公司领导",
+                                "content": "自动驾驶安全至关重要，测试团队要确保每一个部署都是经过严格验证的"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "设计测试自动化框架改进方案",
+                                "goal": "提出测试框架升级的具体实施方案，包括技术选型和时间规划",
+                                "priority": 1
+                            },
+                            {
+                                "task": "完善异常场景测试用例库",
+                                "goal": "补充50个新的异常场景测试用例，重点覆盖传感器故障和网络异常",
+                                "priority": 2
+                            },
+                            {
+                                "task": "组织测试流程优化工作坊",
+                                "goal": "与开发和产品团队一起探讨如何缩短测试周期，提高协作效率",
+                                "priority": 3
+                            },
+                            {
+                                "task": "建立测试效果度量体系",
+                                "goal": "设计关键指标来衡量测试的有效性，包括缺陷检出率、测试覆盖率等",
+                                "priority": 4
+                            },
+                            {
+                                "task": "准备晋升材料和技术分享",
+                                "goal": "整理测试经验，准备内部技术分享和可能的晋升申请",
+                                "priority": 5
+                            }
+                        ]
+                    }
+                }
+            },
+            '项目 D - 湿三工程项目': {
+                weeks: {
+                    1: {  // 当前周
+                        "completed_tasks": [
+                            {
+                                "task": "预处理与提油车间稳定产能运行",
+                                "description": "1#–6#预处理线持续开机，来料维持在~900–1,000 t/d，提油系统日处理浆液约500 t，毛油外送（9/8–9/20 区间多次记录）。",
+                                "evidence": "见调试日志（2025-09-08 / 09-13 / 09-20 / 09-24）。"
+                            },
+                            {
+                                "task": "低浓度厌氧罐接种并进入满液位生产",
+                                "description": "1–5 号低浓度厌氧罐接种完成并实现持续进料与产气（产气总量维持在 ~4.8–6.5 万 m³/d 区间）。",
+                                "evidence": "多日产气与进料记录显示已满罐并稳定运行。"
+                            },
+                            {
+                                "task": "高浓度厌氧接种推进与湿热氧化运行",
+                                "description": "高浓度厌氧 4/5/6/7/8 号罐完成接种推进，湿热氧化系统出氧化液并送检，泥饼已出，第三方装车对接开始。",
+                                "evidence": "会议纪要与日志记录高浓度接种量与湿热氧化取样/出泥情况。"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "提油系统关键仪表与气动阀的缺陷修复",
+                                "expected": "恢复所有气动阀正常关位、修正提油浆液流量计累计计量误差，保证计量与自动化联动可靠。",
+                                "reason": "多处气动阀、流量计计量不准问题需厂家发配件或现场返修，正在厂家跟进与设计变更流程。"
+                            },
+                            {
+                                "task": "配套冷却器与泵坑/空压房改造投用",
+                                "expected": "6 台粗破碎机冷却器接电投用，泵坑与空压机房排水改造完成并投入运行。",
+                                "reason": "设计变更正在出图并与厂家协调，施工/接电尚未完成。"
+                            },
+                            {
+                                "task": "脱水/气浮联动与抓包机配套修复",
+                                "expected": "完成 PAM/PAC 抓包机修复并实现离心脱水机与气浮上位机自控联动。",
+                                "reason": "部分配件缺失、设备故障（抓包机、离心机检修）与上位机联调尚未完全实现。"
+                            },
+                            {
+                                "task": "中浓度污水系统与脱氨联动调试",
+                                "expected": "按计划完成中浓度污水接种并与脱氨系统联动，实现稳定处理与副产物输出。",
+                                "reason": "管道改造、关键电缆/远控问题及超滤管道漏水需要现场修复与物资到位后方可联动。"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "把单机运行转为可控的联动工厂运行：完成关键仪表/阀门与上位机联调，提升自动化与稳定性。",
+                            "将调试成果转化为产能与产出：保证预处理/提油/厌氧/脱水/提纯稳定运行以实现持续产气与产品（毛油、提纯气）对外供给。"
+                        ],
+
+                        "internal_reflection": [
+                            "设备零件与备件交付滞后成为当前进度瓶颈——需强化备件清单与供应商交付跟踪（尤其电磁阀、流量计、称重传感器）。",
+                            "自动化与计量口径不一致（流量计、称重器、沼气分析数据缺失）影响运行决策，需要优先恢复中控数据通道与校验仪表精度。",
+                            "分包/厂家响应与现场协调需更加明确责任边界（谁来现场修、费用与技术方案责任），避免重复等待与推诿。",
+                            "部分工艺问题是系统性（如进料泵与给料器量不匹配、出料挤压机超流）而非单点故障，应以系统联调为目标而非逐台修复。",
+                            "近期调试已取得'稳定运行的基础层面'成果，但从稳定到优化仍需集中短期攻坚（仪表、联动、外部管网协调）。"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "调试专题会议（2025-09-15）",
+                                "content": "要求厂家就提纯产品气回收率与产气品质提出改进方案；外部管网接收能力需由王鑫与开发公司协调。"
+                            },
+                            {
+                                "source": "现场日志 — 设备厂家/供应商反馈",
+                                "content": "厂家承认部分气动阀、流量计与称重器存在问题，已安排配件或更高精度传感器发往现场待更换。"
+                            },
+                            {
+                                "source": "现场运行记录",
+                                "content": "离心脱水机、气浮系统及抓包机存在配件/故障问题，需检修与配件到位后方能完成联动调试。"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "优先修复关键计量与执行件（气动阀、流量计、称重器、温度/压力传感器）",
+                                "goal": "恢复计量可靠性与阀门动作完整性，为上位机联动与控制决策提供可信数据。",
+                                "priority": 1,
+                                "action_steps": [
+                                    "汇总缺件清单并由项目部指定负责人逐项跟进供应商交付时间表（要求厂商书面承诺）",
+                                    "现场完成关键替换并进行校准、闭环验证（含中控画面/数据校验）"
+                                ],
+                                "evidence_refs": "日志与会议记录中多处列明相应缺陷与厂家跟进。"
+                            },
+                            {
+                                "task": "完成离心脱水—气浮上位机自控联动调试并修复抓包机配套",
+                                "goal": "实现脱水车间自动联动以稳定出水/泥饼质量，并为中浓度污水接种提供可靠前端处理。",
+                                "priority": 2,
+                                "action_steps": [
+                                    "安排电气/自控团队在计量件修复后进行联调测试（含故障工况测试）",
+                                    "确认 PAM/PAC 抓包机配件到位并恢复两套配药箱功能"
+                                ],
+                                "evidence_refs": "脱水与气浮联动为既定下一步工作计划。"
+                            },
+                            {
+                                "task": "推进中浓度污水接种与脱氨系统联动",
+                                "goal": "按计划启动中浓度污水接种并实现脱氨联调，尽早产出副产物/出水达标数据。",
+                                "priority": 3,
+                                "action_steps": [
+                                    "完成管道改造与修复（超滤漏水、二级反硝化搅拌器电缆）",
+                                    "完成中控远控/泵远控问题修复后开展 72 小时试运行并记录关键指标"
+                                ],
+                                "evidence_refs": "日志中指派 9/23 已开始中浓度接种并列为下步计划。"
+                            },
+                            {
+                                "task": "协调外部沼气接收与提纯性能改进",
+                                "goal": "与开发方/承包商确认外部管网容量并推动提纯厂家提出可实施的回收率提升方案。",
+                                "priority": 4,
+                                "action_steps": [
+                                    "安排王鑫或指定代表与开发公司对接外部接收能力（明确可提升上限与时间表）",
+                                    "要求提纯设备厂家提交改善方案并列现场整改计划"
+                                ],
+                                "evidence_refs": "会议已明确外部管网与提纯需外部协调/厂商方案。"
+                            }
+                        ]
+                    }
+                }
+            },
+            '项目 E - Memoid 开发': {
+                weeks: {
+                    1: {  // 当前周
+                        "completed_tasks": [
+                            {
+                                "task": "完成产品核心设计框架",
+                                "description": "基于 JTBD 和 Kano 模型确定产品定位：轻量级记忆胶囊，通过聊天式交互降低日记门槛"
+                            },
+                            {
+                                "task": "撰写中英双语 Landing Page",
+                                "description": "明确产品 slogan「让记忆更清晰，让生活更从容」，定义三大核心价值：回忆当天、检索时光、理解节奏"
+                            },
+                            {
+                                "task": "实现 MVP 核心功能",
+                                "description": "完成每日聊天式记录、记忆胶囊存储、时光检索查询三个基础功能，产品可进入测试阶段"
+                            },
+                            {
+                                "task": "明确产品价值升级方向",
+                                "description": "从简单备忘录定位升级为「将信息提炼为 knowledge 和经验」的智能助手"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "改进 UI 设计以提升高级感",
+                                "expected": "实现简洁、克制的视觉风格（颜色不超过三种、字体层级分明、间距统一）",
+                                "reason": "当前界面还算可以，但可参考 Behance 上的自我修行 App 设计进一步优化"
+                            },
+                            {
+                                "task": "集成 ElevenLabs 语音功能",
+                                "expected": "通过语音交互提升便捷性",
+                                "reason": "技术实现尚未开始"
+                            },
+                            {
+                                "task": "修复中文回复 Bug",
+                                "expected": "解决「请用中文回复」的提示问题",
+                                "reason": "待调试"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "解决个人痛点：记忆力不好 + 时间不够 + 心理压力大，需要工具帮助回顾过去并提升心理韧性",
+                            "从情绪困扰中找到产品方向：两年前开始在 Flomo 记录每日表现，逐渐建立心理复原力，希望用 Memoid 帮助有类似需求的人",
+                            "对标现有工具的不足：日记难以坚持、Flomo 等工具缺乏智能分析，用户仍会遗忘成长轨迹"
+                        ],
+
+                        "internal_reflection": [
+                            "使用 JTBD + Kano 模型后，产品方向比 Teamie 更清晰，功能聚焦度更高",
+                            "认识到「高级感 = 克制感」：颜色、字体、间距的统一比炫技更重要，当用户感受不到设计存在时就是最好的设计",
+                            "发现核心价值点：Memoid 不应只是备忘录，而应是「第二记忆系统」——将零散 info 提炼为 knowledge，指导未来决策",
+                            "个人故事能增强产品情感连接：在 XHS 上分享自己从情绪问题到建立韧性的经历，更容易引起共鸣"
+                        ],
+
+                        "external_feedback": [
+                            {
+                                "source": "UI 设计课学习品哥推荐）",
+                                "content": "要学「邪修」风格，参考 Behance 全球设计师网站，推荐作品都很棒。同时强调克制原则：参考苹果官网和产品设计"
+                            }
+                        ],
+
+                        "next_week_plan": [
+                            {
+                                "task": "在小红书发布产品并收集用户反馈",
+                                "goal": "完成中英文版本 + 修复核心 Bug 后，通过 XHS 获取真实用户反馈",
+                                "priority": 1
+                            },
+                            {
+                                "task": "升级检索功能为 RAG 架构",
+                                "goal": "解决当前基于 Firebase 日期查询的低效问题，实现语义理解（如「上周五 → 当时」的上下文关联）",
+                                "priority": 2
+                            },
+                            {
+                                "task": "完善数据隐私方案",
+                                "goal": "明确数据存储策略和用户隐私保护机制，建立信任基础",
+                                "priority": 3
+                            },
+                            {
+                                "task": "集成 ElevenLabs 语音功能",
+                                "goal": "提供语音输入和语音回复能力，降低文字输入门槛",
+                                "priority": 4
+                            },
+                            {
+                                "task": "优化 UI 交互设计",
+                                "goal": "参考 Behance 案例，用 Figma 重新设计界面，实现极简克制风格",
+                                "priority": 5
+                            }
+                        ]
+                    }
+                }
+            },
+            '项目 F - 负责任AI': {
+                weeks: {
+                    1: {  // 当前周
+                        "completed_tasks": [
+                            {
+                                "task": "实现 DANN（领域对抗神经网络）架构",
+                                "description": "构建了基于梯度反转层的方法，用于在 SD2（源域）和 Kontext（目标域）数据集之间学习领域不变特征"
+                            },
+                            {
+                                "task": "完成大规模超参数调优实验",
+                                "description": "测试了多种配置：学习率（0.01-0.0001）、特征/领域隐藏层大小（64-512）、对抗损失权重（Gemma、Zeta 参数）"
+                            },
+                            {
+                                "task": "完成对抗领域自适应文献综述",
+                                "description": "研究了 DANN、ADDA、DAN、DDC 等关键论文，理解领域不变特征学习方法"
+                            }
+                        ],
+
+                        "incomplete_tasks": [
+                            {
+                                "task": "实现稳定的领域混淆指标",
+                                "expected": "在源域和目标域上都达到 50% 的领域准确率，表明成功学习到领域不变特征",
+                                "reason": "源域的领域准确率保持在 50% 左右，但目标域准确率高得多（60-90%），说明领域分类器配置可能有问题，或这种方法不适合该问题"
+                            },
+                            {
+                                "task": "提升目标域性能",
+                                "expected": "缩小源域和目标域标签损失之间的差距，提高目标域的 F1 分数",
+                                "reason": "尽管达到了 50% 的领域准确率，但训练过程中目标域标签损失持续增加，说明学到的特征可能具有领域不变性但对分类任务缺乏判别力"
+                            }
+                        ],
+
+                        "motivation_direction": [
+                            "在 SD2 上训练能够泛化到 Kontext（验证集）和 Qwen（测试集）数据集的模型",
+                            "利用领域自适应理论：有效迁移需要对主任务具有判别力但无法区分源域和目标域的特征",
+                            "探索对抗领域自适应能否解决跨不同生成模型的 AI 生成图像检测中的领域偏移问题"
+                        ],
+
+                        "internal_reflection": [
+                            "领域自适应可能不是解决这个问题的正确方法。基本假设是存在领域不变特征，但如果不同模型具有根本不同的特性，可能根本不存在真正的领域不变特征",
+                            "观察到较大学习率（0.01）下对抗训练不稳定，较小学习率（0.0001）提供更稳定的结果",
+                            "特征提取器倾向于在训练数据上过拟合——领域混淆指标在训练集上比验证集好很多，说明学到的不变性无法泛化",
+                            "当特征隐藏层大小为 512 时，首次观察到验证标签损失下降，但改进仍然很边际",
+                            "减少模型容量（如隐藏层大小 64）有时会产生更好的结果，说明更简单的模型可能更合适"
+                        ],
+
+                        "external_feedback": [],
+
+                        "next_week_plan": [
+                            {
+                                "task": "约导师会议讨论领域自适应的局限性",
+                                "goal": "获得是否继续领域自适应还是转向替代方法的指导",
+                                "priority": 1
+                            },
+                            {
+                                "task": "探索替代方法：学习真实图像特征而非假图像特征",
+                                "goal": "测试之前阅读论文中的假设，关注真实图像特征而非假图像伪影",
+                                "priority": 2
+                            },
+                            {
+                                "task": "深入分析实验结果",
+                                "goal": "理解为什么领域准确率不对称持续存在（源域约 50%，目标域 60-90%），并研究 ADDA 的两阶段方法是否会更好",
+                                "priority": 3
+                            },
+                            {
+                                "task": "考虑实现 ADDA（对抗判别领域自适应）",
+                                "goal": "测试非共享权重和独立目标编码器是否能改善自适应效果",
+                                "priority": 4
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+
+        function switchNav(type) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const projectInfo = document.getElementById('projectInfo');
+            if (type === 'dashboard') {
+                projectInfo.style.display = 'block';
+                showScreen('screen4');
+                document.getElementById('screenTitle').textContent = '项目进展一览';
+            } else {
+                projectInfo.style.display = 'none';
+                showScreen('screen1');
+                document.getElementById('screenTitle').textContent = '导入新项目';
+            }
+        }
+
+        // 取消导入，返回项目列表
+        function cancelImport() {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            // 激活"查看项目进展"导航项
+            const dashboardNav = document.querySelector('.nav-item[onclick*="dashboard"]');
+            if (dashboardNav) {
+                dashboardNav.classList.add('active');
+            }
+
+            const projectInfo = document.getElementById('projectInfo');
+            projectInfo.style.display = 'block';
+            showScreen('screen4');
+            document.getElementById('screenTitle').textContent = '项目进展一览';
+        }
+
+        function showScreen(screenId) {
+            console.log('Switching to screen:', screenId);
+            // 记录当前屏幕作为上一个屏幕
+            const currentScreen = document.querySelector('.screen.active');
+            if (currentScreen) {
+                previousScreen = currentScreen.id;
+            }
+
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.style.display = 'none';
+                screen.classList.remove('active');
+            });
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.style.display = 'block';
+                targetScreen.classList.add('active');
+                console.log('Screen switched successfully:', screenId);
+            } else {
+                console.error('Screen not found:', screenId);
+            }
+        }
+        
+        
+        function switchScreen(num) {
+            showScreen('screen' + num);
+        }
+        
+        function simulateUpload() {
+            document.getElementById('fileName').textContent = 'notion-export.html';
+            showScreen('screen2');
+            setTimeout(() => {
+                alert('导入成功！');
+                showScreen('screen3');
+                document.getElementById('screenTitle').textContent = '进展汇报';
+            }, 3000);
+        }
+        
+        function changeWeek(direction) {
+            console.log('Changing week, direction:', direction);
+            const current = parseInt(document.querySelector('.week-current').textContent.match(/\d+/)[0]);
+            const newWeek = current + direction;
+
+            // 检查是否有这个周的数据
+            const projectData = projectsData[currentProject];
+            if (projectData && projectData.weeks && projectData.weeks[newWeek]) {
+                currentWeek = newWeek;
+                document.querySelector('.week-current').textContent = '第 ' + newWeek + ' 周';
+                renderReport(currentProject, newWeek);
+                console.log('Week changed to:', newWeek);
+            } else {
+                console.log('No data available for week:', newWeek);
+                // 对于只有当前周数据的项目，显示友好的提示
+                const message = direction === -1 ? '已经是第一周数据' : '暂无下一周数据';
+                alert(message);
+            }
+        }
+        
+        function selectProject(projectName) {
+            console.log('Selecting project:', projectName);
+            currentProject = projectName;
+            currentWeek = 1; // 重置为当前周
+            document.getElementById('currentProject').textContent = projectName;
+            document.getElementById('screenTitle').textContent = '进展汇报 - ' + projectName;
+            renderReport(projectName, currentWeek);
+            showScreen('screen3');
+            console.log('Project selected and screen switched');
+        }
+
+        // 维度切换功能
+        function toggleDimension(button) {
+            const sectionName = button.getAttribute('data-section');
+            const section = document.querySelector(`.report-section[data-section="${sectionName}"]`);
+
+            if (section) {
+                section.classList.toggle('hidden');
+                button.classList.toggle('active');
+            }
+        }
+
+        // 维度控制区域切换功能
+        function toggleDimensionControls() {
+            const controls = document.querySelector('.dimension-controls');
+            controls.classList.toggle('hidden');
+        }
+
+        // 编辑模式切换功能
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const editBtn = document.getElementById('editBtn');
+            const container = document.querySelector('.container');
+
+            if (isEditMode) {
+                editBtn.textContent = '退出编辑';
+                editBtn.classList.add('primary');
+                container.classList.add('edit-mode');
+                enableInlineEditing();
+            } else {
+                editBtn.textContent = '编辑内容';
+                editBtn.classList.remove('primary');
+                container.classList.remove('edit-mode');
+                disableInlineEditing();
+            }
+        }
+
+        // 启用内联编辑
+        function enableInlineEditing() {
+            // 为所有可编辑的文本元素添加事件监听器
+            const editableElements = document.querySelectorAll('.editable-text');
+            editableElements.forEach(element => {
+                element.contentEditable = 'true';
+                element.addEventListener('focus', handleEditStart);
+                element.addEventListener('blur', handleEditEnd);
+                element.addEventListener('keydown', handleKeyDown);
+                element.addEventListener('input', handleInput);
+            });
+
+            // 为可编辑行添加事件监听器
+            const editableRows = document.querySelectorAll('.editable-row');
+            editableRows.forEach(row => {
+                row.addEventListener('click', handleRowClick);
+            });
+
+            // 为删除按钮添加事件监听器
+            const deleteButtons = document.querySelectorAll('.row-action-btn.delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', handleDeleteRow);
+            });
+
+            // 为添加按钮添加事件监听器
+            const addButtons = document.querySelectorAll('.add-row-btn');
+            addButtons.forEach(button => {
+                button.addEventListener('click', handleAddRow);
+            });
+        }
+
+        // 禁用内联编辑
+        function disableInlineEditing() {
+            // 先保存所有正在编辑的内容
+            const editingElements = document.querySelectorAll('.editable-text:focus');
+            editingElements.forEach(element => {
+                element.blur();
+            });
+
+            const editableElements = document.querySelectorAll('.editable-text');
+            editableElements.forEach(element => {
+                element.contentEditable = 'false';
+                element.removeEventListener('focus', handleEditStart);
+                element.removeEventListener('blur', handleEditEnd);
+                element.removeEventListener('keydown', handleKeyDown);
+                element.removeEventListener('input', handleInput);
+            });
+
+            const editableRows = document.querySelectorAll('.editable-row');
+            editableRows.forEach(row => {
+                row.removeEventListener('click', handleRowClick);
+                row.classList.remove('selected');
+            });
+
+            // 注意：删除和添加按钮的事件监听器在编辑模式下才需要，所以这里不再移除
+            // 它们通过CSS的display控制可见性
+        }
+
+        // 处理行点击
+        function handleRowClick(e) {
+            if (!isEditMode) return; // 只在编辑模式下工作
+            if (e.target.classList.contains('row-action-btn')) return; // 忽略按钮点击
+
+            // 清除其他行的选中状态
+            const allRows = document.querySelectorAll('.editable-row');
+            allRows.forEach(row => row.classList.remove('selected'));
+
+            // 选中当前行
+            e.currentTarget.classList.add('selected');
+        }
+
+        // 处理编辑开始
+        function handleEditStart(e) {
+            if (!isEditMode) return; // 只在编辑模式下工作
+
+            // 选中所在行
+            const row = e.target.closest('.editable-row');
+            if (row) {
+                const allRows = document.querySelectorAll('.editable-row');
+                allRows.forEach(r => r.classList.remove('selected'));
+                row.classList.add('selected');
+            }
+        }
+
+        // 处理编辑结束
+        function handleEditEnd(e) {
+            // 保存内容
+            saveContentToData(e.target);
+        }
+
+        // 处理输入事件
+        function handleInput(e) {
+            // 可以在这里添加实时保存或验证逻辑
+        }
+
+        // 处理键盘事件
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.target.blur();
+            }
+            if (e.key === 'Escape') {
+                e.target.blur();
+            }
+        }
+
+        // 处理删除行
+        function handleDeleteRow(e) {
+            e.stopPropagation();
+            const row = e.target.closest('.editable-row');
+            if (!row) return;
+
+            const dataPath = row.getAttribute('data-path');
+            const dataIndex = parseInt(row.getAttribute('data-index'));
+
+            if (dataPath && dataIndex !== null) {
+                const projectData = projectsData[currentProject].weeks[currentWeek];
+                const paths = dataPath.split('.');
+                let target = projectData;
+                for (let i = 0; i < paths.length - 1; i++) {
+                    target = target[paths[i]];
+                }
+                if (target[paths[paths.length - 1]] && target[paths[paths.length - 1]][dataIndex]) {
+                    target[paths[paths.length - 1]].splice(dataIndex, 1);
+                    renderReport(currentProject, currentWeek);
+                }
+            }
+        }
+
+        // 处理添加行
+        function handleAddRow(e) {
+            const dataPath = e.target.getAttribute('data-path');
+            if (!dataPath) return;
+
+            const projectData = projectsData[currentProject].weeks[currentWeek];
+            const paths = dataPath.split('.');
+            let target = projectData;
+            for (let i = 0; i < paths.length - 1; i++) {
+                target = target[paths[i]];
+            }
+
+            // 根据不同类型添加默认数据
+            let newItem;
+            switch (dataPath) {
+                case 'completed_tasks':
+                    newItem = {
+                        "task": "新完成的任务",
+                        "description": "任务描述"
+                    };
+                    break;
+                case 'incomplete_tasks':
+                    newItem = {
+                        "task": "新未完成的任务",
+                        "expected": "预期目标",
+                        "reason": "未完成原因"
+                    };
+                    break;
+                case 'motivation_direction':
+                    newItem = "新的动机方向";
+                    break;
+                case 'internal_reflection':
+                    newItem = "新的内部反思";
+                    break;
+                case 'external_feedback':
+                    newItem = {
+                        "source": "新反馈来源",
+                        "content": "反馈内容"
+                    };
+                    break;
+                case 'next_week_plan':
+                    newItem = {
+                        "task": "新计划任务",
+                        "goal": "目标描述",
+                        "priority": "1"
+                    };
+                    break;
+                default:
+                    return;
+            }
+
+            if (!target[paths[paths.length - 1]]) {
+                target[paths[paths.length - 1]] = [];
+            }
+            target[paths[paths.length - 1]].push(newItem);
+            renderReport(currentProject, currentWeek);
+        }
+
+        // 将内容保存到数据对象
+        function saveContentToData(element) {
+            const dataPath = element.getAttribute('data-path');
+            const dataIndex = element.getAttribute('data-index');
+            const dataField = element.getAttribute('data-field');
+
+            if (dataPath && dataField) {
+                const projectData = projectsData[currentProject].weeks[currentWeek];
+                let content = element.textContent.trim();
+
+                // 特殊处理优先级字段
+                if (dataField === 'priority') {
+                    if (content.startsWith('P')) {
+                        content = content.substring(1); // 移除P前缀
+                    }
+                    // 确保是有效的优先级数字
+                    const priorityNum = parseInt(content);
+                    if (isNaN(priorityNum) || priorityNum < 0 || priorityNum > 2) {
+                        element.textContent = 'P1'; // 默认值
+                        return;
+                    }
+                    content = priorityNum.toString();
+                }
+
+                if (dataIndex !== null) {
+                    // 数组元素
+                    const paths = dataPath.split('.');
+                    let target = projectData;
+                    for (let i = 0; i < paths.length - 1; i++) {
+                        target = target[paths[i]];
+                    }
+                    if (!target[paths[paths.length - 1]]) {
+                        target[paths[paths.length - 1]] = [];
+                    }
+
+                    // 处理不同类型的数组元素
+                    if (dataField === 'item') {
+                        // 简单的字符串数组（如motivation_direction, internal_reflection）
+                        target[paths[paths.length - 1]][dataIndex] = content;
+                    } else {
+                        // 对象数组（如completed_tasks, external_feedback等）
+                        if (!target[paths[paths.length - 1]][dataIndex]) {
+                            target[paths[paths.length - 1]][dataIndex] = {};
+                        }
+                        target[paths[paths.length - 1]][dataIndex][dataField] = content;
+                    }
+
+                    // 如果是优先级字段，更新显示
+                    if (dataField === 'priority') {
+                        element.textContent = `P${content}`;
+                    }
+                } else {
+                    // 普通字段
+                    const paths = dataPath.split('.');
+                    let target = projectData;
+                    for (let i = 0; i < paths.length - 1; i++) {
+                        target = target[paths[i]];
+                    }
+                    target[paths[paths.length - 1]] = content;
+                }
+            }
+        }
+
+        // 反馈功能
+        function giveFeedback(sectionName, feedbackType) {
+            const section = document.querySelector(`.report-section[data-section="${sectionName}"]`);
+            if (!section) return;
+
+            // 获取该section的所有反馈按钮
+            const likeBtn = section.querySelector('.feedback-btn[onclick*="like"]');
+            const dislikeBtn = section.querySelector('.feedback-btn[onclick*="dislike"]');
+
+            // 重置所有按钮状态
+            likeBtn.classList.remove('liked');
+            dislikeBtn.classList.remove('disliked');
+
+            // 根据反馈类型设置状态
+            if (feedbackType === 'like') {
+                likeBtn.classList.add('liked');
+                console.log(`用户对 ${sectionName} 维度点赞`);
+            } else if (feedbackType === 'dislike') {
+                dislikeBtn.classList.add('disliked');
+                console.log(`用户对 ${sectionName} 维度点踩`);
+            }
+
+            // 显示感谢提示
+            showFeedbackToast();
+
+            // 阻止事件冒泡
+            if (event) event.stopPropagation();
+        }
+
+        // 生成反馈按钮 HTML
+        function createFeedbackButtons(sectionName) {
+            // Lucide ThumbsUp icon
+            const thumbsUpSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 10v12m8-8.5V2c0-.83-.67-1.5-1.5-1.5h-.5a2 2 0 0 0-2 2v7H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2z"></path>
+            </svg>`;
+            
+            // Lucide ThumbsDown icon
+            const thumbsDownSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 14V2m-8 8.5v11.5c0 .83.67 1.5 1.5 1.5h.5a2 2 0 0 1 2-2v-7h7a2 2 0 0 1 2-2v-8a2 2 0 0 1-2-2h-12a2 2 0 0 1-2 2v8a2 2 0 0 1 2 2z"></path>
+            </svg>`;
+
+            return `
+                <div class="feedback-buttons">
+                    <button class="feedback-btn" onclick="giveFeedback('${sectionName}', 'like')" title="有帮助">
+                        ${thumbsUpSvg}
+                    </button>
+                    <button class="feedback-btn" onclick="giveFeedback('${sectionName}', 'dislike')" title="没帮助">
+                        ${thumbsDownSvg}
+                    </button>
+                </div>
+            `;
+        }
+
+        // 初始化所有反馈按钮
+        function initializeFeedbackButtons() {
+            const sections = ['motivation', 'completed', 'incomplete', 'internal', 'external', 'next-steps'];
+            sections.forEach(section => {
+                const feedbackContainer = document.getElementById(`feedback-${section}`);
+                if (feedbackContainer) {
+                    const html = createFeedbackButtons(section);
+                    // 提取内部 HTML（跳过外层 div）
+                    const innerHtml = html.match(/<button[\s\S]*<\/button>/g).join('');
+                    feedbackContainer.innerHTML = innerHtml;
+                }
+            });
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initializeFeedbackButtons);
+
+        // 显示反馈感谢提示
+        function showFeedbackToast() {
+            // 移除已存在的 toast
+            const existingToast = document.querySelector('.feedback-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // 创建新 toast
+            const toast = document.createElement('div');
+            toast.className = 'feedback-toast';
+            toast.textContent = 'Thank you for your feedback';
+            document.body.appendChild(toast);
+
+            // 动画完成后移除
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // 编辑状态与评价功能
+        function editStatus(cellElement, event) {
+            // 立即阻止事件冒泡，避免触发行的点击事件
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const currentText = cellElement.textContent;
+            const projectName = cellElement.getAttribute('data-project');
+
+            // 创建输入框
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'status-input';
+            input.value = currentText;
+
+            // 添加编辑样式
+            cellElement.classList.add('editing');
+            cellElement.textContent = '';
+            cellElement.appendChild(input);
+            input.focus();
+            input.select();
+
+            // 处理保存
+            function saveEdit() {
+                const newText = input.value.trim();
+                if (newText && newText !== currentText) {
+                    cellElement.textContent = newText;
+                    console.log(`Status updated for ${projectName}: ${newText}`);
+                } else {
+                    cellElement.textContent = currentText;
+                }
+                cellElement.classList.remove('editing');
+            }
+
+            // 处理取消
+            function cancelEdit() {
+                cellElement.textContent = currentText;
+                cellElement.classList.remove('editing');
+            }
+
+            // 事件监听
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    saveEdit();
+                } else if (e.key === 'Escape') {
+                    cancelEdit();
+                }
+            });
+
+            // 阻止事件冒泡，避免触发行点击事件
+            input.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        function renderReport(projectName, weekNumber = currentWeek) {
+            const projectData = projectsData[projectName];
+            console.log('Rendering report for:', projectName, 'Week:', weekNumber, 'currentWeek:', currentWeek);
+
+            if (!projectData) {
+                console.error('No project data found for:', projectName);
+                return;
+            }
+
+            // 如果项目有周数据，使用周数据；否则使用旧的数据结构（向后兼容）
+            const data = projectData.weeks ? projectData.weeks[weekNumber] : projectData;
+
+            if (!data) {
+                console.error('No data found for project:', projectName, 'week:', weekNumber);
+                return;
+            }
+
+            console.log('Data found for week', weekNumber, ':', !!data);
+
+            try {
+                // 渲染"做了什么" (达成事项)
+                const completedTasksContainer = document.getElementById('completed-tasks');
+                const completedCountContainer = document.getElementById('completed-count');
+
+                if (completedTasksContainer && data.completed_tasks) {
+                    completedTasksContainer.innerHTML = `
+                        <table class="task-table">
+                            <thead>
+                                <tr>
+                                    <th>任务名称</th>
+                                    <th>完成情况</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.completed_tasks.map((task, index) => `
+                                    <tr class="editable-row" data-path="completed_tasks" data-index="${index}">
+                                        <td>
+                                            <div class="task-name editable-text" data-path="completed_tasks" data-index="${index}" data-field="task" data-placeholder="任务名称">${task.task}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="completed_tasks" data-index="${index}" data-field="description" data-placeholder="任务描述">${task.description}</div>
+                                        </td>
+                                        <td class="row-actions">
+                                            <button class="row-action-btn delete" title="删除">×</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="add-row-btn" data-path="completed_tasks">+ 添加完成任务</button>
+                    `;
+                }
+
+                if (completedCountContainer && data.completed_tasks) {
+                    completedCountContainer.textContent = `共 ${data.completed_tasks.length} 个任务完成`;
+                }
+
+                // 渲染"为什么这样做" (动机与方向)
+                const reasonsContainer = document.getElementById('reasons-list');
+                if (reasonsContainer && data.motivation_direction) {
+                    reasonsContainer.innerHTML = `
+                        ${data.motivation_direction.map((item, index) => `
+                            <div class="data-item editable-row" data-path="motivation_direction" data-index="${index}">
+                                <span class="editable-text" data-path="motivation_direction" data-index="${index}" data-field="item" data-placeholder="输入动机方向">${item}</span>
+                                <div class="row-actions">
+                                    <button class="row-action-btn delete" title="删除">×</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <button class="add-row-btn" data-path="motivation_direction">+ 添加动机方向</button>
+                    `;
+                }
+
+                // 渲染"没做什么" (未达成事项)
+                const notCompletedTasksContainer = document.getElementById('not-completed-tasks');
+                const notCompletedCountContainer = document.getElementById('not-completed-count');
+
+                if (notCompletedTasksContainer && data.incomplete_tasks) {
+                    notCompletedTasksContainer.innerHTML = `
+                        <table class="task-table">
+                            <thead>
+                                <tr>
+                                    <th>任务名称</th>
+                                    <th>预期目标</th>
+                                    <th>未完成原因</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.incomplete_tasks.map((task, index) => `
+                                    <tr class="editable-row" data-path="incomplete_tasks" data-index="${index}">
+                                        <td>
+                                            <div class="task-name editable-text" data-path="incomplete_tasks" data-index="${index}" data-field="task" data-placeholder="任务名称">${task.task}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="incomplete_tasks" data-index="${index}" data-field="expected" data-placeholder="预期目标">${task.expected}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="incomplete_tasks" data-index="${index}" data-field="reason" data-placeholder="未完成原因">${task.reason}</div>
+                                        </td>
+                                        <td class="row-actions">
+                                            <button class="row-action-btn delete" title="删除">×</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="add-row-btn" data-path="incomplete_tasks">+ 添加未完成任务</button>
+                    `;
+                    if (notCompletedCountContainer) {
+                        notCompletedCountContainer.textContent = `${data.incomplete_tasks.length} 个任务未完成`;
+                    }
+                }
+
+                // 渲染"为什么没做" (内部反思)
+                const whyNotContainer = document.getElementById('why-not-list');
+                if (whyNotContainer && data.internal_reflection) {
+                    whyNotContainer.innerHTML = `
+                        ${data.internal_reflection.map((item, index) => `
+                            <div class="data-item editable-row" data-path="internal_reflection" data-index="${index}">
+                                <span class="editable-text" data-path="internal_reflection" data-index="${index}" data-field="item" data-placeholder="输入内部反思">${item}</span>
+                                <div class="row-actions">
+                                    <button class="row-action-btn delete" title="删除">×</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <button class="add-row-btn" data-path="internal_reflection">+ 添加内部反思</button>
+                    `;
+                }
+
+                // 渲染"成效与反馈" (外部反馈)
+                const achievementsContainer = document.getElementById('achievements-list');
+                if (achievementsContainer && data.external_feedback) {
+                    achievementsContainer.innerHTML = `
+                        ${data.external_feedback.map((feedback, index) => `
+                            <div class="data-item editable-row" data-path="external_feedback" data-index="${index}">
+                                <div class="task-name editable-text" data-path="external_feedback" data-index="${index}" data-field="source" data-placeholder="反馈来源">${feedback.source}</div>
+                                <div class="task-desc editable-text" data-path="external_feedback" data-index="${index}" data-field="content" data-placeholder="反馈内容">${feedback.content}</div>
+                                <div class="row-actions">
+                                    <button class="row-action-btn delete" title="删除">×</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <button class="add-row-btn" data-path="external_feedback">+ 添加外部反馈</button>
+                    `;
+                }
+
+                // 渲染"下一步计划"
+                const nextStepsContainer = document.getElementById('next-steps-list');
+                if (nextStepsContainer && data.next_week_plan) {
+                    nextStepsContainer.innerHTML = `
+                        <table class="task-table">
+                            <thead>
+                                <tr>
+                                    <th>优先级</th>
+                                    <th>任务名称</th>
+                                    <th>目标</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.next_week_plan.map((plan, index) => `
+                                    <tr class="editable-row" data-path="next_week_plan" data-index="${index}">
+                                        <td>
+                                            <span class="priority-badge editable-text" data-path="next_week_plan" data-index="${index}" data-field="priority" data-placeholder="P1">${typeof plan.priority === 'string' && plan.priority.startsWith('P') ? plan.priority : 'P' + (plan.priority || 1)}</span>
+                                        </td>
+                                        <td>
+                                            <div class="task-name editable-text" data-path="next_week_plan" data-index="${index}" data-field="task" data-placeholder="任务名称">${plan.task || ''}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="next_week_plan" data-index="${index}" data-field="goal" data-placeholder="目标描述">${plan.goal || ''}</div>
+                                        </td>
+                                        <td class="row-actions">
+                                            <button class="row-action-btn delete" title="删除">×</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="add-row-btn" data-path="next_week_plan">+ 添加下一步计划</button>
+                    `;
+                }
+
+                console.log('Report rendered successfully for:', projectName, 'Week:', weekNumber);
+            } catch (error) {
+                console.error('Error rendering report:', error);
+            }
+        }
+        
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                document.getElementById('fileName').textContent = e.target.files[0].name;
+            }
+        });
+
+        // 页面初始化时显示默认项目的数据
+        document.addEventListener('DOMContentLoaded', function() {
+            currentProject = '项目 A - Teamie 开发';
+            currentWeek = 1;
+            renderReport('项目 A - Teamie 开发', 1);
+
+            // 确保初始状态为非编辑模式
+            isEditMode = false;
+            const container = document.querySelector('.container');
+            container.classList.remove('edit-mode');
+        });
+    </script>
+</body>
+</html>
