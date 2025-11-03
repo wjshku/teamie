@@ -1,0 +1,573 @@
+2025-11-03 16:30:14,469 - __main__ - INFO - 开始上传文件: Oct 27 - Nov 2 29c4448b2bf880e6aec8d7b43bf7d338.html, 项目名称: Oct 27   Nov 2 29c4448b2bf880e6aec8d7b43bf7d338
+2025-11-03 16:30:14,470 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:30:14,470 - __main__ - INFO - 文件内容读取成功，大小: 30640 字符
+2025-11-03 16:30:14,470 - __main__ - INFO - 正在创建项目: Oct 27   Nov 2 29c4448b2bf880e6aec8d7b43bf7d338
+2025-11-03 16:30:14,472 - __main__ - INFO - 项目创建成功，ID: project_1
+2025-11-03 16:30:14,472 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:30:14,472 - __main__ - ERROR - 上传失败: No module named 'bs4'
+2025-11-03 16:30:14,473 - __main__ - ERROR - 错误详情: Traceback (most recent call last):
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/main.py", line 73, in upload_file
+    week_data = ai_analyzer.analyze_html_content(project_id, html_content)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 67, in analyze_html_content
+    text_content = self._extract_text_from_html(html_content)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 41, in _extract_text_from_html
+    from bs4 import BeautifulSoup
+ModuleNotFoundError: No module named 'bs4'
+
+2025-11-03 16:30:14,473 - __main__ - ERROR - 文件信息: Oct 27 - Nov 2 29c4448b2bf880e6aec8d7b43bf7d338.html, 项目名称: Oct 27   Nov 2 29c4448b2bf880e6aec8d7b43bf7d338
+2025-11-03 16:31:11,581 - __main__ - INFO - 开始上传文件: 原型图.html, 项目名称: 原型图
+2025-11-03 16:31:11,582 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:31:11,583 - __main__ - INFO - 文件内容读取成功，大小: 13008 字符
+2025-11-03 16:31:11,583 - __main__ - INFO - 正在创建项目: 原型图
+2025-11-03 16:31:11,586 - __main__ - INFO - 项目创建成功，ID: project_2
+2025-11-03 16:31:11,586 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:31:11,587 - ai_analyzer - INFO - 开始分析项目 project_2 的HTML内容
+2025-11-03 16:31:11,587 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 16:31:11,587 - __main__ - ERROR - 上传失败: No module named 'bs4'
+2025-11-03 16:31:11,589 - __main__ - ERROR - 错误详情: Traceback (most recent call last):
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/main.py", line 73, in upload_file
+    week_data = ai_analyzer.analyze_html_content(project_id, html_content)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 82, in analyze_html_content
+    text_content = self._extract_text_from_html(html_content)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 52, in _extract_text_from_html
+    from bs4 import BeautifulSoup
+ModuleNotFoundError: No module named 'bs4'
+
+2025-11-03 16:31:11,589 - __main__ - ERROR - 文件信息: 原型图.html, 项目名称: 原型图
+2025-11-03 16:32:43,273 - __main__ - INFO - 开始上传文件: 原型图.html, 项目名称: 原型图
+2025-11-03 16:32:43,274 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:32:43,274 - __main__ - INFO - 文件内容读取成功，大小: 13008 字符
+2025-11-03 16:32:43,274 - __main__ - INFO - 正在创建项目: 原型图
+2025-11-03 16:32:43,276 - __main__ - INFO - 项目创建成功，ID: project_3
+2025-11-03 16:32:43,276 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:32:43,276 - ai_analyzer - INFO - 开始分析项目 project_3 的HTML内容
+2025-11-03 16:32:43,276 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 16:32:43,323 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 16:32:43,324 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 16:32:43,324 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 16:32:43,324 - ai_analyzer - INFO - 正在初始化OpenAI客户端
+2025-11-03 16:32:43,325 - ai_analyzer - INFO - 正在创建OpenAI客户端实例
+2025-11-03 16:32:43,325 - ai_analyzer - ERROR - 调用OpenAI API时发生错误: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-11-03 16:32:43,325 - ai_analyzer - ERROR - 错误详情: TypeError
+2025-11-03 16:32:43,326 - ai_analyzer - ERROR - 完整堆栈跟踪: Traceback (most recent call last):
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 112, in analyze_html_content
+    response = self.client.chat.completions.create(
+               ^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 39, in client
+    self._client = OpenAI(api_key=api_key)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/_client.py", line 107, in __init__
+    super().__init__(
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/_base_client.py", line 760, in __init__
+    self._client = http_client or httpx.Client(
+                                  ^^^^^^^^^^^^^
+TypeError: Client.__init__() got an unexpected keyword argument 'proxies'
+
+2025-11-03 16:32:43,326 - ai_analyzer - WARNING - 返回默认的WeekData对象
+2025-11-03 16:32:43,326 - __main__ - INFO - HTML内容分析完成
+2025-11-03 16:32:43,326 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 16:32:43,327 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 16:32:43,327 - __main__ - INFO - 文件上传并分析成功，项目ID: project_3
+2025-11-03 16:32:45,358 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:32:45,358 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 16:32:54,503 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:32:54,504 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:32:57,268 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:32:57,269 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:32:59,832 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:32:59,833 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 16:33:01,119 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:33:01,120 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:33:04,177 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:33:04,178 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:33:06,077 - __main__ - INFO - 正在获取项目 Oct 27   Nov 2 29c4448b2bf880e6aec8d7b43bf7d338 的第 1 周周报
+2025-11-03 16:33:06,078 - __main__ - WARNING - 项目 Oct 27   Nov 2 29c4448b2bf880e6aec8d7b43bf7d338 的第 1 周周报不存在
+2025-11-03 16:33:09,457 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:33:09,458 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:34:18,486 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:34:18,487 - __main__ - INFO - 成功获取 0 个项目
+2025-11-03 16:34:22,983 - __main__ - INFO - 开始上传文件: 原型图.html, 项目名称: 原型图
+2025-11-03 16:34:22,983 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:34:22,983 - __main__ - INFO - 文件内容读取成功，大小: 13008 字符
+2025-11-03 16:34:22,983 - __main__ - INFO - 正在创建项目: 原型图
+2025-11-03 16:34:22,984 - __main__ - INFO - 项目创建成功，ID: project_1
+2025-11-03 16:34:22,984 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:34:22,984 - ai_analyzer - INFO - 开始分析项目 project_1 的HTML内容
+2025-11-03 16:34:22,985 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 16:34:23,036 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 16:34:23,037 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 16:34:23,037 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 16:34:23,037 - ai_analyzer - INFO - 正在初始化OpenAI客户端
+2025-11-03 16:34:23,037 - ai_analyzer - INFO - 正在创建OpenAI客户端实例
+2025-11-03 16:34:23,038 - ai_analyzer - ERROR - 调用OpenAI API时发生错误: Client.__init__() got an unexpected keyword argument 'proxies'
+2025-11-03 16:34:23,038 - ai_analyzer - ERROR - 错误详情: TypeError
+2025-11-03 16:34:23,039 - ai_analyzer - ERROR - 完整堆栈跟踪: Traceback (most recent call last):
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 112, in analyze_html_content
+    response = self.client.chat.completions.create(
+               ^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 39, in client
+    self._client = OpenAI(api_key=api_key)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/_client.py", line 107, in __init__
+    super().__init__(
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/_base_client.py", line 760, in __init__
+    self._client = http_client or httpx.Client(
+                                  ^^^^^^^^^^^^^
+TypeError: Client.__init__() got an unexpected keyword argument 'proxies'
+
+2025-11-03 16:34:23,039 - ai_analyzer - WARNING - 返回默认的WeekData对象
+2025-11-03 16:34:23,039 - __main__ - INFO - HTML内容分析完成
+2025-11-03 16:34:23,039 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 16:34:23,040 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 16:34:23,040 - __main__ - INFO - 文件上传并分析成功，项目ID: project_1
+2025-11-03 16:34:25,053 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:34:25,054 - __main__ - INFO - 成功获取 1 个项目
+2025-11-03 16:34:29,460 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:34:29,460 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:35:50,922 - __main__ - INFO - 开始上传文件: 原型图.html, 项目名称: 原型图
+2025-11-03 16:35:50,922 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:35:50,922 - __main__ - INFO - 文件内容读取成功，大小: 13008 字符
+2025-11-03 16:35:50,922 - __main__ - INFO - 正在创建项目: 原型图
+2025-11-03 16:35:50,961 - __main__ - INFO - 项目创建成功，ID: project_2
+2025-11-03 16:35:50,961 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:35:50,961 - ai_analyzer - INFO - 开始分析项目 project_2 的HTML内容
+2025-11-03 16:35:50,961 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 16:35:51,013 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 16:35:51,013 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 16:35:51,013 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 16:35:51,013 - ai_analyzer - INFO - 正在初始化OpenAI配置
+2025-11-03 16:35:51,013 - ai_analyzer - INFO - OpenAI配置初始化成功
+2025-11-03 16:35:52,216 - openai - INFO - error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8459 tokens (4459 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2025-11-03 16:35:52,217 - ai_analyzer - ERROR - 调用OpenAI API时发生错误: This model's maximum context length is 8192 tokens. However, you requested 8459 tokens (4459 in the messages, 4000 in the completion). Please reduce the length of the messages or completion.
+2025-11-03 16:35:52,217 - ai_analyzer - ERROR - 错误详情: InvalidRequestError
+2025-11-03 16:35:52,219 - ai_analyzer - ERROR - 完整堆栈跟踪: Traceback (most recent call last):
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 112, in analyze_html_content
+    response = openai.ChatCompletion.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_resources/chat_completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 155, in create
+    response, _, api_key = requestor.request(
+                           ^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 299, in request
+    resp, got_stream = self._interpret_response(result, stream)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 710, in _interpret_response
+    self._interpret_response_line(
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 775, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.InvalidRequestError: This model's maximum context length is 8192 tokens. However, you requested 8459 tokens (4459 in the messages, 4000 in the completion). Please reduce the length of the messages or completion.
+
+2025-11-03 16:35:52,220 - ai_analyzer - WARNING - 返回默认的WeekData对象
+2025-11-03 16:35:52,220 - __main__ - INFO - HTML内容分析完成
+2025-11-03 16:35:52,220 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 16:35:52,222 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 16:35:52,222 - __main__ - INFO - 文件上传并分析成功，项目ID: project_2
+2025-11-03 16:35:54,048 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:35:54,049 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:35:55,439 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:35:55,440 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:35:57,560 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:35:57,561 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:37:40,360 - __main__ - INFO - 开始上传文件: 原型图.html, 项目名称: 原型图
+2025-11-03 16:37:40,360 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:37:40,361 - __main__ - INFO - 文件内容读取成功，大小: 13008 字符
+2025-11-03 16:37:40,361 - __main__ - INFO - 正在创建项目: 原型图
+2025-11-03 16:37:40,362 - __main__ - INFO - 项目创建成功，ID: project_3
+2025-11-03 16:37:40,362 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:37:40,362 - ai_analyzer - INFO - 开始分析项目 project_3 的HTML内容
+2025-11-03 16:37:40,362 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 16:37:40,401 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 16:37:40,401 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 16:37:40,401 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 16:37:40,401 - ai_analyzer - INFO - 正在初始化OpenAI配置
+2025-11-03 16:37:40,401 - ai_analyzer - INFO - OpenAI配置初始化成功
+2025-11-03 16:37:41,588 - openai - INFO - error_code=invalid_value error_message='max_tokens is too large: 81920. This model supports at most 4096 completion tokens, whereas you provided 81920.' error_param=max_tokens error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2025-11-03 16:37:41,589 - ai_analyzer - ERROR - 调用OpenAI API时发生错误: max_tokens is too large: 81920. This model supports at most 4096 completion tokens, whereas you provided 81920.
+2025-11-03 16:37:41,589 - ai_analyzer - ERROR - 错误详情: InvalidRequestError
+2025-11-03 16:37:41,592 - ai_analyzer - ERROR - 完整堆栈跟踪: Traceback (most recent call last):
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 112, in analyze_html_content
+    response = openai.ChatCompletion.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_resources/chat_completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 155, in create
+    response, _, api_key = requestor.request(
+                           ^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 299, in request
+    resp, got_stream = self._interpret_response(result, stream)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 710, in _interpret_response
+    self._interpret_response_line(
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 775, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.InvalidRequestError: max_tokens is too large: 81920. This model supports at most 4096 completion tokens, whereas you provided 81920.
+
+2025-11-03 16:37:41,592 - ai_analyzer - WARNING - 返回默认的WeekData对象
+2025-11-03 16:37:41,593 - __main__ - INFO - HTML内容分析完成
+2025-11-03 16:37:41,593 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 16:37:41,594 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 16:37:41,594 - __main__ - INFO - 文件上传并分析成功，项目ID: project_3
+2025-11-03 16:39:44,449 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:39:44,452 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 16:39:55,617 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:39:55,618 - __main__ - INFO - 成功获取 0 个项目
+2025-11-03 16:40:00,148 - __main__ - INFO - 开始上传文件: 原型图.html, 项目名称: 原型图
+2025-11-03 16:40:00,149 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:40:00,149 - __main__ - INFO - 文件内容读取成功，大小: 13008 字符
+2025-11-03 16:40:00,149 - __main__ - INFO - 正在创建项目: 原型图
+2025-11-03 16:40:00,150 - __main__ - INFO - 项目创建成功，ID: project_1
+2025-11-03 16:40:00,151 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:40:00,151 - ai_analyzer - INFO - 开始分析项目 project_1 的HTML内容
+2025-11-03 16:40:00,151 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 16:40:00,200 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 16:40:00,200 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 16:40:00,200 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 16:40:00,200 - ai_analyzer - INFO - 正在初始化OpenAI配置
+2025-11-03 16:40:00,201 - ai_analyzer - INFO - OpenAI配置初始化成功
+2025-11-03 16:40:01,179 - openai - INFO - error_code=invalid_value error_message='max_tokens is too large: 8000. This model supports at most 4096 completion tokens, whereas you provided 8000.' error_param=max_tokens error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2025-11-03 16:40:01,180 - ai_analyzer - ERROR - 调用OpenAI API时发生错误: max_tokens is too large: 8000. This model supports at most 4096 completion tokens, whereas you provided 8000.
+2025-11-03 16:40:01,180 - ai_analyzer - ERROR - 错误详情: InvalidRequestError
+2025-11-03 16:40:01,185 - ai_analyzer - ERROR - 完整堆栈跟踪: Traceback (most recent call last):
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/ai_analyzer.py", line 112, in analyze_html_content
+    response = openai.ChatCompletion.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_resources/chat_completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 155, in create
+    response, _, api_key = requestor.request(
+                           ^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 299, in request
+    resp, got_stream = self._interpret_response(result, stream)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 710, in _interpret_response
+    self._interpret_response_line(
+  File "/Users/wjs/Library/CloudStorage/OneDrive-Personal/Coding, ML & DL/SideProjects/teamie/backend/venv/lib/python3.11/site-packages/openai/api_requestor.py", line 775, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.InvalidRequestError: max_tokens is too large: 8000. This model supports at most 4096 completion tokens, whereas you provided 8000.
+
+2025-11-03 16:40:01,185 - ai_analyzer - WARNING - 返回默认的WeekData对象
+2025-11-03 16:40:01,186 - __main__ - INFO - HTML内容分析完成
+2025-11-03 16:40:01,186 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 16:40:01,188 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 16:40:01,188 - __main__ - INFO - 文件上传并分析成功，项目ID: project_1
+2025-11-03 16:40:16,631 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:40:16,633 - __main__ - INFO - 成功获取 1 个项目
+2025-11-03 16:40:25,972 - __main__ - INFO - 开始上传文件: 原型图.html, 项目名称: 原型图
+2025-11-03 16:40:25,973 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 16:40:25,973 - __main__ - INFO - 文件内容读取成功，大小: 13008 字符
+2025-11-03 16:40:25,973 - __main__ - INFO - 正在创建项目: 原型图
+2025-11-03 16:40:25,974 - __main__ - INFO - 项目创建成功，ID: project_2
+2025-11-03 16:40:25,974 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 16:40:25,974 - ai_analyzer - INFO - 开始分析项目 project_2 的HTML内容
+2025-11-03 16:40:25,974 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 16:40:26,023 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 16:40:26,024 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 16:40:26,024 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 16:40:26,024 - ai_analyzer - INFO - 正在初始化OpenAI配置
+2025-11-03 16:40:26,025 - ai_analyzer - INFO - OpenAI配置初始化成功
+2025-11-03 16:40:44,888 - ai_analyzer - INFO - OpenAI API调用成功
+2025-11-03 16:40:44,888 - ai_analyzer - INFO - JSON解析成功
+2025-11-03 16:40:44,889 - ai_analyzer - INFO - WeekData对象创建成功
+2025-11-03 16:40:44,889 - ai_analyzer - INFO - 正在保存HTML内容
+2025-11-03 16:40:44,890 - ai_analyzer - INFO - HTML内容保存成功
+2025-11-03 16:40:44,890 - __main__ - INFO - HTML内容分析完成
+2025-11-03 16:40:44,890 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 16:40:44,891 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 16:40:44,891 - __main__ - INFO - 文件上传并分析成功，项目ID: project_2
+2025-11-03 16:40:45,096 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:40:45,097 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:40:45,126 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:40:45,127 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:40:51,522 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:40:51,522 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:40:53,517 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:40:53,518 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:40:56,160 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:40:56,161 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:40:57,079 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:40:57,080 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:41:27,476 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:41:27,476 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:41:29,008 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:41:29,009 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:41:30,863 - __main__ - INFO - 正在获取项目 原型图 的第 1 周周报
+2025-11-03 16:41:30,864 - __main__ - WARNING - 项目 原型图 的第 1 周周报不存在
+2025-11-03 16:41:32,436 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:41:32,436 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:44:37,679 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:44:37,681 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:44:42,603 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:44:42,603 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:44:52,516 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:44:52,517 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:44:53,555 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 16:44:53,556 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 16:44:59,184 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 16:44:59,185 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 16:45:06,501 - __main__ - INFO - 正在获取项目 project_2 的第 2 周周报
+2025-11-03 16:45:06,502 - __main__ - WARNING - 项目 project_2 的第 2 周周报不存在
+2025-11-03 16:45:08,785 - __main__ - INFO - 正在获取项目 project_2 的第 0 周周报
+2025-11-03 16:45:08,786 - __main__ - WARNING - 项目 project_2 的第 0 周周报不存在
+2025-11-03 16:45:19,492 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 16:45:19,493 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 16:45:31,442 - __main__ - INFO - 正在获取项目 project_2 的第 2 周周报
+2025-11-03 16:45:31,443 - __main__ - WARNING - 项目 project_2 的第 2 周周报不存在
+2025-11-03 16:47:14,878 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 16:47:14,880 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 16:47:15,815 - __main__ - INFO - 正在获取项目 project_1 的第 0 周周报
+2025-11-03 16:47:15,816 - __main__ - WARNING - 项目 project_1 的第 0 周周报不存在
+2025-11-03 16:47:31,166 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:47:31,168 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:47:31,170 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:47:31,170 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:47:33,076 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:47:33,077 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:47:36,085 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 16:47:36,086 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 16:47:42,716 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 16:47:42,717 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 16:48:30,801 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:48:30,802 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:48:32,567 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 16:48:32,568 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 16:48:33,445 - __main__ - INFO - 正在获取项目 project_1 的第 2 周周报
+2025-11-03 16:48:33,446 - __main__ - WARNING - 项目 project_1 的第 2 周周报不存在
+2025-11-03 16:48:37,213 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 16:48:37,214 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 16:48:37,926 - __main__ - INFO - 正在获取项目 project_2 的第 2 周周报
+2025-11-03 16:48:37,927 - __main__ - WARNING - 项目 project_2 的第 2 周周报不存在
+2025-11-03 16:52:16,844 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:52:16,845 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:52:18,148 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 16:52:18,149 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 16:52:19,231 - __main__ - INFO - 正在获取项目 project_1 的第 2 周周报
+2025-11-03 16:52:19,232 - __main__ - WARNING - 项目 project_1 的第 2 周周报不存在
+2025-11-03 16:55:33,554 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 16:55:33,556 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 16:55:34,756 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 16:55:34,757 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 16:55:35,845 - __main__ - INFO - 正在获取项目 project_1 的信息
+2025-11-03 16:55:35,846 - __main__ - INFO - 成功获取项目 project_1 信息: 1 周数据
+2025-11-03 16:55:39,706 - __main__ - INFO - 正在获取项目 project_1 的信息
+2025-11-03 16:55:39,706 - __main__ - INFO - 成功获取项目 project_1 信息: 1 周数据
+2025-11-03 16:55:43,391 - __main__ - INFO - 正在获取项目 project_1 的信息
+2025-11-03 16:55:43,391 - __main__ - INFO - 成功获取项目 project_1 信息: 1 周数据
+2025-11-03 16:55:46,743 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 16:55:46,743 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 16:55:47,380 - __main__ - INFO - 正在获取项目 project_2 的信息
+2025-11-03 16:55:47,380 - __main__ - INFO - 成功获取项目 project_2 信息: 1 周数据
+2025-11-03 17:00:34,234 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:00:34,239 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 17:00:50,879 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 17:00:50,881 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 17:01:15,621 - __main__ - INFO - 正在获取项目 project_1 的信息
+2025-11-03 17:01:15,622 - __main__ - INFO - 成功获取项目 project_1 信息: 1 周数据
+2025-11-03 17:03:46,032 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:03:46,034 - __main__ - INFO - 成功获取 2 个项目
+2025-11-03 17:04:06,366 - __main__ - INFO - 开始上传文件: Oct 27 - Nov 2 29c4448b2bf880e6aec8d7b43bf7d338.html, 项目名称: Default project
+2025-11-03 17:04:06,367 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 17:04:06,369 - __main__ - INFO - 文件内容读取成功，大小: 30640 字符
+2025-11-03 17:04:06,369 - __main__ - INFO - 正在创建项目: Default project
+2025-11-03 17:04:06,374 - __main__ - INFO - 项目创建成功，ID: project_3
+2025-11-03 17:04:06,374 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 17:04:06,374 - ai_analyzer - INFO - 开始分析项目 project_3 的HTML内容
+2025-11-03 17:04:06,374 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 17:04:06,425 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 17:04:06,426 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 17:04:06,426 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 17:04:06,426 - ai_analyzer - INFO - 正在初始化OpenAI配置
+2025-11-03 17:04:06,428 - ai_analyzer - INFO - OpenAI配置初始化成功
+2025-11-03 17:04:24,352 - ai_analyzer - INFO - OpenAI API调用成功
+2025-11-03 17:04:24,352 - ai_analyzer - ERROR - JSON解析错误: Expecting value: line 1 column 1 (char 0)
+2025-11-03 17:04:24,352 - ai_analyzer - ERROR - 原始响应内容: 根据提供的本周 Notion 文档内容，以下是对本周工作的分析和下周计划的建议：
+
+```json
+{
+  "completed_tasks": [
+    {
+      "task": "产品重新上线",
+      "description": "成功将产品部署到 AWS，进行了自动部署配置"
+    },
+    {
+      "task": "修复 bug",
+      "description": "解决了关键功能中的多个技术问题"
+    },
+    {
+      "task": "用户访谈",
+      "description": "通过与父母的访谈，进一步确认了目标用户群体为需要管理会议和多线程工作的年轻创业者"
+    }
+  ],
+  "incomplete_tasks": [
+    {
+      "task": "功能简化",
+      "expected": "简化现有复杂功能，以便更好地服务目标用户",
+      "reason": "反馈指出当前功能设置过于复杂，对用户造成负担"
+    }
+  ],
+  "motivation_dir...
+2025-11-03 17:04:24,352 - ai_analyzer - WARNING - 返回默认的WeekData对象
+2025-11-03 17:04:24,352 - __main__ - INFO - HTML内容分析完成
+2025-11-03 17:04:24,352 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 17:04:24,354 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 17:04:24,354 - __main__ - INFO - 文件上传并分析成功，项目ID: project_3
+2025-11-03 17:04:34,159 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:04:34,161 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:04:36,303 - __main__ - INFO - 正在获取项目 project_3 的第 1 周周报
+2025-11-03 17:04:36,303 - __main__ - INFO - 成功获取项目 project_3 的第 1 周周报
+2025-11-03 17:04:38,369 - __main__ - INFO - 正在获取项目 project_3 的信息
+2025-11-03 17:04:38,370 - __main__ - INFO - 成功获取项目 project_3 信息: 1 周数据
+2025-11-03 17:09:22,594 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:09:22,595 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:09:27,710 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 17:09:27,711 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 17:09:29,704 - __main__ - INFO - 正在获取项目 project_1 的信息
+2025-11-03 17:09:29,705 - __main__ - INFO - 成功获取项目 project_1 信息: 1 周数据
+2025-11-03 17:09:35,289 - __main__ - INFO - 正在获取项目 project_3 的第 1 周周报
+2025-11-03 17:09:35,290 - __main__ - INFO - 成功获取项目 project_3 的第 1 周周报
+2025-11-03 17:09:37,838 - __main__ - INFO - 正在获取项目 project_3 的信息
+2025-11-03 17:09:37,838 - __main__ - INFO - 成功获取项目 project_3 信息: 1 周数据
+2025-11-03 17:13:03,525 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:13:03,527 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:13:05,184 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 17:13:05,185 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 17:13:07,212 - __main__ - INFO - 正在获取项目 project_1 的信息
+2025-11-03 17:13:07,212 - __main__ - INFO - 成功获取项目 project_1 信息: 1 周数据
+2025-11-03 17:13:10,979 - __main__ - INFO - 正在获取项目 project_3 的第 1 周周报
+2025-11-03 17:13:10,980 - __main__ - INFO - 成功获取项目 project_3 的第 1 周周报
+2025-11-03 17:13:12,727 - __main__ - INFO - 正在获取项目 project_3 的信息
+2025-11-03 17:13:12,728 - __main__ - INFO - 成功获取项目 project_3 信息: 1 周数据
+2025-11-03 17:13:14,650 - __main__ - INFO - 正在获取项目 project_3 的信息
+2025-11-03 17:13:14,651 - __main__ - INFO - 成功获取项目 project_3 信息: 1 周数据
+2025-11-03 17:13:24,301 - __main__ - INFO - 开始上传文件: Oct 27 - Nov 2 29c4448b2bf880e6aec8d7b43bf7d338.html, 项目名称: Test
+2025-11-03 17:13:24,302 - __main__ - INFO - 正在读取文件内容...
+2025-11-03 17:13:24,303 - __main__ - INFO - 文件内容读取成功，大小: 30640 字符
+2025-11-03 17:13:24,303 - __main__ - INFO - 正在创建项目: Test
+2025-11-03 17:13:24,306 - __main__ - INFO - 项目创建成功，ID: project_4
+2025-11-03 17:13:24,306 - __main__ - INFO - 正在分析HTML内容...
+2025-11-03 17:13:24,306 - ai_analyzer - INFO - 开始分析项目 project_4 的HTML内容
+2025-11-03 17:13:24,306 - ai_analyzer - INFO - 正在提取HTML中的文本内容
+2025-11-03 17:13:24,355 - ai_analyzer - INFO - 正在加载系统提示词
+2025-11-03 17:13:24,356 - ai_analyzer - INFO - 这是首次汇报，没有上一周数据
+2025-11-03 17:13:24,356 - ai_analyzer - INFO - 正在调用OpenAI API进行分析
+2025-11-03 17:13:24,356 - ai_analyzer - INFO - 正在初始化OpenAI配置
+2025-11-03 17:13:24,356 - ai_analyzer - INFO - OpenAI配置初始化成功
+2025-11-03 17:13:50,348 - ai_analyzer - INFO - OpenAI API调用成功
+2025-11-03 17:13:50,349 - ai_analyzer - ERROR - JSON解析错误: Expecting value: line 1 column 1 (char 0)
+2025-11-03 17:13:50,349 - ai_analyzer - ERROR - 原始响应内容: 根据提供的本周 Notion HTML 文档内容，分析得出以下汇报内容：
+
+```json
+{
+  "completed_tasks": [
+    {
+      "task": "产品重新上线与自动部署",
+      "description": "成功实现产品自动部署到 AWS，修复关键性 bug"
+    },
+    {
+      "task": "明确产品定位与目标用户群",
+      "description": "通过 Landing Page 确定目标用户为年轻创业者，帮助他们跟踪会议"
+    },
+    {
+      "task": "用户访谈与功能迭代",
+      "description": "完成对父母的访谈，确认需求向备忘录功能转型，简化产品功能"
+    }
+  ],
+  "incomplete_tasks": [
+    {
+      "task": "用户调查",
+      "expected": "进行小调查以收集用户对产品的看法和解决的问题",
+      "reason": "未提及调查结果，假设调查尚未完成或未分析"
+   ...
+2025-11-03 17:13:50,349 - ai_analyzer - WARNING - 返回默认的WeekData对象
+2025-11-03 17:13:50,350 - __main__ - INFO - HTML内容分析完成
+2025-11-03 17:13:50,350 - __main__ - INFO - 设置周期间隔: 2025-11-03 至 2025-11-09
+2025-11-03 17:13:50,350 - __main__ - INFO - 正在保存第一周数据...
+2025-11-03 17:13:50,353 - __main__ - INFO - 第一周数据保存成功
+2025-11-03 17:13:50,353 - __main__ - INFO - 文件上传并分析成功，项目ID: project_4
+2025-11-03 17:13:59,264 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:13:59,265 - __main__ - INFO - 成功获取 4 个项目
+2025-11-03 17:14:01,139 - __main__ - INFO - 正在获取项目 project_4 的第 1 周周报
+2025-11-03 17:14:01,141 - __main__ - INFO - 成功获取项目 project_4 的第 1 周周报
+2025-11-03 17:14:46,797 - __main__ - INFO - 正在获取项目 project_3 的第 1 周周报
+2025-11-03 17:14:46,800 - __main__ - INFO - 成功获取项目 project_3 的第 1 周周报
+2025-11-03 17:17:12,250 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:17:12,252 - __main__ - INFO - 成功获取 4 个项目
+2025-11-03 17:17:13,532 - __main__ - INFO - 正在获取项目 project_4 的第 1 周周报
+2025-11-03 17:17:13,533 - __main__ - INFO - 成功获取项目 project_4 的第 1 周周报
+2025-11-03 17:17:18,930 - __main__ - INFO - 正在获取项目 project_4 的第 1 周周报
+2025-11-03 17:17:18,931 - __main__ - INFO - 成功获取项目 project_4 的第 1 周周报
+2025-11-03 17:17:20,531 - __main__ - INFO - 正在获取项目 project_4 的信息
+2025-11-03 17:17:20,532 - __main__ - INFO - 成功获取项目 project_4 信息: 1 周数据
+2025-11-03 17:19:30,641 - __main__ - INFO - 正在获取项目 project_4 的第 1 周周报
+2025-11-03 17:19:30,644 - __main__ - INFO - 成功获取项目 project_4 的第 1 周周报
+2025-11-03 17:19:34,372 - __main__ - INFO - 正在获取项目 project_1 的第 1 周周报
+2025-11-03 17:19:34,374 - __main__ - INFO - 成功获取项目 project_1 的第 1 周周报
+2025-11-03 17:19:36,920 - __main__ - INFO - 正在更新项目 project_1 第 1 周的完整周报数据
+2025-11-03 17:19:36,920 - __main__ - INFO - 正在保存周报数据
+2025-11-03 17:19:36,923 - __main__ - INFO - 项目 project_1 第 1 周的周报更新成功
+2025-11-03 17:19:40,651 - __main__ - INFO - 正在更新项目 project_1 第 1 周的完整周报数据
+2025-11-03 17:19:40,652 - __main__ - INFO - 正在保存周报数据
+2025-11-03 17:19:40,655 - __main__ - INFO - 项目 project_1 第 1 周的周报更新成功
+2025-11-03 17:19:48,803 - __main__ - INFO - 正在获取项目 project_3 的第 1 周周报
+2025-11-03 17:19:48,803 - __main__ - INFO - 成功获取项目 project_3 的第 1 周周报
+2025-11-03 17:19:50,484 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 17:19:50,485 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 17:20:47,423 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:20:47,424 - __main__ - INFO - 成功获取 4 个项目
+2025-11-03 17:21:48,492 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:21:48,494 - __main__ - INFO - 成功获取 4 个项目
+2025-11-03 17:21:54,499 - __main__ - INFO - 正在删除项目 project_1
+2025-11-03 17:21:54,502 - __main__ - INFO - 项目 project_1 删除成功
+2025-11-03 17:21:56,335 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:21:56,337 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:22:56,166 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:22:56,167 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:22:59,510 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 17:22:59,511 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 17:23:57,578 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:23:57,579 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:24:09,681 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:24:09,682 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:25:43,584 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:25:43,585 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:25:49,233 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:25:49,233 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:25:51,024 - __main__ - INFO - 正在获取项目 project_2 的第 1 周周报
+2025-11-03 17:25:51,025 - __main__ - INFO - 成功获取项目 project_2 的第 1 周周报
+2025-11-03 17:26:00,251 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:26:00,251 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:26:00,898 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:26:00,898 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:26:01,385 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:26:01,386 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:26:01,952 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:26:01,952 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:27:16,409 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:27:16,412 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:27:22,278 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:27:22,279 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:27:36,939 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:27:36,940 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:29:05,251 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:29:05,263 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:29:27,385 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:29:27,386 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:31:06,279 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:31:06,281 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:31:10,357 - __main__ - INFO - 正在更新项目 project_2 的状态为: 撒旦法水电费
+2025-11-03 17:31:10,365 - __main__ - INFO - 项目 project_2 状态更新成功
+2025-11-03 17:31:12,117 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:31:12,118 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:31:14,044 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:31:14,044 - __main__ - INFO - 成功获取 3 个项目
+2025-11-03 17:31:21,177 - __main__ - INFO - 正在更新项目 project_2 的状态为: 进行中
+2025-11-03 17:31:21,179 - __main__ - INFO - 项目 project_2 状态更新成功
+2025-11-03 17:31:22,904 - __main__ - INFO - 正在获取所有项目列表
+2025-11-03 17:31:22,905 - __main__ - INFO - 成功获取 3 个项目

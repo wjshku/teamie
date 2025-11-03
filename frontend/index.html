@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamie - 项目管理工具</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #fff;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 200px;
+            border-right: 1px solid #ddd;
+            background: #f8f8f8;
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            font-weight: 700;
+            font-size: 16px;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            color: #555;
+        }
+        
+        .nav-item:hover {
+            background: #eee;
+            color: #333;
+        }
+        
+        .nav-item.active {
+            background: #fff;
+            border: 1px solid #333;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .project-info {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        /* 主内容区 */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            border-bottom: 1px solid #ddd;
+            padding: 16px 24px;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        /* Tab 样式 */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 12px;
+        }
+        
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -14px;
+            font-weight: 500;
+        }
+        
+        .tab-btn:hover {
+            color: #333;
+        }
+        
+        .tab-btn.active {
+            color: #333;
+            border-bottom-color: #333;
+        }
+        
+        /* 屏幕样式 */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid #333;
+            background: #fff;
+            color: #333;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn.primary {
+            background: #333;
+            color: #fff;
+            border-color: #333;
+        }
+        
+        .btn.primary:hover {
+            background: #555;
+            border-color: #555;
+        }
+        
+        /* 卡片组件 */
+        .card {
+            border: 1px solid #ddd;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fff;
+            border-radius: 4px;
+        }
+        
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        /* 网格布局 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        /* 表格 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .table thead {
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 项目列表表格列宽设置 */
+        #screen4 .table {
+            table-layout: fixed;
+        }
+
+        #screen4 .table th:nth-child(1),
+        #screen4 .table td:nth-child(1) {
+            width: 30%;
+        }
+
+        #screen4 .table th:nth-child(2),
+        #screen4 .table td:nth-child(2) {
+            width: 10%;
+        }
+
+        #screen4 .table th:nth-child(3),
+        #screen4 .table td:nth-child(3) {
+            width: 60%;
+        }
+
+        #screen4 .table th:nth-child(4),
+        #screen4 .table td:nth-child(4) {
+            width: 40px;
+        }
+        
+        .table tbody tr:hover {
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        /* 项目行样式 */
+        .project-row {
+            position: relative;
+        }
+
+        .project-actions {
+            width: 40px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .project-row:hover .project-actions {
+            opacity: 1;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+            transition: all 0.15s ease;
+            line-height: 1;
+        }
+
+        .delete-btn:hover {
+            background: rgba(235, 87, 87, 0.1);
+            color: #eb5757;
+        }
+
+        /* 状态单元格样式 */
+        .status-cell {
+            cursor: pointer;
+            padding: 8px 12px;
+            transition: all 0.15s ease;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .status-cell:hover {
+            background: rgba(55, 53, 47, 0.08);
+        }
+
+        .status-cell.editing {
+            outline: none;
+            border: none;
+            background: transparent;
+            cursor: text;
+            padding: 8px 12px;
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            color: inherit;
+            box-sizing: border-box;
+            min-height: 1.2em;
+        }
+
+        .status-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: inherit;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .status-input:focus {
+            outline: none;
+            border-color: #333;
+            box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+        }
+
+        /* 任务列表表格样式 */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .task-table th {
+            background: #f8f8f8;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border: 1px solid #ddd;
+            border-bottom: 2px solid #bbb;
+        }
+
+        .task-table td {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+            background: #fff;
+        }
+
+        .task-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .task-table tr:hover td {
+            background: #f0f0f0;
+        }
+
+        .task-table .task-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .task-table .task-desc {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        .task-table .priority-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #333;
+            color: #fff;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* 维度控制样式 */
+        .dimension-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .dimension-controls.hidden {
+            display: none;
+        }
+
+        /* 维度切换按钮样式 */
+        .dimension-toggle-btn {
+            margin-left: auto;
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .dimension-toggle-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .dimension-toggle {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .dimension-toggle:hover {
+            background: #f0f0f0;
+        }
+
+        .dimension-toggle.active {
+            background: #333;
+            color: #fff;
+            border-color: #333;
+        }
+
+        .dimension-toggle.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Z字型布局 - 两列 */
+        .report-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .report-section {
+            flex: 0 0 calc(50% - 8px);
+            min-width: 300px;
+            position: relative;
+        }
+
+        /* 当有3个元素时，最后一个元素也只占50%宽度 */
+        .report-section:nth-child(3):last-child,
+        .report-section:nth-child(5):last-child,
+        .report-section:nth-child(7):last-child {
+            flex: 0 0 calc(50% - 8px);
+            margin-left: calc(25% + 8px); /* 居中显示 */
+        }
+
+        .report-section.hidden {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 反馈按钮样式 - ChatGPT 风格 */
+        .feedback-buttons {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .report-section:hover .feedback-buttons {
+            opacity: 1;
+        }
+
+        .feedback-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 2px;
+            opacity: 0.4;
+        }
+
+        .feedback-btn:hover {
+            opacity: 0.7;
+        }
+
+        .feedback-btn.liked,
+        .feedback-btn.disliked {
+            opacity: 1;
+        }
+
+        .feedback-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .feedback-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.1);
+            color: #6b7280;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: slideDown 2s ease-in-out;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideDown {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            10% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            90% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        /* 达成事项表格列宽 */
+        #completed-tasks .task-table th:nth-child(1),
+        #completed-tasks .task-table td:nth-child(1) {
+            width: 30%;
+        }
+        #completed-tasks .task-table th:nth-child(2),
+        #completed-tasks .task-table td:nth-child(2) {
+            width: 70%;
+        }
+
+        /* 未达成事项表格列宽 */
+        #not-completed-tasks .task-table th:nth-child(1),
+        #not-completed-tasks .task-table td:nth-child(1) {
+            width: 30%;
+        }
+        #not-completed-tasks .task-table th:nth-child(2),
+        #not-completed-tasks .task-table td:nth-child(2) {
+            width: 30%;
+        }
+        #not-completed-tasks .task-table th:nth-child(3),
+        #not-completed-tasks .task-table td:nth-child(3) {
+            width: 40%;
+        }
+
+        /* 下一步计划表格列宽 */
+        #next-steps-list .task-table th:nth-child(1),
+        #next-steps-list .task-table td:nth-child(1) {
+            width: 10%;
+            text-align: center;
+        }
+        #next-steps-list .task-table th:nth-child(2),
+        #next-steps-list .task-table td:nth-child(2) {
+            width: 30%;
+        }
+        #next-steps-list .task-table th:nth-child(3),
+        #next-steps-list .task-table td:nth-child(3) {
+            width: 60%;
+        }
+
+        
+        /* 上传区域 */
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            border-radius: 4px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 16px;
+        }
+        
+        .upload-area:hover {
+            border-color: #333;
+            background: #f5f5f5;
+        }
+        
+        .upload-area p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .upload-area small {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        /* 数据项 */
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+        }
+        
+        .data-item:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            color: #999;
+        }
+        
+        .data-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        /* 状态指示 */
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status.completed {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .status.processing {
+            background: #fffbf0;
+            color: #d97706;
+        }
+        
+        /* 文本 */
+        .text-muted {
+            color: #999;
+            font-size: 11px;
+        }
+        
+        .text-highlight {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* 周期导航 */
+        .week-nav {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .week-nav a {
+            color: #666;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .week-nav a:hover {
+            color: #333;
+            background: #f0f0f0;
+        }
+
+        .week-current {
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+            color: #333;
+        }
+        
+        /* 加载动画 */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* 编辑模式样式 - 参考 Notion */
+        .edit-mode {
+            background: #fafafa;
+        }
+
+        .editable-row {
+            position: relative;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 3px;
+            transition: background-color 0.15s ease;
+        }
+
+        .editable-row:hover {
+            background: rgba(55, 53, 47, 0.08);
+        }
+
+        .editable-row.selected {
+            background: rgba(55, 53, 47, 0.12);
+            box-shadow: 0 0 0 1px rgba(55, 53, 47, 0.2);
+        }
+
+        .editable-text {
+            cursor: text;
+            outline: none;
+            border: none;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            color: inherit;
+            min-height: 20px;
+            width: 100%;
+        }
+
+        .editable-text:focus {
+            outline: none;
+        }
+
+        .editable-text:empty::before {
+            content: attr(data-placeholder);
+            color: rgba(55, 53, 47, 0.4);
+            font-style: normal;
+        }
+
+        .row-actions {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .edit-mode .editable-row:hover .row-actions,
+        .edit-mode .editable-row.selected .row-actions {
+            display: flex;
+            opacity: 1;
+        }
+
+        .row-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            color: rgba(55, 53, 47, 0.6);
+        }
+
+        .row-action-btn:hover {
+            background: rgba(55, 53, 47, 0.1);
+            color: rgba(55, 53, 47, 0.8);
+        }
+
+        .row-action-btn.delete:hover {
+            background: rgba(235, 87, 87, 0.1);
+            color: rgb(235, 87, 87);
+        }
+
+        .add-row-btn {
+            width: 100%;
+            padding: 8px;
+            margin: 4px 0;
+            border: 1px dashed rgba(55, 53, 47, 0.2);
+            background: transparent;
+            border-radius: 3px;
+            cursor: pointer;
+            color: rgba(55, 53, 47, 0.6);
+            transition: all 0.15s ease;
+            font-size: 12px;
+            display: none;
+        }
+
+        .edit-mode .add-row-btn {
+            display: block;
+        }
+
+        .add-row-btn:hover {
+            border-color: rgba(55, 53, 47, 0.3);
+            background: rgba(55, 53, 47, 0.05);
+            color: rgba(55, 53, 47, 0.8);
+        }
+
+        /* 空状态样式 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 12px;
+            color: #666;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧导航 -->
+        <div class="sidebar">
+            <div class="logo">Teamie</div>
+            <div class="nav-item" onclick="switchNav('import')">导入新项目</div>
+            <div class="nav-item active" onclick="switchNav('dashboard')">查看项目进展</div>
+            <div class="project-info" id="projectInfo" style="display: none;">
+                当前项目: <span id="currentProject">未选择项目</span><br/>
+                <span id="currentPeriod">2025-11-03 至 2025-11-09</span>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main">
+            <div class="header">
+                <h2 id="screenTitle">项目进展一览</h2>
+                <div class="header-right">
+                    <span id="headerInfo"></span>
+                </div>
+            </div>
+            
+            <div class="content">
+                <!-- 屏幕 1: 导入页面 -->
+                <div id="screen1" class="screen" style="display: none;">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchScreen(1)">上传文件</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">选择 Notion HTML 文件</div>
+                        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                            <p>📁 拖拽文件或点击选择</p>
+                            <small>支持 Notion 导出的 HTML 文件（含子页面）</small>
+                            <input type="file" id="fileInput" style="display: none;" accept=".html">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">项目信息</div>
+                        <div class="grid-2">
+                            <div>
+                                <label for="projectName" style="display: block; font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px;">项目名称</label>
+                                <input type="text" id="projectName" placeholder="输入项目名称" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label for="weekStartDate" style="display: block; font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px;">本周开始日期（周一）</label>
+                                <input type="date" id="weekStartDate" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">文件状态</div>
+                        <div class="data-item">
+                            <span class="data-label">当前文件</span>
+                            <span class="data-value" id="fileName">未选择</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn primary" onclick="handleUpload()">上传并分析</button>
+                        <button class="btn" onclick="cancelImport()">取消</button>
+                    </div>
+                </div>
+                
+                <!-- 屏幕 2: 分析进行中 -->
+                <div id="screen2" class="screen" style="display: none;">
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div class="spinner" style="margin: 0 auto 20px;"></div>
+                        <h3 style="margin-bottom: 10px;">处理中...</h3>
+                        <p class="text-muted">正在解析您的 Notion 文件</p>
+                        
+                        <div class="card" style="margin-top: 30px; text-align: left;">
+                            <div class="data-item">
+                                <span class="data-label">已识别页面</span>
+                                <span class="data-value">12</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">已识别任务</span>
+                                <span class="data-value">28</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">日期范围</span>
+                                <span class="data-value">2025-11-01 ~ 2025-11-07</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">预计完成</span>
+                                <span class="data-value">20 秒</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 屏幕 3: 进展汇报 -->
+                <div id="screen3" class="screen" style="display: none;">
+                    <div class="week-nav">
+                        <a onclick="changeWeek(-1)">← 上一周</a>
+                        <span class="week-current">第 1 周</span>
+                        <a onclick="changeWeek(1)">下一周 →</a>
+                        <button class="btn primary" onclick="showScreen('screen1')">导入新进展</button>
+                        <button class="btn" onclick="toggleEditMode()" id="editBtn">编辑内容</button>
+                        <button class="btn" onclick="saveAllEdits()" id="saveBtn" style="display: none;">保存修改</button>
+                        <button class="dimension-toggle-btn" onclick="toggleDimensionControls()">自定义视图</button>
+                    </div>
+
+                    <!-- 维度控制 -->
+                    <div class="dimension-controls hidden">
+                        <button class="dimension-toggle active" data-section="motivation" onclick="toggleDimension(this)">动机与方向</button>
+                        <button class="dimension-toggle active" data-section="completed" onclick="toggleDimension(this)">达成事项</button>
+                        <button class="dimension-toggle active" data-section="incomplete" onclick="toggleDimension(this)">未达成事项</button>
+                        <button class="dimension-toggle" data-section="internal" onclick="toggleDimension(this)">内部反思</button>
+                        <button class="dimension-toggle" data-section="external" onclick="toggleDimension(this)">外部反馈</button>
+                        <button class="dimension-toggle active" data-section="next-steps" onclick="toggleDimension(this)">下一步计划</button>
+                    </div>
+
+                    <!-- Z字型布局：动机与方向 → 完成事项 → 未完成事项 → 内部反馈 → 外部反馈 → 下一步计划 -->
+                    <div class="report-flex">
+                        <!-- 第一行：动机与方向 -->
+                        <div class="report-section" data-section="motivation">
+                            <div class="section-title">动机与方向</div>
+                            <div id="reasons-list"></div>
+                            <div id="feedback-motivation" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第二行：达成事项 -->
+                        <div class="report-section" data-section="completed">
+                            <div class="section-title">达成事项</div>
+                            <div id="completed-tasks"></div>
+                            <div class="text-muted" id="completed-count" style="padding-top: 8px;"></div>
+                            <div id="feedback-completed" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第三行：未达成事项 -->
+                        <div class="report-section" data-section="incomplete">
+                            <div class="section-title">未达成事项</div>
+                            <div id="not-completed-tasks"></div>
+                            <div class="text-muted" id="not-completed-count" style="padding-top: 8px;"></div>
+                            <div id="feedback-incomplete" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第四行：内部反思 -->
+                        <div class="report-section hidden" data-section="internal">
+                            <div class="section-title">内部反思</div>
+                            <div id="why-not-list"></div>
+                            <div id="feedback-internal" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第五行：外部反馈 -->
+                        <div class="report-section hidden" data-section="external">
+                            <div class="section-title">外部反馈</div>
+                            <div id="achievements-list"></div>
+                            <div id="feedback-external" class="feedback-buttons"></div>
+                        </div>
+
+                        <!-- 第六行：下一步计划 -->
+                        <div class="report-section" data-section="next-steps">
+                            <div class="section-title">下一步计划</div>
+                            <div id="next-steps-list"></div>
+                            <div id="feedback-next-steps" class="feedback-buttons"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 屏幕 4: 项目列表 -->
+                <div id="screen4" class="screen active" style="display: block;">
+                    <div style="margin-bottom: 16px;">
+                        <div id="project-stats" style="font-size: 12px; color: #666;"></div>
+                    </div>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>当前周期</th>
+                                <th>状态与评价</th>
+                                <th style="width: 40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="project-list">
+                            <!-- 项目数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API配置
+        const API_BASE_URL = 'http://localhost:8000/api';
+
+        // 全局状态
+        let currentProject = null;
+        let currentWeek = 1;
+        let isEditMode = false;
+        let projects = []; // 项目列表
+
+        // API调用函数
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            try {
+                const response = await fetch(url, { ...defaultOptions, ...options });
+                if (!response.ok) {
+                    throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API call error:', error);
+                throw error;
+            }
+        }
+
+        // 加载项目列表
+        async function loadProjects() {
+            try {
+                projects = await apiCall('/projects');
+                renderProjectList();
+                updateProjectStats();
+                return projects;
+            } catch (error) {
+                console.error('Failed to load projects:', error);
+                projects = [];
+                renderProjectList();
+                updateProjectStats();
+                return [];
+            }
+        }
+
+        // 加载项目周报
+        async function loadWeekReport(projectId, week) {
+            try {
+                const report = await apiCall(`/projects/${projectId}/week/${week}`);
+                return report;
+            } catch (error) {
+                console.log(`Week ${week} data not available for project ${projectId}:`, error.message);
+                return null;
+            }
+        }
+
+        // 获取项目信息
+        async function getProjectInfo(projectId) {
+            try {
+                const projectInfo = await apiCall(`/projects/${projectId}`);
+                return projectInfo;
+            } catch (error) {
+                console.error('Failed to get project info:', error);
+                return null;
+            }
+        }
+
+        // 上传文件
+        async function uploadFile(file, projectName, weekStartDate) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('project_name', projectName);
+            formData.append('week_start_date', weekStartDate);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Upload error:', error);
+                throw error;
+            }
+        }
+
+        // 更新完整周报
+        async function updateWeekReport(projectId, week, weekData) {
+            try {
+                const result = await apiCall(`/projects/${projectId}/week/${week}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(weekData)
+                });
+                return result;
+            } catch (error) {
+                console.error('Failed to update week report:', error);
+                throw error;
+            }
+        }
+
+        // 切换导航
+        function switchNav(type) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const projectInfo = document.getElementById('projectInfo');
+            if (type === 'dashboard') {
+                projectInfo.style.display = 'block';
+                showScreen('screen4');
+                document.getElementById('screenTitle').textContent = '项目进展一览';
+            } else {
+                projectInfo.style.display = 'none';
+                showScreen('screen1');
+                document.getElementById('screenTitle').textContent = '导入新项目';
+            }
+        }
+
+        // 显示屏幕
+        function showScreen(screenId) {
+            console.log('Switching to screen:', screenId);
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.style.display = 'none';
+                screen.classList.remove('active');
+            });
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.style.display = 'block';
+                targetScreen.classList.add('active');
+                console.log('Screen switched successfully:', screenId);
+
+                // 当切换到导入页面时，设置默认项目信息
+                if (screenId === 'screen1') {
+                    setDefaultProjectInfo();
+                }
+
+                // 当切换到项目列表时，隐藏项目信息区域
+                if (screenId === 'screen4') {
+                    const projectInfo = document.getElementById('projectInfo');
+                    projectInfo.style.display = 'none';
+                }
+            } else {
+                console.error('Screen not found:', screenId);
+            }
+        }
+
+        // 切换屏幕（兼容旧代码）
+        function switchScreen(num) {
+            showScreen('screen' + num);
+        }
+
+        // 渲染项目列表
+        function renderProjectList() {
+            const tbody = document.getElementById('project-list');
+            if (!tbody) return;
+
+            if (projects.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 60px 20px; color: #999;">
+                            <div class="empty-state">
+                                <h3>暂无项目</h3>
+                                <p>请先上传 Notion HTML 文件来导入项目</p>
+                                <button class="btn primary" onclick="showScreen('screen1')">导入项目</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = projects.map(project => `
+                <tr class="project-row" onclick="selectProject('${project.id}', '${project.name}')">
+                    <td><strong>${project.name}</strong></td>
+                    <td>第 ${project.current_week} 周</td>
+                    <td class="status-cell" data-project="${project.id}" onclick="editStatus(this, event)">${project.status}</td>
+                    <td class="project-actions">
+                        <button class="delete-btn" onclick="deleteProject('${project.id}', '${project.name}', event)" title="删除项目">×</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 更新项目统计信息
+        function updateProjectStats() {
+            const statsElement = document.getElementById('project-stats');
+            if (projects.length > 0) {
+                statsElement.textContent = `共 ${projects.length} 个项目`;
+            } else {
+                statsElement.textContent = '';
+            }
+        }
+
+        // 选择项目
+        async function selectProject(projectId, projectName) {
+            console.log('Selecting project:', projectId, projectName);
+
+            // 找到项目（通过ID匹配）
+            const project = projects.find(p => p.id === projectId);
+            if (!project) {
+                alert('项目不存在');
+                return;
+            }
+
+            currentProject = projectId;  // 使用项目ID而不是名称
+            currentWeek = project.current_week || 1;
+
+            document.getElementById('currentProject').textContent = projectName;
+            document.getElementById('screenTitle').textContent = '进展汇报 - ' + projectName;
+
+            try {
+                const reportData = await loadWeekReport(projectId, currentWeek);
+                if (reportData) {
+                    // 设置周数和左下角的日期显示
+                    document.querySelector('.week-current').textContent = '第 ' + currentWeek + ' 周';
+                    const currentPeriodElement = document.getElementById('currentPeriod');
+                    if (currentPeriodElement) {
+                        currentPeriodElement.textContent = reportData.week_period || '2025-11-03 至 2025-11-09';
+                    }
+
+                    renderReport(reportData);
+
+                    // 显示项目信息区域
+                    const projectInfo = document.getElementById('projectInfo');
+                    projectInfo.style.display = 'block';
+
+                    showScreen('screen3');
+                } else {
+                    alert('未找到报告数据');
+                }
+            } catch (error) {
+                alert('加载报告失败: ' + error.message);
+            }
+        }
+
+        // 渲染报告
+        function renderReport(data) {
+            // 渲染"做了什么" (达成事项)
+            const completedTasksContainer = document.getElementById('completed-tasks');
+            const completedCountContainer = document.getElementById('completed-count');
+
+            if (completedTasksContainer && data.completed_tasks) {
+                if (data.completed_tasks.length > 0) {
+                    completedTasksContainer.innerHTML = `
+                        <table class="task-table">
+                            <thead>
+                                <tr>
+                                    <th>任务名称</th>
+                                    <th>完成情况</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.completed_tasks.map((task, index) => `
+                                    <tr class="editable-row" data-path="completed_tasks" data-index="${index}">
+                                        <td>
+                                            <div class="task-name editable-text" data-path="completed_tasks" data-index="${index}" data-field="task" data-placeholder="任务名称">${task.task}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="completed_tasks" data-index="${index}" data-field="description" data-placeholder="任务描述">${task.description}</div>
+                                        </td>
+                                        <td class="row-actions">
+                                            <button class="row-action-btn delete" title="删除">×</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="add-row-btn" data-path="completed_tasks">+ 添加完成任务</button>
+                    `;
+                } else {
+                    completedTasksContainer.innerHTML = '<p class="text-muted">暂无达成事项</p>';
+                }
+            }
+
+            if (completedCountContainer && data.completed_tasks) {
+                completedCountContainer.textContent = `共 ${data.completed_tasks.length} 个任务完成`;
+            }
+
+            // 渲染"为什么这样做" (动机与方向)
+            const reasonsContainer = document.getElementById('reasons-list');
+            if (reasonsContainer && data.motivation_direction) {
+                if (data.motivation_direction.length > 0) {
+                    reasonsContainer.innerHTML = `
+                        ${data.motivation_direction.map((item, index) => `
+                            <div class="data-item editable-row" data-path="motivation_direction" data-index="${index}">
+                                <span class="editable-text" data-path="motivation_direction" data-index="${index}" data-field="item" data-placeholder="输入动机方向">${item}</span>
+                                <div class="row-actions">
+                                    <button class="row-action-btn delete" title="删除">×</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <button class="add-row-btn" data-path="motivation_direction">+ 添加动机方向</button>
+                    `;
+                } else {
+                    reasonsContainer.innerHTML = '<p class="text-muted">暂无动机方向信息</p>';
+                }
+            }
+
+            // 渲染"没做什么" (未达成事项)
+            const notCompletedTasksContainer = document.getElementById('not-completed-tasks');
+            const notCompletedCountContainer = document.getElementById('not-completed-count');
+
+            if (notCompletedTasksContainer && data.incomplete_tasks) {
+                if (data.incomplete_tasks.length > 0) {
+                    notCompletedTasksContainer.innerHTML = `
+                        <table class="task-table">
+                            <thead>
+                                <tr>
+                                    <th>任务名称</th>
+                                    <th>预期目标</th>
+                                    <th>未完成原因</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.incomplete_tasks.map((task, index) => `
+                                    <tr class="editable-row" data-path="incomplete_tasks" data-index="${index}">
+                                        <td>
+                                            <div class="task-name editable-text" data-path="incomplete_tasks" data-index="${index}" data-field="task" data-placeholder="任务名称">${task.task}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="incomplete_tasks" data-index="${index}" data-field="expected" data-placeholder="预期目标">${task.expected}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="incomplete_tasks" data-index="${index}" data-field="reason" data-placeholder="未完成原因">${task.reason}</div>
+                                        </td>
+                                        <td class="row-actions">
+                                            <button class="row-action-btn delete" title="删除">×</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="add-row-btn" data-path="incomplete_tasks">+ 添加未完成任务</button>
+                    `;
+                    if (notCompletedCountContainer) {
+                        notCompletedCountContainer.textContent = `${data.incomplete_tasks.length} 个任务未完成`;
+                    }
+                } else {
+                    notCompletedTasksContainer.innerHTML = '<p class="text-muted">暂无未完成任务</p>';
+                    if (notCompletedCountContainer) {
+                        notCompletedCountContainer.textContent = '';
+                    }
+                }
+            }
+
+            // 渲染"为什么没做" (内部反思)
+            const whyNotContainer = document.getElementById('why-not-list');
+            if (whyNotContainer && data.internal_reflection) {
+                if (data.internal_reflection.length > 0) {
+                    whyNotContainer.innerHTML = `
+                        ${data.internal_reflection.map((item, index) => `
+                            <div class="data-item editable-row" data-path="internal_reflection" data-index="${index}">
+                                <span class="editable-text" data-path="internal_reflection" data-index="${index}" data-field="item" data-placeholder="输入内部反思">${item}</span>
+                                <div class="row-actions">
+                                    <button class="row-action-btn delete" title="删除">×</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <button class="add-row-btn" data-path="internal_reflection">+ 添加内部反思</button>
+                    `;
+                } else {
+                    whyNotContainer.innerHTML = '<p class="text-muted">暂无内部反思</p>';
+                }
+            }
+
+            // 渲染"成效与反馈" (外部反馈)
+            const achievementsContainer = document.getElementById('achievements-list');
+            if (achievementsContainer && data.external_feedback) {
+                if (data.external_feedback.length > 0) {
+                    achievementsContainer.innerHTML = `
+                        ${data.external_feedback.map((feedback, index) => `
+                            <div class="data-item editable-row" data-path="external_feedback" data-index="${index}">
+                                <div class="task-name editable-text" data-path="external_feedback" data-index="${index}" data-field="source" data-placeholder="反馈来源">${feedback.source}</div>
+                                <div class="task-desc editable-text" data-path="external_feedback" data-index="${index}" data-field="content" data-placeholder="反馈内容">${feedback.content}</div>
+                                <div class="row-actions">
+                                    <button class="row-action-btn delete" title="删除">×</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <button class="add-row-btn" data-path="external_feedback">+ 添加外部反馈</button>
+                    `;
+                } else {
+                    achievementsContainer.innerHTML = '<p class="text-muted">暂无外部反馈</p>';
+                }
+            }
+
+            // 渲染"下一步计划"
+            const nextStepsContainer = document.getElementById('next-steps-list');
+            if (nextStepsContainer && data.next_week_plan) {
+                if (data.next_week_plan.length > 0) {
+                    nextStepsContainer.innerHTML = `
+                        <table class="task-table">
+                            <thead>
+                                <tr>
+                                    <th>优先级</th>
+                                    <th>任务名称</th>
+                                    <th>目标</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.next_week_plan.map((plan, index) => `
+                                    <tr class="editable-row" data-path="next_week_plan" data-index="${index}">
+                                        <td>
+                                            <span class="priority-badge editable-text" data-path="next_week_plan" data-index="${index}" data-field="priority" data-placeholder="P1">${typeof plan.priority === 'string' && plan.priority.startsWith('P') ? plan.priority : 'P' + (plan.priority || 1)}</span>
+                                        </td>
+                                        <td>
+                                            <div class="task-name editable-text" data-path="next_week_plan" data-index="${index}" data-field="task" data-placeholder="任务名称">${plan.task || ''}</div>
+                                        </td>
+                                        <td>
+                                            <div class="task-desc editable-text" data-path="next_week_plan" data-index="${index}" data-field="goal" data-placeholder="目标描述">${plan.goal || ''}</div>
+                                        </td>
+                                        <td class="row-actions">
+                                            <button class="row-action-btn delete" title="删除">×</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="add-row-btn" data-path="next_week_plan">+ 添加下一步计划</button>
+                    `;
+                } else {
+                    nextStepsContainer.innerHTML = '<p class="text-muted">暂无下一步计划</p>';
+                }
+            }
+
+            // 初始化反馈按钮
+            initializeFeedbackButtons();
+        }
+
+        // 处理文件上传
+        async function handleUpload() {
+            console.log('handleUpload called');
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const projectNameInput = document.getElementById('projectName');
+            const weekStartDateInput = document.getElementById('weekStartDate');
+
+            if (!file) {
+                alert('请先选择文件');
+                return;
+            }
+
+            const projectName = projectNameInput.value.trim();
+            if (!projectName) {
+                alert('请输入项目名称');
+                projectNameInput.focus();
+                return;
+            }
+
+            const weekStartDate = weekStartDateInput.value;
+            if (!weekStartDate) {
+                alert('请选择本周开始日期');
+                weekStartDateInput.focus();
+                return;
+            }
+
+            document.getElementById('fileName').textContent = file.name;
+            showScreen('screen2');
+
+            try {
+                const result = await uploadFile(file, projectName, weekStartDate);
+
+                if (result.success) {
+                    alert('导入成功！');
+                    // 清空输入框
+                    projectNameInput.value = '';
+                    // 重新加载项目列表
+                    await loadProjects();
+                    showScreen('screen4');
+                    document.getElementById('screenTitle').textContent = '项目进展一览';
+                } else {
+                    throw new Error(result.message || '上传失败');
+                }
+            } catch (error) {
+                alert('上传失败: ' + error.message);
+                showScreen('screen1');
+            }
+        }
+
+        // 删除项目
+        async function deleteProject(projectId, projectName, event) {
+            event.stopPropagation(); // 阻止事件冒泡，避免触发行点击
+
+            if (!confirm(`确定要删除项目"${projectName}"吗？\n\n这将永久删除该项目的所有数据，此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                // 调用删除API
+                await apiCall(`/projects/${projectId}`, {
+                    method: 'DELETE'
+                });
+
+                alert('项目删除成功');
+                // 重新加载项目列表
+                await loadProjects();
+            } catch (error) {
+                console.error('删除项目失败:', error);
+                alert('删除项目失败: ' + error.message);
+            }
+        }
+
+        // 取消导入
+        function cancelImport() {
+            console.log('cancelImport called');
+
+            // 隐藏项目信息区域
+            const projectInfo = document.getElementById('projectInfo');
+            projectInfo.style.display = 'none';
+
+            showScreen('screen4');
+            document.getElementById('screenTitle').textContent = '项目进展一览';
+        }
+
+        // 获取本周一的日期
+        function getThisMonday() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // 调整为周一
+            const monday = new Date(today.setDate(diff));
+            return monday.toISOString().split('T')[0]; // 返回YYYY-MM-DD格式
+        }
+
+        // 设置默认项目信息
+        function setDefaultProjectInfo() {
+            const weekStartDateInput = document.getElementById('weekStartDate');
+            if (weekStartDateInput) {
+                weekStartDateInput.value = getThisMonday();
+            }
+
+            const projectNameInput = document.getElementById('projectName');
+            if (projectNameInput) {
+                projectNameInput.value = '';
+                projectNameInput.focus();
+            }
+        }
+
+        // 改变周数
+        async function changeWeek(direction) {
+            console.log('Changing week, direction:', direction);
+            const current = parseInt(document.querySelector('.week-current').textContent.match(/\d+/)[0]);
+            const newWeek = current + direction;
+
+            // 先获取项目信息来检查边界
+            const projectInfo = await getProjectInfo(currentProject);
+            if (!projectInfo) {
+                alert('无法获取项目信息');
+                return;
+            }
+
+            const maxWeek = projectInfo.total_weeks;
+
+            // 检查边界
+            if (newWeek < 1) {
+                alert('已经是第一周数据');
+                return;
+            }
+
+            if (newWeek > maxWeek) {
+                alert('暂无下一周数据');
+                return;
+            }
+
+            try {
+                const reportData = await loadWeekReport(currentProject, newWeek);
+                if (reportData) {
+                    currentWeek = newWeek;
+                    document.querySelector('.week-current').textContent = '第 ' + newWeek + ' 周';
+
+                    // 更新左下角的日期显示
+                    const currentPeriodElement = document.getElementById('currentPeriod');
+                    if (currentPeriodElement) {
+                        currentPeriodElement.textContent = reportData.week_period || '2025-11-03 至 2025-11-09';
+                    }
+
+                    renderReport(reportData);
+                    console.log('Week changed to:', newWeek);
+                } else {
+                    alert('该周数据加载失败');
+                }
+            } catch (error) {
+                console.log('Unexpected error loading week:', newWeek, 'Error:', error.message);
+                alert('数据加载出错，请重试');
+            }
+        }
+
+        // 切换编辑模式
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const container = document.querySelector('.container');
+
+            if (isEditMode) {
+                editBtn.textContent = '退出编辑';
+                editBtn.classList.add('primary');
+                saveBtn.style.display = 'inline-block';
+                container.classList.add('edit-mode');
+                enableInlineEditing();
+            } else {
+                editBtn.textContent = '编辑内容';
+                editBtn.classList.remove('primary');
+                saveBtn.style.display = 'none';
+                container.classList.remove('edit-mode');
+                disableInlineEditing();
+            }
+        }
+
+        // 保存所有编辑
+        async function saveAllEdits() {
+            if (!currentProject) {
+                alert('请先选择项目');
+                return;
+            }
+
+            try {
+                const weekData = collectCurrentWeekData();
+                await updateWeekReport(currentProject, currentWeek, weekData);
+                alert('保存成功！');
+            } catch (error) {
+                alert('保存失败: ' + error.message);
+            }
+        }
+
+        // 收集当前页面数据
+        function collectCurrentWeekData() {
+            const data = {
+                completed_tasks: [],
+                incomplete_tasks: [],
+                motivation_direction: [],
+                internal_reflection: [],
+                external_feedback: [],
+                next_week_plan: []
+            };
+
+            // 收集达成事项
+            const completedTaskRows = document.querySelectorAll('#completed-tasks .editable-row');
+            completedTaskRows.forEach(row => {
+                const task = row.querySelector('[data-field="task"]')?.textContent || '';
+                const description = row.querySelector('[data-field="description"]')?.textContent || '';
+                if (task.trim()) {
+                    data.completed_tasks.push({ task: task.trim(), description: description.trim() });
+                }
+            });
+
+            // 收集未达成事项
+            const incompleteTaskRows = document.querySelectorAll('#not-completed-tasks .editable-row');
+            incompleteTaskRows.forEach(row => {
+                const task = row.querySelector('[data-field="task"]')?.textContent || '';
+                const expected = row.querySelector('[data-field="expected"]')?.textContent || '';
+                const reason = row.querySelector('[data-field="reason"]')?.textContent || '';
+                if (task.trim()) {
+                    data.incomplete_tasks.push({
+                        task: task.trim(),
+                        expected: expected.trim(),
+                        reason: reason.trim()
+                    });
+                }
+            });
+
+            // 收集动机与方向
+            const motivationItems = document.querySelectorAll('#reasons-list .editable-row [data-field="item"]');
+            motivationItems.forEach(item => {
+                const content = item.textContent?.trim();
+                if (content) {
+                    data.motivation_direction.push(content);
+                }
+            });
+
+            // 收集内部反思
+            const reflectionItems = document.querySelectorAll('#why-not-list .editable-row [data-field="item"]');
+            reflectionItems.forEach(item => {
+                const content = item.textContent?.trim();
+                if (content) {
+                    data.internal_reflection.push(content);
+                }
+            });
+
+            // 收集外部反馈
+            const feedbackItems = document.querySelectorAll('#achievements-list .editable-row');
+            feedbackItems.forEach(item => {
+                const source = item.querySelector('[data-field="source"]')?.textContent || '';
+                const content = item.querySelector('[data-field="content"]')?.textContent || '';
+                if (source.trim() && content.trim()) {
+                    data.external_feedback.push({
+                        source: source.trim(),
+                        content: content.trim()
+                    });
+                }
+            });
+
+            // 收集下一步计划
+            const planRows = document.querySelectorAll('#next-steps-list .editable-row');
+            planRows.forEach(row => {
+                const task = row.querySelector('[data-field="task"]')?.textContent || '';
+                const goal = row.querySelector('[data-field="goal"]')?.textContent || '';
+                const priorityText = row.querySelector('[data-field="priority"]')?.textContent || 'P1';
+                const priority = priorityText.startsWith('P') ? parseInt(priorityText.substring(1)) : 1;
+
+                if (task.trim()) {
+                    data.next_week_plan.push({
+                        task: task.trim(),
+                        priority: priority,
+                        goal: goal.trim()
+                    });
+                }
+            });
+
+            return data;
+        }
+
+        // 启用内联编辑
+        function enableInlineEditing() {
+            const editableElements = document.querySelectorAll('.editable-text');
+            editableElements.forEach(element => {
+                element.contentEditable = 'true';
+                element.addEventListener('focus', handleEditStart);
+                element.addEventListener('blur', handleEditEnd);
+                element.addEventListener('keydown', handleKeyDown);
+                element.addEventListener('input', handleInput);
+            });
+
+            const editableRows = document.querySelectorAll('.editable-row');
+            editableRows.forEach(row => {
+                row.addEventListener('click', handleRowClick);
+            });
+
+            const deleteButtons = document.querySelectorAll('.row-action-btn.delete');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', handleDeleteRow);
+            });
+
+            const addButtons = document.querySelectorAll('.add-row-btn');
+            addButtons.forEach(button => {
+                button.addEventListener('click', handleAddRow);
+            });
+        }
+
+        // 禁用内联编辑
+        function disableInlineEditing() {
+            const editingElements = document.querySelectorAll('.editable-text:focus');
+            editingElements.forEach(element => {
+                element.blur();
+            });
+
+            const editableElements = document.querySelectorAll('.editable-text');
+            editableElements.forEach(element => {
+                element.contentEditable = 'false';
+                element.removeEventListener('focus', handleEditStart);
+                element.removeEventListener('blur', handleEditEnd);
+                element.removeEventListener('keydown', handleKeyDown);
+                element.removeEventListener('input', handleInput);
+            });
+
+            const editableRows = document.querySelectorAll('.editable-row');
+            editableRows.forEach(row => {
+                row.removeEventListener('click', handleRowClick);
+                row.classList.remove('selected');
+            });
+        }
+
+        // 处理编辑相关事件
+        function handleEditStart(e) {
+            if (!isEditMode) return;
+            const row = e.target.closest('.editable-row');
+            if (row) {
+                const allRows = document.querySelectorAll('.editable-row');
+                allRows.forEach(r => r.classList.remove('selected'));
+                row.classList.add('selected');
+            }
+        }
+
+        function handleEditEnd(e) {
+            // 可以在这里添加保存逻辑
+        }
+
+        function handleInput(e) {
+            // 可以在这里添加实时验证
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.target.blur();
+            }
+            if (e.key === 'Escape') {
+                e.target.blur();
+            }
+        }
+
+        function handleRowClick(e) {
+            if (!isEditMode) return;
+            if (e.target.classList.contains('row-action-btn')) return;
+
+            const allRows = document.querySelectorAll('.editable-row');
+            allRows.forEach(row => row.classList.remove('selected'));
+            e.currentTarget.classList.add('selected');
+        }
+
+        function handleDeleteRow(e) {
+            e.stopPropagation();
+            const row = e.target.closest('.editable-row');
+            if (!row) return;
+
+            const dataPath = row.getAttribute('data-path');
+            const dataIndex = parseInt(row.getAttribute('data-index'));
+
+            if (dataPath && dataIndex !== undefined) {
+                // 这里可以添加删除逻辑，现在只是从DOM中移除
+                row.remove();
+                console.log(`Deleted ${dataPath}[${dataIndex}]`);
+            }
+        }
+
+        function handleAddRow(e) {
+            const dataPath = e.target.getAttribute('data-path');
+            if (!dataPath) return;
+
+            // 这里可以添加新增行逻辑
+            console.log(`Add new row for ${dataPath}`);
+        }
+
+        // 维度切换
+        function toggleDimension(button) {
+            const sectionName = button.getAttribute('data-section');
+            const section = document.querySelector(`.report-section[data-section="${sectionName}"]`);
+
+            if (section) {
+                section.classList.toggle('hidden');
+                button.classList.toggle('active');
+            }
+        }
+
+        // 维度控制区域切换
+        function toggleDimensionControls() {
+            const controls = document.querySelector('.dimension-controls');
+            controls.classList.toggle('hidden');
+        }
+
+        // 初始化反馈按钮
+        function initializeFeedbackButtons() {
+            const sections = ['motivation', 'completed', 'incomplete', 'internal', 'external', 'next-steps'];
+            sections.forEach(section => {
+                const feedbackContainer = document.getElementById(`feedback-${section}`);
+                if (feedbackContainer) {
+                    const thumbsUpSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 10v12m8-8.5V2c0-.83-.67-1.5-1.5-1.5h-.5a2 2 0 0 0-2 2v7H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2z"></path>
+                    </svg>`;
+
+                    const thumbsDownSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 14V2m-8 8.5v11.5c0 .83.67 1.5 1.5 1.5h.5a2 2 0 0 1 2-2v-7h7a2 2 0 0 1 2-2v-8a2 2 0 0 1-2-2h-12a2 2 0 0 1-2 2v8a2 2 0 0 1 2 2z"></path>
+                    </svg>`;
+
+                    feedbackContainer.innerHTML = `
+                        <button class="feedback-btn" onclick="giveFeedback('${section}', 'like')" title="有帮助">
+                            ${thumbsUpSvg}
+                        </button>
+                        <button class="feedback-btn" onclick="giveFeedback('${section}', 'dislike')" title="没帮助">
+                            ${thumbsDownSvg}
+                        </button>
+                    `;
+                }
+            });
+        }
+
+        // 反馈功能
+        function giveFeedback(sectionName, feedbackType) {
+            const section = document.querySelector(`.report-section[data-section="${sectionName}"]`);
+            if (!section) return;
+
+            const likeBtn = section.querySelector('.feedback-btn[onclick*="like"]');
+            const dislikeBtn = section.querySelector('.feedback-btn[onclick*="dislike"]');
+
+            likeBtn.classList.remove('liked');
+            dislikeBtn.classList.remove('disliked');
+
+            if (feedbackType === 'like') {
+                likeBtn.classList.add('liked');
+                console.log(`用户对 ${sectionName} 维度点赞`);
+            } else if (feedbackType === 'dislike') {
+                dislikeBtn.classList.add('disliked');
+                console.log(`用户对 ${sectionName} 维度点踩`);
+            }
+
+            showFeedbackToast();
+            if (event) event.stopPropagation();
+        }
+
+        // 显示反馈提示
+        function showFeedbackToast() {
+            const existingToast = document.querySelector('.feedback-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'feedback-toast';
+            toast.textContent = 'Thank you for your feedback';
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // 编辑状态
+        function editStatus(cellElement, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            const currentText = cellElement.textContent;
+            const projectId = cellElement.getAttribute('data-project');
+
+            cellElement.classList.add('editing');
+            cellElement.contentEditable = 'true';
+            cellElement.focus();
+
+            // 选中所有文本
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(cellElement);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            async function saveEdit() {
+                const newText = cellElement.textContent.trim();
+                if (newText && newText !== currentText) {
+                    try {
+                        // 调用API保存状态更新
+                        const response = await apiCall(`/projects/${projectId}/status`, {
+                            method: 'PUT',
+                            body: JSON.stringify({ status: newText })
+                        });
+                        if (response && response.success) {
+                            cellElement.textContent = newText;
+                            console.log(`Status updated for ${projectId}: ${newText}`);
+                            showToast('状态更新成功', 'success');
+                        } else {
+                            cellElement.textContent = currentText;
+                            showToast('状态更新失败', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Failed to update status:', error);
+                        cellElement.textContent = currentText;
+                        showToast('状态更新失败', 'error');
+                    }
+                } else {
+                    cellElement.textContent = currentText;
+                }
+                cellElement.classList.remove('editing');
+                cellElement.contentEditable = 'false';
+            }
+
+            function cancelEdit() {
+                cellElement.textContent = currentText;
+                cellElement.classList.remove('editing');
+                cellElement.contentEditable = 'false';
+            }
+
+            cellElement.addEventListener('blur', saveEdit, { once: true });
+            cellElement.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveEdit();
+                } else if (e.key === 'Escape') {
+                    cancelEdit();
+                }
+            }, { once: true });
+
+            cellElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // 文件选择监听
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                document.getElementById('fileName').textContent = e.target.files[0].name;
+            }
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            isEditMode = false;
+            const container = document.querySelector('.container');
+            container.classList.remove('edit-mode');
+
+            // 加载项目列表
+            await loadProjects();
+        });
+    </script>
+</body>
+</html>
