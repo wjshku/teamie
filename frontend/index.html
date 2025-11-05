@@ -1334,6 +1334,7 @@
                         <button class="btn primary" onclick="showImportScreen()">导入新进展</button>
                         <button class="btn" onclick="toggleEditMode()" id="editBtn">编辑内容</button>
                         <button class="btn" onclick="saveAllEdits()" id="saveBtn" style="display: none;">保存修改</button>
+                        <button class="btn" onclick="deleteCurrentWeek()" id="deleteWeekBtn" style="display: none; background-color: #dc3545; color: white;">删除该周进展</button>
                         <button class="dimension-toggle-btn" onclick="toggleDimensionControls()">自定义视图</button>
                     </div>
 
@@ -1494,7 +1495,8 @@
         async function uploadFiles(files, projectName, weekStartDate) {
             const formData = new FormData();
 
-            // 添加所有文件到 FormData
+            // 添加所有文件到 FormData，并保存路径信息
+            const filePaths = [];
             if (files && files.length > 0) {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -1514,13 +1516,23 @@
                         console.log(`添加文件: ${file.name}`);
                     // 直接添加原始文件，后端会处理文件名清理
                     formData.append('files', file);
+                        
+                        // 保存文件的相对路径（如果有）
+                        const relativePath = file.webkitRelativePath || '';
+                        filePaths.push(relativePath);
                 } else {
                         console.log(`跳过不支持的文件: ${file.name}`);
+                        filePaths.push(''); // 保持索引对应
                     }
                 }
+                
+                // 添加路径信息
+                filePaths.forEach((path, index) => {
+                    formData.append('file_paths', path);
+                });
             }
 
-            // 添加手动添加的文档
+            // 添加手动添加的文档（保存到"其他文档"文件夹）
             if (manualDocuments && manualDocuments.length > 0) {
                 console.log(`添加 ${manualDocuments.length} 个手动文档`);
                 manualDocuments.forEach((doc, index) => {
@@ -1530,7 +1542,10 @@
                     const fileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') + '.html';
                     const file = new File([blob], fileName, { type: 'text/html' });
                     formData.append('files', file);
-                    console.log(`添加手动文档: ${fileName}`);
+                    
+                    // 手动添加的文档保存到"其他文档"文件夹
+                    formData.append('file_paths', `其他文档/${fileName}`);
+                    console.log(`添加手动文档: ${fileName} (路径: 其他文档/${fileName})`);
                 });
             }
 
@@ -1568,6 +1583,119 @@
             }
         }
 
+        // 上传文件到新一周（导入新进展）
+        async function uploadFilesForNextWeek(projectId, files) {
+            const formData = new FormData();
+
+            // 添加所有文件到 FormData，并保存路径信息
+            const filePaths = [];
+            if (files && files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    console.log(`处理文件 ${i + 1}:`, {
+                        name: file.name,
+                        webkitRelativePath: file.webkitRelativePath,
+                        type: file.type,
+                        size: file.size
+                    });
+
+                    // 只添加支持的文件类型（html/txt/md）
+                    const supportedExtensions = ['.html', '.htm', '.txt', '.md'];
+                    const fileName = file.name.toLowerCase();
+                    const lastDot = fileName.lastIndexOf('.');
+                    const fileExt = lastDot > 0 ? '.' + fileName.substring(lastDot + 1) : '';
+                    if (supportedExtensions.includes(fileExt)) {
+                        console.log(`添加文件: ${file.name}`);
+                        formData.append('files', file);
+                        
+                        // 保存文件的相对路径（如果有）
+                        const relativePath = file.webkitRelativePath || '';
+                        filePaths.push(relativePath);
+                    } else {
+                        console.log(`跳过不支持的文件: ${file.name}`);
+                        filePaths.push(''); // 保持索引对应
+                    }
+                }
+                
+                // 添加路径信息
+                filePaths.forEach((path, index) => {
+                    formData.append('file_paths', path);
+                });
+            }
+
+            // 添加手动添加的文档（保存到"其他文档"文件夹）
+            if (manualDocuments && manualDocuments.length > 0) {
+                console.log(`添加 ${manualDocuments.length} 个手动文档`);
+                manualDocuments.forEach((doc, index) => {
+                    const blob = new Blob([doc.content], { type: 'text/html' });
+                    const fileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') + '.html';
+                    const file = new File([blob], fileName, { type: 'text/html' });
+                    formData.append('files', file);
+                    
+                    // 手动添加的文档保存到"其他文档"文件夹
+                    formData.append('file_paths', `其他文档/${fileName}`);
+                    console.log(`添加手动文档: ${fileName} (路径: 其他文档/${fileName})`);
+                });
+            }
+
+            try {
+                // 计算 token 数量（用于显示）
+                const fileContents = [];
+                if (files && files.length > 0) {
+                    for (const file of files) {
+                        const supportedExtensions = ['.html', '.htm', '.txt', '.md'];
+                        const fileName = file.name.toLowerCase();
+                        const lastDot = fileName.lastIndexOf('.');
+                        const fileExt = lastDot > 0 ? '.' + fileName.substring(lastDot + 1) : '';
+                        if (supportedExtensions.includes(fileExt)) {
+                            const text = await file.text();
+                            fileContents.push({ content: text });
+                        }
+                    }
+                }
+                if (manualDocuments && manualDocuments.length > 0) {
+                    manualDocuments.forEach(doc => {
+                        fileContents.push({ content: doc.content });
+                    });
+                }
+
+                // 计算总 token（简单估算，实际由后端计算）
+                const totalTokenCount = fileContents.reduce((sum, item) => {
+                    return sum + (item.content.length / 2); // 简单估算
+                }, 0);
+                const estimatedTime = totalTokenCount / 600; // 假设 600 tokens/s
+                const fileCount = fileContents.length;
+
+                // 显示处理中状态
+                updateProcessingStatus({
+                    pages: fileCount,
+                    tokens: Math.round(totalTokenCount),
+                    estimatedTime: formatEstimatedTime(estimatedTime),
+                    status: '正在上传文件并分析...'
+                });
+
+                const response = await fetch(`${API_BASE_URL}/projects/${projectId}/analyze-next-week`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Upload failed: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                // 添加估算信息
+                result.file_count = fileCount;
+                result.token_count = Math.round(totalTokenCount);
+                result.estimated_time_seconds = estimatedTime;
+                return result;
+            } catch (error) {
+                console.error('Upload error:', error);
+                throw error;
+            }
+        }
+
         // 切换导航
         function switchNav(type) {
             const navItems = document.querySelectorAll('.nav-item');
@@ -1585,17 +1713,51 @@
                 document.getElementById('screenTitle').textContent = '导入新项目';
                 // 重置导入表单到初始状态
                 resetImportForm();
+                // 显示项目名称输入框（创建新项目需要）
+                const projectNameInput = document.getElementById('projectName');
+                if (projectNameInput) {
+                    projectNameInput.style.display = 'block';
+                    projectNameInput.readOnly = false;
+                    projectNameInput.style.backgroundColor = '';
+                    projectNameInput.style.cursor = '';
+                    projectNameInput.value = '';
+                    const projectNameLabel = projectNameInput.previousElementSibling;
+                    if (projectNameLabel && projectNameLabel.tagName === 'LABEL') {
+                        projectNameLabel.style.display = 'block';
+                    }
+                }
             }
         }
 
         // 显示导入屏幕（带重置）
         function showImportScreen() {
+            if (!currentProject) {
+                showToast('请先选择项目', 'warning');
+                return;
+            }
             resetImportForm();
             showScreen('screen1');
             document.getElementById('screenTitle').textContent = '导入新进展';
             // 隐藏项目信息
             const projectInfo = document.getElementById('projectInfo');
             projectInfo.style.display = 'none';
+            // 显示项目名称输入框，设置为只读并填充当前项目名称
+            const projectNameInput = document.getElementById('projectName');
+            if (projectNameInput) {
+                projectNameInput.style.display = 'block';
+                projectNameInput.readOnly = true;
+                projectNameInput.style.backgroundColor = '#f5f5f5';
+                projectNameInput.style.cursor = 'not-allowed';
+                // 从 projects 数组中找到当前项目名称
+                const currentProjectObj = projects.find(p => p.id === currentProject);
+                if (currentProjectObj) {
+                    projectNameInput.value = currentProjectObj.name;
+                }
+                const projectNameLabel = projectNameInput.previousElementSibling;
+                if (projectNameLabel && projectNameLabel.tagName === 'LABEL') {
+                    projectNameLabel.style.display = 'block';
+                }
+            }
         }
 
         // 显示屏幕
@@ -1615,6 +1777,36 @@
                 // 当切换到导入页面时，设置默认项目信息
                 if (screenId === 'screen1') {
                     setDefaultProjectInfo();
+                    // 如果是导入新进展，显示项目名称但设置为只读
+                    const isImportNewProgress = document.getElementById('screenTitle').textContent === '导入新进展';
+                    const projectNameInput = document.getElementById('projectName');
+                    if (projectNameInput) {
+                        if (isImportNewProgress && currentProject) {
+                            projectNameInput.style.display = 'block';
+                            projectNameInput.readOnly = true;
+                            projectNameInput.style.backgroundColor = '#f5f5f5';
+                            projectNameInput.style.cursor = 'not-allowed';
+                            // 从 projects 数组中找到当前项目名称
+                            const currentProjectObj = projects.find(p => p.id === currentProject);
+                            if (currentProjectObj) {
+                                projectNameInput.value = currentProjectObj.name;
+                            }
+                            const projectNameLabel = projectNameInput.previousElementSibling;
+                            if (projectNameLabel && projectNameLabel.tagName === 'LABEL') {
+                                projectNameLabel.style.display = 'block';
+                            }
+                        } else {
+                            projectNameInput.style.display = 'block';
+                            projectNameInput.readOnly = false;
+                            projectNameInput.style.backgroundColor = '';
+                            projectNameInput.style.cursor = '';
+                            projectNameInput.value = '';
+                            const projectNameLabel = projectNameInput.previousElementSibling;
+                            if (projectNameLabel && projectNameLabel.tagName === 'LABEL') {
+                                projectNameLabel.style.display = 'block';
+                            }
+                        }
+                    }
                 }
 
                 // 当切换到项目列表时，隐藏项目信息区域
@@ -1930,6 +2122,71 @@
                 return;
             }
 
+            // 判断是导入新进展还是创建新项目
+            const isImportNewProgress = currentProject && currentProject !== null;
+            
+            if (isImportNewProgress) {
+                // 导入新进展：不需要项目名称，使用当前项目
+                try {
+                    // 先显示上传中状态（不跳转页面）
+                    updateProcessingStatus({
+                        pages: 0,
+                        tokens: 0,
+                        estimatedTime: '计算中...',
+                        status: '正在上传文件并计算...'
+                    });
+
+                    console.log('开始导入新进展...');
+                    const result = await uploadFilesForNextWeek(currentProject, files);
+                    console.log('导入结果:', result);
+
+                    if (result && result.success) {
+                        showScreen('screen2');
+                        updateProcessingStatus({
+                            pages: result.file_count || 0,
+                            tokens: result.token_count || 0,
+                            estimatedTime: formatEstimatedTime(result.estimated_time_seconds || 0),
+                            status: '文件上传成功，正在分析新一周进展...'
+                        });
+
+                        showToast(`第${result.week}周分析完成！`, 'success');
+                        await resetImportForm();
+                        await loadProjects();
+                        // 重新加载当前周报数据
+                        if (result.week) {
+                            currentWeek = result.week;
+                            const reportData = await loadWeekReport(currentProject, result.week);
+                            if (reportData) {
+                                document.querySelector('.week-current').textContent = '第 ' + result.week + ' 周';
+                                updateSidebarFolderStructure(currentProject, result.week);
+                                renderReport(reportData);
+                            }
+                        }
+                        // 返回报告页面
+                        showScreen('screen3');
+                    } else {
+                        showScreen('screen2');
+                        updateProcessingStatus({
+                            pages: 0,
+                            tokens: 0,
+                            estimatedTime: '0秒',
+                            status: '导入失败: ' + (result?.message || '未知错误')
+                        });
+                    }
+                } catch (error) {
+                    console.error('导入过程出错:', error);
+                    showScreen('screen2');
+                    updateProcessingStatus({
+                        pages: 0,
+                        tokens: 0,
+                        estimatedTime: '0秒',
+                        status: '导入失败: ' + error.message
+                    });
+                }
+                return; // 提前返回，不执行创建新项目的逻辑
+            }
+
+            // 创建新项目：需要项目名称
             const projectName = projectNameInput.value.trim();
             if (!projectName) {
                 showToast('请输入项目名称', 'warning');
@@ -1945,8 +2202,10 @@
             }
 
             // 显示选择的文件夹信息
+            if (hasFiles) {
             const folderPath = files[0].webkitRelativePath.split('/')[0];
-            document.getElementById('fileName').textContent = `文件夹: ${folderPath}`;
+                document.getElementById('fileName').textContent = `文件夹: ${folderPath}`;
+            }
 
             try {
                 // 先显示上传中状态（不跳转页面）
@@ -2132,11 +2391,15 @@
             isEditMode = true;
             const editBtn = document.getElementById('editBtn');
             const saveBtn = document.getElementById('saveBtn');
+            const deleteWeekBtn = document.getElementById('deleteWeekBtn');
             const container = document.querySelector('.container');
 
-            // 隐藏"编辑内容"按钮，显示"保存修改"按钮
+            // 隐藏"编辑内容"按钮，显示"保存修改"和"删除该周进展"按钮
             editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline-block';
+            if (deleteWeekBtn) {
+                deleteWeekBtn.style.display = 'inline-block';
+            }
                 container.classList.add('edit-mode');
                 enableInlineEditing();
         }
@@ -2146,11 +2409,15 @@
             isEditMode = false;
             const editBtn = document.getElementById('editBtn');
             const saveBtn = document.getElementById('saveBtn');
+            const deleteWeekBtn = document.getElementById('deleteWeekBtn');
             const container = document.querySelector('.container');
 
-            // 显示"编辑内容"按钮，隐藏"保存修改"按钮
+            // 显示"编辑内容"按钮，隐藏"保存修改"和"删除该周进展"按钮
             editBtn.style.display = 'inline-block';
                 saveBtn.style.display = 'none';
+            if (deleteWeekBtn) {
+                deleteWeekBtn.style.display = 'none';
+            }
                 container.classList.remove('edit-mode');
                 disableInlineEditing();
         }
@@ -2170,6 +2437,74 @@
                 exitEditMode();
             } catch (error) {
                 showToast('保存失败: ' + error.message, 'error');
+            }
+        }
+
+        // 删除当前周进展
+        async function deleteCurrentWeek() {
+            if (!currentProject) {
+                showToast('请先选择项目', 'warning');
+                return;
+            }
+
+            if (!confirm(`确定要删除第 ${currentWeek} 周的进展吗？\n\n这将永久删除该周的所有数据，此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/projects/${currentProject}/week/${currentWeek}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`删除失败: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                if (result && result.success) {
+                    showToast(`第 ${currentWeek} 周数据已删除`, 'success');
+                    
+                    // 退出编辑模式
+                    exitEditMode();
+                    
+                    // 重新加载项目列表
+                    await loadProjects();
+                    
+                    // 尝试加载上一周的数据
+                    const project = projects.find(p => p.id === currentProject);
+                    // current_week 是计算出来的（最大周数），所以删除后会自动更新
+                    const maxWeek = project ? project.current_week : 0;
+                    if (project && maxWeek > 0) {
+                        // 有上一周数据，加载上一周
+                        currentWeek = maxWeek;
+                        const reportData = await loadWeekReport(currentProject, currentWeek);
+                        if (reportData) {
+                            document.querySelector('.week-current').textContent = '第 ' + currentWeek + ' 周';
+                            const currentPeriodElement = document.getElementById('currentPeriod');
+                            if (currentPeriodElement) {
+                                currentPeriodElement.textContent = reportData.week_period || '';
+                            }
+                            updateSidebarFolderStructure(currentProject, currentWeek);
+                            renderReport(reportData);
+                            showScreen('screen3');
+                        } else {
+                            // 没有上一周数据，返回项目列表
+                            showScreen('screen4');
+                            document.getElementById('screenTitle').textContent = '项目进展一览';
+                        }
+                    } else {
+                        // 没有其他周数据，返回项目列表
+                        showScreen('screen4');
+                        document.getElementById('screenTitle').textContent = '项目进展一览';
+                        currentProject = null;
+                    }
+                } else {
+                    throw new Error(result?.message || '删除失败');
+                }
+            } catch (error) {
+                console.error('删除周数据失败:', error);
+                showToast('删除失败: ' + error.message, 'error');
             }
         }
 
@@ -3089,14 +3424,7 @@
                 if (response.ok) {
                     const files = data.files || [];
 
-                    // 构建文件夹结构（和下方文件夹结构显示一致）
-                    // 由于后端返回的是平铺文件列表，我们需要根据文件名推断结构
-                    // 对于手动添加的文档，文件名格式通常是 title_xxx.html
-                    // 我们可以尝试识别，但更简单的方式是显示所有文件在"其他文档"下
-                    // 或者显示为平铺结构，但添加"其他文档"文件夹
-                    
-                    // 先尝试根据文件路径构建树结构（如果有路径信息）
-                    // 如果没有路径信息，就显示为平铺结构，但添加"其他文档"分组
+                    // 构建文件夹结构（根据文件路径构建树结构）
                     const weekFolderName = '第' + week + '周文件';
                     const tree = {};
                     tree[weekFolderName] = {
@@ -3105,20 +3433,37 @@
                         file: null
                     };
 
-                    // 将所有文件添加到"其他文档"文件夹下
+                    // 根据文件路径构建树结构
                     if (files.length > 0) {
-                        tree[weekFolderName].children['其他文档'] = {
-                            type: 'folder',
-                            children: {},
-                            file: null
-                        };
-                        
                         files.forEach(file => {
-                            tree[weekFolderName].children['其他文档'].children[file] = {
-                                type: 'file',
-                                children: {},
-                                file: null
-                            };
+                            // file 可能是 "folder/file.html" 或 "其他文档/file.html" 或 "file.html"
+                            const pathParts = file.split('/');
+                            let current = tree[weekFolderName].children;
+                            
+                            // 处理路径的每一部分
+                            for (let i = 0; i < pathParts.length; i++) {
+                                const part = pathParts[i];
+                                const isLast = i === pathParts.length - 1;
+                                
+                                if (isLast) {
+                                    // 最后一部分是文件名
+                                    current[part] = {
+                                        type: 'file',
+                                        children: {},
+                                        file: null
+                                    };
+                                } else {
+                                    // 中间部分是文件夹
+                                    if (!current[part]) {
+                                        current[part] = {
+                                            type: 'folder',
+                                            children: {},
+                                            file: null
+                                        };
+                                    }
+                                    current = current[part].children;
+                                }
+                            }
                         });
                     }
 

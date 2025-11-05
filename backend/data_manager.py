@@ -106,6 +106,34 @@ class DataManager:
         self._save_projects(projects)
         return True
 
+    def delete_week_data(self, project_id: str, week: int) -> bool:
+        """删除指定项目的指定周数据"""
+        projects = self._load_projects()
+        if project_id not in projects:
+            return False
+
+        project = projects[project_id]
+        
+        # 删除周数据
+        if week in project.weeks:
+            del project.weeks[week]
+            
+            # 更新更新时间
+            project.updated_at = datetime.now()
+            
+            # 保存更新后的项目数据
+            self._save_projects(projects)
+            
+            # 删除该周的文件目录
+            import shutil
+            week_dir = os.path.join(self.data_dir, project_id, f"week_{week}")
+            if os.path.exists(week_dir):
+                shutil.rmtree(week_dir)
+            
+            return True
+        
+        return False
+
     def delete_project(self, project_id: str) -> bool:
         """删除项目"""
         projects = self._load_projects()
@@ -157,8 +185,8 @@ class DataManager:
 
         return name
 
-    def save_file_content(self, project_id: str, content: str, filename: str = None, week: int = 1):
-        """保存文件内容（支持 html/txt/md）用于后续分析"""
+    def save_file_content(self, project_id: str, content: str, filename: str = None, week: int = 1, relative_path: str = None):
+        """保存文件内容（支持 html/txt/md）用于后续分析，支持文件夹结构"""
         # 创建分层目录结构: data/project_id/week/
         project_dir = os.path.join(self.data_dir, project_id)
         week_dir = os.path.join(project_dir, f"week_{week}")
@@ -170,12 +198,37 @@ class DataManager:
 
             # 确保文件名是文件系统安全的
             safe_filename = "".join(c for c in cleaned_filename if c.isalnum() or c in (' ', '-', '_', '.')).rstrip()
-            final_filename = safe_filename
+            
+            # 如果有相对路径，构建文件夹结构
+            if relative_path:
+                # 处理相对路径，去掉文件名部分，只保留文件夹路径
+                path_parts = relative_path.replace('\\', '/').split('/')
+                if len(path_parts) > 1:
+                    # 有文件夹路径，去掉最后的文件名
+                    folder_parts = path_parts[:-1]
+                    # 清理文件夹名称，确保是文件系统安全的
+                    safe_folders = []
+                    for folder in folder_parts:
+                        if folder and folder != '.' and folder != '..':
+                            safe_folder = "".join(c for c in folder if c.isalnum() or c in (' ', '-', '_')).rstrip()
+                            if safe_folder:
+                                safe_folders.append(safe_folder)
+                    
+                    if safe_folders:
+                        # 创建文件夹路径
+                        folder_path = os.path.join(week_dir, *safe_folders)
+                        os.makedirs(folder_path, exist_ok=True)
+                        filepath = os.path.join(folder_path, safe_filename)
+                    else:
+                        filepath = os.path.join(week_dir, safe_filename)
+                else:
+                    filepath = os.path.join(week_dir, safe_filename)
+            else:
+                filepath = os.path.join(week_dir, safe_filename)
         else:
             # 单文件模式：使用默认文件名
             final_filename = "content.html"
-
-        filepath = os.path.join(week_dir, final_filename)
+            filepath = os.path.join(week_dir, final_filename)
 
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(content)
@@ -208,21 +261,46 @@ class DataManager:
         return merged_content.strip()
 
     def get_files(self, project_id: str, week: int = 1) -> list:
-        """获取指定项目和周的所有文件列表（支持 html/txt/md）"""
+        """获取指定项目和周的所有文件列表（支持 html/txt/md），返回文件夹结构"""
         week_dir = os.path.join(self.data_dir, project_id, f"week_{week}")
 
         if not os.path.exists(week_dir):
             return []
 
         supported_extensions = ('.html', '.htm', '.txt', '.md')
-        files = [f for f in os.listdir(week_dir) 
-                 if any(f.lower().endswith(ext) for ext in supported_extensions)]
-        return sorted(files)
+        
+        def get_files_recursive(directory, base_path=""):
+            """递归获取文件列表，保持文件夹结构"""
+            files = []
+            try:
+                items = os.listdir(directory)
+            except PermissionError:
+                return files
+            
+            for item in sorted(items):
+                item_path = os.path.join(directory, item)
+                relative_path = os.path.join(base_path, item) if base_path else item
+                
+                if os.path.isdir(item_path):
+                    # 递归处理子文件夹
+                    sub_files = get_files_recursive(item_path, relative_path)
+                    files.extend(sub_files)
+                elif os.path.isfile(item_path):
+                    # 检查文件扩展名
+                    if any(item.lower().endswith(ext) for ext in supported_extensions):
+                        # 统一使用 / 作为路径分隔符
+                        files.append(relative_path.replace('\\', '/'))
+            
+            return files
+        
+        files = get_files_recursive(week_dir)
+        return files
 
     def get_file_content_by_name(self, project_id: str, week: int, filename: str) -> Optional[str]:
-        """获取指定项目、周和文件名的文件内容（支持 html/txt/md）"""
+        """获取指定项目、周和文件名的文件内容（支持 html/txt/md），支持文件夹路径"""
         week_dir = os.path.join(self.data_dir, project_id, f"week_{week}")
-        filepath = os.path.join(week_dir, filename)
+        # filename 可能包含文件夹路径，如 "其他文档/file.html"
+        filepath = os.path.join(week_dir, filename.replace('/', os.sep))
 
         if not os.path.exists(filepath):
             return None

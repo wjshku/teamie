@@ -52,14 +52,14 @@ MODEL_CONFIG = {
         "tokens_per_second": 1000,
         "encoding_model": "gpt-4"
     },
-    "gpt5-nano": {
+    "gpt-5-nano": {
         "tokens_per_second": 600,
         "encoding_model": "gpt-4" 
     }
 }
 
 # 当前使用的模型（可通过环境变量配置）
-CURRENT_MODEL = os.getenv("AI_MODEL", "gpt5-nano")
+CURRENT_MODEL = os.getenv("AI_MODEL", "gpt-5-nano")
 
 def get_model_config(model_name: str = None) -> dict:
     """获取模型配置"""
@@ -67,8 +67,8 @@ def get_model_config(model_name: str = None) -> dict:
         model_name = CURRENT_MODEL
     
     if model_name not in MODEL_CONFIG:
-        logger.warning(f"模型 {model_name} 不在配置表中，使用默认模型 gpt5-nano")
-        model_name = "gpt5-nano"
+        logger.warning(f"模型 {model_name} 不在配置表中，使用默认模型 gpt-5-nano")
+        model_name = "gpt-5-nano"
     
     return MODEL_CONFIG[model_name]
 
@@ -102,13 +102,14 @@ async def process_files_in_background(project_id: str, file_contents: list, week
     try:
         logger.info(f"后台任务开始: 项目 {project_id}")
         
-        # 保存原始文件内容到data目录（保持原格式）
+        # 保存原始文件内容到data目录（保持原格式和文件夹结构）
         logger.info("正在保存原始文件...")
         for file_item in file_contents:
             filename = file_item['filename']
             content = file_item['content']
-            data_manager.save_file_content(project_id, content, filename, week=1)
-            logger.info(f"文件 {filename} 保存成功")
+            relative_path = file_item.get('relative_path')  # 获取相对路径
+            data_manager.save_file_content(project_id, content, filename, week=1, relative_path=relative_path)
+            logger.info(f"文件 {filename} 保存成功 (路径: {relative_path or '根目录'})")
         logger.info("所有原始文件保存完成")
 
         # 分析文件内容生成报告
@@ -138,7 +139,8 @@ async def upload_files(
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...),
     project_name: str = Form(...),
-    week_start_date: str = Form(...)
+    week_start_date: str = Form(...),
+    file_paths: List[str] = Form(None)  # 可选的路径信息列表
 ):
     """上传并分析文件（支持 html/txt/md 格式，支持多文件和文件夹）"""
     logger.info(f"开始上传 {len(files)} 个文件, 项目名称: {project_name}")
@@ -162,6 +164,14 @@ async def upload_files(
                 return '.' + basename.split('.')[-1].lower()
             return ''
 
+        # 处理文件路径信息（如果有）
+        path_map = {}
+        if file_paths:
+            for i, path in enumerate(file_paths):
+                if path:
+                    path_map[i] = path
+        
+        file_index = 0
         for file in files:
             logger.info(f"检查文件: filename={file.filename}, content_type={file.content_type}")
             file_ext = get_file_extension(file.filename)
@@ -174,17 +184,24 @@ async def upload_files(
 
                     # 清理文件名
                     cleaned_filename = data_manager._clean_filename(file.filename)
+                    
+                    # 获取相对路径（如果有）
+                    relative_path = path_map.get(file_index)
 
                     file_contents.append({
                         'filename': cleaned_filename,
-                        'content': file_content
+                        'content': file_content,
+                        'relative_path': relative_path
                     })
                     processed_files.append(cleaned_filename)
-                    logger.info(f"文件 {cleaned_filename} 读取成功，大小: {len(file_content)} 字符")
+                    logger.info(f"文件 {cleaned_filename} 读取成功，大小: {len(file_content)} 字符 (路径: {relative_path or '根目录'})")
+                    file_index += 1
                 except UnicodeDecodeError as e:
                     logger.warning(f"文件 {file.filename} 解码失败，跳过: {str(e)}")
             else:
                 logger.warning(f"跳过文件: {file.filename} (扩展名: {file_ext}, 不支持的文件格式或文件名为空)")
+                if file.filename:
+                    file_index += 1
 
         if not file_contents:
             raise HTTPException(status_code=400, detail="未找到有效的文件（支持 html/txt/md 格式）")
@@ -473,8 +490,13 @@ def get_project_week_file_content(project_id: str, week: int, filename: str):
         raise HTTPException(status_code=500, detail=f"获取文件内容失败: {str(e)}")
 
 @app.post("/api/projects/{project_id}/analyze-next-week")
-async def analyze_next_week(project_id: str, html_content: str = None, files: List[UploadFile] = File(None)):
-    """分析新一周的进展（支持多文件）"""
+async def analyze_next_week(
+    project_id: str, 
+    html_content: str = None, 
+    files: List[UploadFile] = File(None),
+    file_paths: List[str] = Form(None)  # 文件路径信息列表
+):
+    """分析新一周的进展（支持多文件，保持文件夹结构）"""
     logger.info(f"开始分析项目 {project_id} 的新一周进展")
 
     try:
@@ -492,11 +514,19 @@ async def analyze_next_week(project_id: str, html_content: str = None, files: Li
             previous_week_plan = project.weeks[current_week].next_week_plan
             logger.info(f"找到上一周({current_week})的计划数据")
 
+        # 处理文件路径信息（如果有）
+        path_map = {}
+        if file_paths:
+            for i, path in enumerate(file_paths):
+                if path:
+                    path_map[i] = path
+
         # 处理输入：支持单文件字符串或多文件上传
         file_contents = []
         new_week = current_week + 1
         supported_extensions = ('.html', '.htm', '.txt', '.md')
 
+        file_index = 0
         if files and len(files) > 0:
             # 多文件模式
             logger.info(f"处理多文件输入: {len(files)} 个文件")
@@ -509,21 +539,27 @@ async def analyze_next_week(project_id: str, html_content: str = None, files: Li
                     # 清理文件名
                     cleaned_filename = data_manager._clean_filename(file.filename)
                     
+                    # 获取相对路径（如果有）
+                    relative_path = path_map.get(file_index)
+                    
                     file_contents.append({
                         'filename': cleaned_filename,
-                        'content': file_content_data
+                        'content': file_content_data,
+                        'relative_path': relative_path
                     })
-                    logger.info(f"文件 {cleaned_filename} 读取成功，大小: {len(file_content_data)} 字符")
+                    logger.info(f"文件 {cleaned_filename} 读取成功，大小: {len(file_content_data)} 字符 (路径: {relative_path or '根目录'})")
 
-                    # 保存到新一周的目录
-                    data_manager.save_file_content(project_id, file_content_data, cleaned_filename, week=new_week)
+                    # 保存到新一周的目录（保持文件夹结构）
+                    data_manager.save_file_content(project_id, file_content_data, cleaned_filename, week=new_week, relative_path=relative_path)
+                    file_index += 1
         elif html_content:
             # 单文件模式（向后兼容）
             logger.info("处理单文件字符串输入")
             logger.debug(f"文件内容长度: {len(html_content)} 字符")
             file_contents.append({
                 'filename': 'content.html',
-                'content': html_content
+                'content': html_content,
+                'relative_path': None
             })
             # 保存到新一周的目录
             data_manager.save_file_content(project_id, html_content, 'content.html', week=new_week)
@@ -561,6 +597,41 @@ async def analyze_next_week(project_id: str, html_content: str = None, files: Li
         logger.error(f"错误详情: {traceback.format_exc()}")
         logger.error(f"项目ID: {project_id}")
         raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
+
+@app.delete("/api/projects/{project_id}/week/{week}")
+async def delete_week_data(project_id: str, week: int):
+    """删除指定项目的指定周数据"""
+    logger.info(f"开始删除项目 {project_id} 的第 {week} 周数据")
+
+    try:
+        # 检查项目是否存在
+        project = data_manager.get_project(project_id)
+        if not project:
+            logger.warning(f"项目 {project_id} 不存在")
+            raise HTTPException(status_code=404, detail="项目不存在")
+
+        # 检查周数据是否存在
+        if week not in project.weeks:
+            logger.warning(f"项目 {project_id} 的第 {week} 周数据不存在")
+            raise HTTPException(status_code=404, detail=f"第{week}周数据不存在")
+
+        # 删除周数据
+        success = data_manager.delete_week_data(project_id, week)
+        if not success:
+            raise HTTPException(status_code=500, detail="删除失败")
+
+        logger.info(f"项目 {project_id} 的第 {week} 周数据删除成功")
+        return {
+            "success": True,
+            "message": f"第{week}周数据已删除"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"删除周数据失败: {str(e)}")
+        logger.error(f"错误详情: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"删除失败: {str(e)}")
 
 # 挂载前端文件（必须在所有API路由之后）
 # 在开发环境中禁用缓存，确保每次都获取最新内容

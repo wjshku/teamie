@@ -215,7 +215,7 @@ class AIAnalyzer:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                maxTokens=6000
+                max_tokens=6000
             )
 
             result_text = response.choices[0].message.content.strip()

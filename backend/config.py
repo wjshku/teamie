@@ -4,5 +4,4 @@
 """
 
 # AI模型配置
-AI_MODEL = "gpt-5-nano"
-
+AI_MODEL = "gpt-4o-mini"
