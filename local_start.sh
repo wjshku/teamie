@@ -33,7 +33,7 @@ cd backend
 
 # 创建数据目录
 echo "📁 创建数据目录..."
-mkdir -p data/html
+mkdir -p data
 
 # 检查 .env 文件
 if [ ! -f ".env" ]; then

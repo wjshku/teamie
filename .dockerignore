@@ -1,0 +1,9 @@
+backend/venv/
+backend/__pycache__/
+backend/app.log
+backend/data/
+*.pyc
+__pycache__/
+.git/
+README.md
+.cursor/

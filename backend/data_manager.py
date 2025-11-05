@@ -1,8 +1,11 @@
 import json
 import os
+import logging
 from typing import Dict, List, Optional
 from datetime import datetime
 from models import Project, WeekData, ProjectSummary
+
+logger = logging.getLogger(__name__)
 
 class DataManager:
     def __init__(self, data_dir: str = "data"):
@@ -115,32 +118,118 @@ class DataManager:
         # 保存更新后的项目数据
         self._save_projects(projects)
 
-        # 删除相关的HTML文件
-        html_dir = os.path.join(self.data_dir, "html")
-        html_file = os.path.join(html_dir, f"{project_id}_latest.html")
-        if os.path.exists(html_file):
-            os.remove(html_file)
+        # 删除相关的项目目录（包含所有文件）
+        import shutil
+        project_dir = os.path.join(self.data_dir, project_id)
+        if os.path.exists(project_dir):
+            shutil.rmtree(project_dir)
 
         return True
 
-    def save_html_content(self, project_id: str, html_content: str):
-        """保存HTML内容用于后续分析"""
-        html_dir = os.path.join(self.data_dir, "html")
-        os.makedirs(html_dir, exist_ok=True)
+    def _clean_filename(self, filename: str) -> str:
+        """清理Notion文件名，去掉ID部分，支持 html/txt/md 格式"""
+        if not filename:
+            return "content.html"
 
-        filename = f"{project_id}_latest.html"
-        filepath = os.path.join(html_dir, filename)
+        # 获取文件扩展名
+        import re
+        ext_match = re.search(r'\.(html?|txt|md)$', filename.lower())
+        file_ext = ext_match.group(1) if ext_match else 'html'
+        
+        # 去掉扩展名
+        name = re.sub(r'\.(html?|txt|md)$', '', filename, flags=re.IGNORECASE)
+
+        # Notion文件名通常包含32位十六进制ID，我们需要去掉这些ID
+        id_pattern = r'[a-f0-9]{32}'  # 匹配32位十六进制ID
+        name = re.sub(id_pattern, '', name, flags=re.IGNORECASE).strip()
+
+        # 清理多余的空格
+        name = re.sub(r'\s+', ' ', name).strip()
+
+        # 如果清理后文件名太短，使用默认名称
+        if not name or len(name) < 2:
+            name = "未命名文档"
+
+        # 重新添加原扩展名
+        if file_ext == 'htm':
+            file_ext = 'html'
+        name = name + f'.{file_ext}'
+
+        return name
+
+    def save_file_content(self, project_id: str, content: str, filename: str = None, week: int = 1):
+        """保存文件内容（支持 html/txt/md）用于后续分析"""
+        # 创建分层目录结构: data/project_id/week/
+        project_dir = os.path.join(self.data_dir, project_id)
+        week_dir = os.path.join(project_dir, f"week_{week}")
+        os.makedirs(week_dir, exist_ok=True)
+
+        if filename:
+            # 清理文件名，去掉ID部分
+            cleaned_filename = self._clean_filename(filename)
+
+            # 确保文件名是文件系统安全的
+            safe_filename = "".join(c for c in cleaned_filename if c.isalnum() or c in (' ', '-', '_', '.')).rstrip()
+            final_filename = safe_filename
+        else:
+            # 单文件模式：使用默认文件名
+            final_filename = "content.html"
+
+        filepath = os.path.join(week_dir, final_filename)
 
         with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(html_content)
+            f.write(content)
 
-    def get_html_content(self, project_id: str) -> Optional[str]:
-        """获取HTML内容"""
-        html_dir = os.path.join(self.data_dir, "html")
-        filename = f"{project_id}_latest.html"
-        filepath = os.path.join(html_dir, filename)
+    def get_file_content(self, project_id: str, week: int = 1) -> Optional[str]:
+        """获取指定项目和周的所有文件内容（支持 html/txt/md）"""
+        week_dir = os.path.join(self.data_dir, project_id, f"week_{week}")
 
-        if os.path.exists(filepath):
+        if not os.path.exists(week_dir):
+            return None
+
+        # 获取所有支持格式的文件
+        supported_extensions = ('.html', '.htm', '.txt', '.md')
+        files = [f for f in os.listdir(week_dir) 
+                 if any(f.lower().endswith(ext) for ext in supported_extensions)]
+        
+        if not files:
+            return None
+
+        merged_content = ""
+        for filename in sorted(files):  # 按文件名排序确保一致性
+            filepath = os.path.join(week_dir, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    merged_content += f"\n\n=== 文件: {filename} ===\n{content}"
+            except Exception as e:
+                logger.warning(f"读取文件 {filename} 失败: {str(e)}")
+
+        return merged_content.strip()
+
+    def get_files(self, project_id: str, week: int = 1) -> list:
+        """获取指定项目和周的所有文件列表（支持 html/txt/md）"""
+        week_dir = os.path.join(self.data_dir, project_id, f"week_{week}")
+
+        if not os.path.exists(week_dir):
+            return []
+
+        supported_extensions = ('.html', '.htm', '.txt', '.md')
+        files = [f for f in os.listdir(week_dir) 
+                 if any(f.lower().endswith(ext) for ext in supported_extensions)]
+        return sorted(files)
+
+    def get_file_content_by_name(self, project_id: str, week: int, filename: str) -> Optional[str]:
+        """获取指定项目、周和文件名的文件内容（支持 html/txt/md）"""
+        week_dir = os.path.join(self.data_dir, project_id, f"week_{week}")
+        filepath = os.path.join(week_dir, filename)
+
+        if not os.path.exists(filepath):
+            return None
+
+        try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 return f.read()
-        return None
+        except Exception as e:
+            logger.error(f"读取文件 {filepath} 失败: {str(e)}")
+            return None

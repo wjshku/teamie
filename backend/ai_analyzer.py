@@ -7,6 +7,7 @@ import openai
 from dotenv import load_dotenv
 from models import WeekData, NextWeekPlan
 from data_manager import DataManager
+from config import AI_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,24 @@ class AIAnalyzer:
             logger.error(f"从HTML提取文本时发生错误: {str(e)}")
             logger.warning("返回原始HTML内容作为后备")
             return html_content
+
+    def _extract_text_from_file(self, content: str, filename: str) -> str:
+        """根据文件扩展名提取文本内容（支持 html/txt/md）"""
+        filename_lower = filename.lower()
+        
+        if filename_lower.endswith(('.html', '.htm')):
+            # HTML文件：使用BeautifulSoup提取文本
+            return self._extract_text_from_html(content)
+        elif filename_lower.endswith(('.txt', '.md')):
+            # TXT和MD文件：直接使用原始内容
+            return content
+        else:
+            # 未知格式：尝试作为HTML处理，如果失败则返回原始内容
+            logger.warning(f"未知文件格式: {filename}，尝试作为HTML处理")
+            try:
+                return self._extract_text_from_html(content)
+            except:
+                return content
 
     def _extract_json_from_text(self, text: str) -> str:
         """从AI响应文本中智能提取JSON内容"""
@@ -133,15 +152,33 @@ class AIAnalyzer:
             logger.error(f"JSON提取过程中发生错误: {str(e)}")
             return text
 
-    def analyze_html_content(self, project_id: str, html_content: str, previous_week_plan: Optional[list] = None) -> WeekData:
-        """分析HTML内容生成周报"""
-        logger.info(f"开始分析项目 {project_id} 的HTML内容")
-        logger.debug(f"HTML内容长度: {len(html_content)} 字符")
+    def analyze_html_contents(self, project_id: str, file_contents: list, previous_week_plan: Optional[list] = None) -> WeekData:
+        """分析多个文件内容生成周报（支持 html/txt/md）"""
+        logger.info(f"开始分析项目 {project_id} 的 {len(file_contents)} 个文件")
 
-        # 提取文本内容
-        logger.info("正在提取HTML中的文本内容")
-        text_content = self._extract_text_from_html(html_content)
-        logger.debug(f"提取的文本内容长度: {len(text_content)} 字符")
+        # 提取所有文件的文本内容并合并
+        merged_text_content = ""
+        file_summaries = []
+
+        for i, file_item in enumerate(file_contents):
+            filename = file_item['filename']
+            content = file_item['content']
+            file_summaries.append(f"文件 {i+1}: {filename} ({len(content)} 字符)")
+            
+            # 根据文件格式提取文本
+            text_content = self._extract_text_from_file(content, filename)
+            merged_text_content += f"\n\n=== 文件: {filename} ===\n{text_content}"
+
+        logger.info(f"文件摘要: {', '.join(file_summaries)}")
+        logger.debug(f"合并后总文本内容长度: {len(merged_text_content)} 字符")
+
+        # 使用原有的单文件分析逻辑
+        return self.analyze_html_content(project_id, merged_text_content, previous_week_plan)
+
+    def analyze_html_content(self, project_id: str, text_content: str, previous_week_plan: Optional[list] = None) -> WeekData:
+        """分析文本内容生成周报（text_content 应该是已提取的纯文本）"""
+        logger.info(f"开始分析项目 {project_id} 的文本内容")
+        logger.debug(f"文本内容长度: {len(text_content)} 字符")
 
         # 加载prompt
         logger.info("正在加载系统提示词")
@@ -149,7 +186,7 @@ class AIAnalyzer:
         logger.debug(f"系统提示词长度: {len(system_prompt)} 字符")
 
         # 构建用户prompt
-        user_prompt = f"本周 Notion HTML 文档内容：\n{text_content}\n\n"
+        user_prompt = f"本周文档内容：\n{text_content}\n\n"
 
         if previous_week_plan:
             logger.info("检测到上一周计划数据，正在添加到提示词")
@@ -173,13 +210,12 @@ class AIAnalyzer:
             self._ensure_initialized()
 
             response = openai.ChatCompletion.create(
-                model="gpt-4-turbo-preview",
+                model=AI_MODEL,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.7,
-                max_tokens=4000
+                maxTokens=6000
             )
 
             result_text = response.choices[0].message.content.strip()
@@ -196,11 +232,6 @@ class AIAnalyzer:
                 # 转换为WeekData对象
                 week_data = WeekData(**result_data)
                 logger.info("WeekData对象创建成功")
-
-                # 保存HTML内容
-                logger.info("正在保存HTML内容")
-                self.data_manager.save_html_content(project_id, html_content)
-                logger.info("HTML内容保存成功")
 
                 return week_data
 

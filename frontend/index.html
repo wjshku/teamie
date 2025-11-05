@@ -571,6 +571,57 @@
             }
         }
 
+        /* 通用 Toast 通知样式 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fafafa;
+            color: #333;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            z-index: 10000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: top 0.3s ease;
+        }
+
+        .toast.success,
+        .toast.error,
+        .toast.info,
+        .toast.warning {
+            /* 所有类型使用统一的浅灰色样式 */
+            border-color: #ddd;
+            background: #fafafa;
+            color: #333;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
         /* 达成事项表格列宽 */
         #completed-tasks .task-table th:nth-child(1),
         #completed-tasks .task-table td:nth-child(1) {
@@ -620,7 +671,6 @@
             background: #fafafa;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-bottom: 16px;
         }
         
         .upload-area:hover {
@@ -865,6 +915,307 @@
         .empty-state p {
             margin-bottom: 20px;
         }
+
+        /* 文件夹结构样式 */
+        .folder-structure {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 8px;
+            background: #fafafa;
+        }
+
+        .folder-structure .folder-item {
+            padding: 4px 8px;
+            margin: 2px 0;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+            font-size: 13px;
+            user-select: none;
+        }
+
+        .folder-structure .folder-item:hover {
+            background: rgba(0, 122, 204, 0.1);
+        }
+
+        .folder-structure .folder-item.folder {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .folder-structure .folder-item.file {
+            padding-left: 24px;
+            color: #777;
+        }
+
+        .folder-structure .folder-item.file.html {
+            color: #007acc;
+            font-weight: 500;
+        }
+
+        .folder-structure .folder-item.file.html:hover {
+            background: rgba(0, 122, 204, 0.15);
+        }
+
+        .folder-structure .folder-toggle {
+            display: inline-block;
+            width: 12px;
+            margin-right: 4px;
+            transition: transform 0.2s;
+            font-size: 10px;
+            vertical-align: middle;
+        }
+
+        .folder-structure .folder-toggle.collapsed:before {
+            content: "▶";
+            transform: rotate(90deg);
+        }
+
+        .folder-structure .folder-toggle.expanded:before {
+            content: "▶";
+            transform: rotate(180deg);
+        }
+
+        .folder-structure .folder-children {
+            margin-left: 16px;
+        }
+
+        /* Dialog 样式 */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .dialog {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 800px;
+            max-height: 80vh;
+            width: 90%;
+            overflow: hidden;
+            animation: dialogSlideIn 0.2s ease-out;
+        }
+
+        @keyframes dialogSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .dialog-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .dialog-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .dialog-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .dialog-close:hover {
+            background: #eee;
+            color: #666;
+        }
+
+        .dialog-content {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .dialog-content pre {
+            background: #f8f8f8;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .dialog-content input,
+        .dialog-content textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            margin-left: 0;
+            margin-right: 0;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .dialog-content input:focus,
+        .dialog-content textarea:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        .dialog-add-document .dialog-form-content input,
+        .dialog-add-document .dialog-form-content textarea {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .dialog-content textarea {
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .dialog-content label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .dialog-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        /* 添加文档对话框的特殊样式 */
+        .dialog-add-document {
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;
+        }
+
+        .dialog-add-document .dialog-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            padding: 20px;
+            padding-right: 28px; /* 为滚动条留出空间 */
+        }
+
+        .dialog-add-document .dialog-form {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .dialog-add-document .dialog-form-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 8px;
+            padding-left: 2px; /* 为输入框聚焦时的边框留出空间 */
+            margin-left: 0;
+        }
+
+        .dialog-add-document .dialog-actions {
+            flex-shrink: 0;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+
+        .dialog-add-document textarea {
+            flex: 1;
+            min-height: 200px;
+            max-height: 400px;
+        }
+
+        /* 侧边栏文件夹结构样式 */
+        .sidebar-folder-structure {
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .sidebar-folder-structure .folder-item {
+            padding: 3px 6px;
+            margin: 1px 0;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background-color 0.2s;
+            font-size: 10px;
+        }
+
+        .sidebar-folder-structure .folder-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-folder-structure .folder-item.folder {
+            font-weight: 600;
+            color: #ccc;
+        }
+
+        .sidebar-folder-structure .folder-item.file {
+            padding-left: 16px;
+            color: #999;
+        }
+
+        .sidebar-folder-structure .folder-item.file.html {
+            color: #007acc;
+        }
+
+        .sidebar-folder-structure .folder-item.file.html:hover {
+            background: rgba(0, 122, 204, 0.1);
+        }
+
+        .sidebar-folder-structure .folder-toggle {
+            display: inline-block;
+            width: 8px;
+            margin-right: 2px;
+            transition: transform 0.2s;
+            font-size: 8px;
+        }
+
+        .sidebar-folder-structure .folder-children {
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -872,11 +1223,15 @@
         <!-- 左侧导航 -->
         <div class="sidebar">
             <div class="logo">Teamie</div>
-            <div class="nav-item" onclick="switchNav('import')">导入新项目</div>
+            <div class="nav-item" onclick="switchNav('import')">导入项目</div>
             <div class="nav-item active" onclick="switchNav('dashboard')">查看项目进展</div>
             <div class="project-info" id="projectInfo" style="display: none;">
-                当前项目: <span id="currentProject">未选择项目</span><br/>
+                <span id="currentProject">未选择项目</span><br/>
                 <span id="currentPeriod">2025-11-03 至 2025-11-09</span>
+                <!-- 文件夹结构显示 -->
+                <div id="sidebarFolderStructure" class="sidebar-folder-structure" style="margin-top: 12px;">
+                    <!-- 文件夹结构将在这里显示 -->
+                </div>
             </div>
         </div>
         
@@ -893,20 +1248,24 @@
                 <!-- 屏幕 1: 导入页面 -->
                 <div id="screen1" class="screen" style="display: none;">
                     <div class="tabs">
-                        <button class="tab-btn active" onclick="switchScreen(1)">上传文件</button>
+                        <button class="tab-btn active" onclick="switchScreen(1)">导入项目</button>
                     </div>
                     
                     <div class="card">
-                        <div class="card-title">选择 Notion HTML 文件</div>
+                        <div class="card-title">选择 Notion HTML 文件夹</div>
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
                         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                            <p>📁 拖拽文件或点击选择</p>
-                            <small>支持 Notion 导出的 HTML 文件（含子页面）</small>
-                            <input type="file" id="fileInput" style="display: none;" accept=".html">
+                            <p>📁 拖拽文件夹或点击选择</p>
+                                <small>选择包含文件的文件夹（支持 html/txt/md 格式，支持子页面）</small>
+                                <input type="file" id="fileInput" style="display: none;" webkitdirectory multiple accept=".html,.htm,.txt,.md">
+                            </div>
+                            <div class="upload-area" onclick="showAddDocumentDialog()" style="cursor: pointer;">
+                                <p>📝 手动添加文档</p>
+                                <small>点击添加文档，支持复制粘贴内容</small>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="card">
-                        <div class="card-title">项目信息</div>
                         <div class="grid-2">
                             <div>
                                 <label for="projectName" style="display: block; font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px;">项目名称</label>
@@ -915,15 +1274,20 @@
                             <div>
                                 <label for="weekStartDate" style="display: block; font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px;">本周开始日期（周一）</label>
                                 <input type="date" id="weekStartDate" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
-                            </div>
                         </div>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">文件状态</div>
+                        <div class="card-title">文件夹状态</div>
                         <div class="data-item">
-                            <span class="data-label">当前文件</span>
+                            <span class="data-label">当前文件夹</span>
                             <span class="data-value" id="fileName">未选择</span>
+                        </div>
+                        <!-- 文件夹结构预览 -->
+                        <div id="folderStructureCard" style="display: none; margin-top: 16px;">
+                            <div id="folderStructure" class="folder-structure">
+                                <!-- 文件夹结构将在这里动态生成 -->
+                            </div>
                         </div>
                     </div>
                     
@@ -938,24 +1302,24 @@
                     <div style="text-align: center; padding: 60px 20px;">
                         <div class="spinner" style="margin: 0 auto 20px;"></div>
                         <h3 style="margin-bottom: 10px;">处理中...</h3>
-                        <p class="text-muted">正在解析您的 Notion 文件</p>
+                        <p class="text-muted">正在解析您的 Notion 文件夹</p>
                         
                         <div class="card" style="margin-top: 30px; text-align: left;">
                             <div class="data-item">
-                                <span class="data-label">已识别页面</span>
-                                <span class="data-value">12</span>
+                                <span class="data-label">符合要求的文件数量</span>
+                                <span class="data-value" id="processedPages">0</span>
                             </div>
                             <div class="data-item">
-                                <span class="data-label">已识别任务</span>
-                                <span class="data-value">28</span>
+                                <span class="data-label">Token数量</span>
+                                <span class="data-value" id="usedTokens">0</span>
                             </div>
                             <div class="data-item">
-                                <span class="data-label">日期范围</span>
-                                <span class="data-value">2025-11-01 ~ 2025-11-07</span>
+                                <span class="data-label">预计处理时间</span>
+                                <span class="data-value" id="estimatedTime">0</span>
                             </div>
                             <div class="data-item">
-                                <span class="data-label">预计完成</span>
-                                <span class="data-value">20 秒</span>
+                                <span class="data-label">处理进度</span>
+                                <span class="data-value" id="processingStatus">初始化中...</span>
                             </div>
                         </div>
                     </div>
@@ -967,7 +1331,7 @@
                         <a onclick="changeWeek(-1)">← 上一周</a>
                         <span class="week-current">第 1 周</span>
                         <a onclick="changeWeek(1)">下一周 →</a>
-                        <button class="btn primary" onclick="showScreen('screen1')">导入新进展</button>
+                        <button class="btn primary" onclick="showImportScreen()">导入新进展</button>
                         <button class="btn" onclick="toggleEditMode()" id="editBtn">编辑内容</button>
                         <button class="btn" onclick="saveAllEdits()" id="saveBtn" style="display: none;">保存修改</button>
                         <button class="dimension-toggle-btn" onclick="toggleDimensionControls()">自定义视图</button>
@@ -1057,11 +1421,13 @@
     
     <script>
         // API配置
-        const API_BASE_URL = 'http://localhost:8000/api';
+        const API_BASE_URL = '/api';
 
         // 全局状态
         let currentProject = null;
         let currentWeek = 1;
+        // 手动添加的文档列表
+        let manualDocuments = [];
         let isEditMode = false;
         let projects = []; // 项目列表
 
@@ -1124,10 +1490,50 @@
             }
         }
 
-        // 上传文件
-        async function uploadFile(file, projectName, weekStartDate) {
+        // 上传文件（支持多文件）
+        async function uploadFiles(files, projectName, weekStartDate) {
             const formData = new FormData();
-            formData.append('file', file);
+
+            // 添加所有文件到 FormData
+            if (files && files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                console.log(`处理文件 ${i + 1}:`, {
+                    name: file.name,
+                    webkitRelativePath: file.webkitRelativePath,
+                    type: file.type,
+                    size: file.size
+                });
+
+                    // 只添加支持的文件类型（html/txt/md）
+                    const supportedExtensions = ['.html', '.htm', '.txt', '.md'];
+                    const fileName = file.name.toLowerCase();
+                    const lastDot = fileName.lastIndexOf('.');
+                    const fileExt = lastDot > 0 ? '.' + fileName.substring(lastDot + 1) : '';
+                    if (supportedExtensions.includes(fileExt)) {
+                        console.log(`添加文件: ${file.name}`);
+                    // 直接添加原始文件，后端会处理文件名清理
+                    formData.append('files', file);
+                } else {
+                        console.log(`跳过不支持的文件: ${file.name}`);
+                    }
+                }
+            }
+
+            // 添加手动添加的文档
+            if (manualDocuments && manualDocuments.length > 0) {
+                console.log(`添加 ${manualDocuments.length} 个手动文档`);
+                manualDocuments.forEach((doc, index) => {
+                    // 将内容转换为 File 对象
+                    // 根据内容判断文件类型，优先使用 .html
+                    const blob = new Blob([doc.content], { type: 'text/html' });
+                    const fileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') + '.html';
+                    const file = new File([blob], fileName, { type: 'text/html' });
+                    formData.append('files', file);
+                    console.log(`添加手动文档: ${fileName}`);
+                });
+            }
+
             formData.append('project_name', projectName);
             formData.append('week_start_date', weekStartDate);
 
@@ -1177,7 +1583,19 @@
                 projectInfo.style.display = 'none';
                 showScreen('screen1');
                 document.getElementById('screenTitle').textContent = '导入新项目';
+                // 重置导入表单到初始状态
+                resetImportForm();
             }
+        }
+
+        // 显示导入屏幕（带重置）
+        function showImportScreen() {
+            resetImportForm();
+            showScreen('screen1');
+            document.getElementById('screenTitle').textContent = '导入新进展';
+            // 隐藏项目信息
+            const projectInfo = document.getElementById('projectInfo');
+            projectInfo.style.display = 'none';
         }
 
         // 显示屏幕
@@ -1263,7 +1681,7 @@
             // 找到项目（通过ID匹配）
             const project = projects.find(p => p.id === projectId);
             if (!project) {
-                alert('项目不存在');
+                    showToast('项目不存在', 'error');
                 return;
             }
 
@@ -1289,12 +1707,15 @@
                     const projectInfo = document.getElementById('projectInfo');
                     projectInfo.style.display = 'block';
 
+                    // 更新侧边栏文件夹结构
+                    updateSidebarFolderStructure(projectId, currentWeek);
+
                     showScreen('screen3');
                 } else {
-                    alert('未找到报告数据');
+                    showToast('未找到报告数据', 'warning');
                 }
             } catch (error) {
-                alert('加载报告失败: ' + error.message);
+                showToast('加载报告失败: ' + error.message, 'error');
             }
         }
 
@@ -1496,49 +1917,103 @@
         async function handleUpload() {
             console.log('handleUpload called');
             const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
+            const files = fileInput.files;
             const projectNameInput = document.getElementById('projectName');
             const weekStartDateInput = document.getElementById('weekStartDate');
 
-            if (!file) {
-                alert('请先选择文件');
+            // 检查是否有文件或手动添加的文档
+            const hasFiles = files && files.length > 0;
+            const hasManualDocs = manualDocuments && manualDocuments.length > 0;
+            
+            if (!hasFiles && !hasManualDocs) {
+                showToast('请先选择文件夹或添加文档', 'warning');
                 return;
             }
 
             const projectName = projectNameInput.value.trim();
             if (!projectName) {
-                alert('请输入项目名称');
+                showToast('请输入项目名称', 'warning');
                 projectNameInput.focus();
                 return;
             }
 
             const weekStartDate = weekStartDateInput.value;
             if (!weekStartDate) {
-                alert('请选择本周开始日期');
+                showToast('请选择本周开始日期', 'warning');
                 weekStartDateInput.focus();
                 return;
             }
 
-            document.getElementById('fileName').textContent = file.name;
-            showScreen('screen2');
+            // 显示选择的文件夹信息
+            const folderPath = files[0].webkitRelativePath.split('/')[0];
+            document.getElementById('fileName').textContent = `文件夹: ${folderPath}`;
 
             try {
-                const result = await uploadFile(file, projectName, weekStartDate);
+                // 先显示上传中状态（不跳转页面）
+                updateProcessingStatus({
+                    pages: 0,
+                    tokens: 0,
+                    estimatedTime: '计算中...',
+                    status: '正在上传文件并计算...'
+                });
 
-                if (result.success) {
-                    alert('导入成功！');
-                    // 清空输入框
-                    projectNameInput.value = '';
-                    // 重新加载项目列表
+                console.log('开始上传文件...');
+
+                // 等待上传完成并收到响应
+                const result = await uploadFiles(files, projectName, weekStartDate);
+                console.log('上传结果:', result);
+
+                if (result && result.success) {
+                    // 收到响应后，跳转到处理中页面
+                    showScreen('screen2');
+
+                    // 使用后端返回的实际数据更新状态
+                        updateProcessingStatus({
+                        pages: result.file_count || 0,
+                        tokens: result.token_count || 0,
+                        estimatedTime: formatEstimatedTime(result.estimated_time_seconds || 0),
+                        status: '文件上传成功，正在后台分析...'
+                    });
+
+                    showToast('文件上传成功！系统正在后台处理您的内容。', 'success');
+
+                        // 执行后续操作
+                        await resetImportForm();
                     await loadProjects();
+
+                        if (result.project_id) {
+                            const newProject = projects.find(p => p.id === result.project_id);
+                            if (newProject) {
+                                await selectProject(result.project_id, newProject.name);
+                            } else {
                     showScreen('screen4');
                     document.getElementById('screenTitle').textContent = '项目进展一览';
+                            }
                 } else {
-                    throw new Error(result.message || '上传失败');
+                            showScreen('screen4');
+                            document.getElementById('screenTitle').textContent = '项目进展一览';
+                        }
+                    } else {
+                    // 上传失败，显示错误信息
+                    showScreen('screen2');
+                        updateProcessingStatus({
+                            pages: 0,
+                            tokens: 0,
+                        estimatedTime: '0秒',
+                        status: '上传失败: ' + (result?.message || '未知错误')
+                    });
                 }
             } catch (error) {
-                alert('上传失败: ' + error.message);
-                showScreen('screen1');
+                console.error('上传过程出错:', error);
+                // 跳转到处理中页面显示错误
+                showScreen('screen2');
+                updateProcessingStatus({
+                    pages: 0,
+                    tokens: 0,
+                    estimatedTime: '0秒',
+                    status: '上传失败: ' + error.message
+                });
+                showToast('上传失败: ' + error.message, 'error');
             }
         }
 
@@ -1556,12 +2031,12 @@
                     method: 'DELETE'
                 });
 
-                alert('项目删除成功');
+                showToast('项目删除成功', 'success');
                 // 重新加载项目列表
                 await loadProjects();
             } catch (error) {
                 console.error('删除项目失败:', error);
-                alert('删除项目失败: ' + error.message);
+                showToast('删除项目失败: ' + error.message, 'error');
             }
         }
 
@@ -1609,7 +2084,7 @@
             // 先获取项目信息来检查边界
             const projectInfo = await getProjectInfo(currentProject);
             if (!projectInfo) {
-                alert('无法获取项目信息');
+                showToast('无法获取项目信息', 'error');
                 return;
             }
 
@@ -1617,12 +2092,12 @@
 
             // 检查边界
             if (newWeek < 1) {
-                alert('已经是第一周数据');
+                showToast('已经是第一周数据', 'info');
                 return;
             }
 
             if (newWeek > maxWeek) {
-                alert('暂无下一周数据');
+                showToast('暂无下一周数据', 'info');
                 return;
             }
 
@@ -1638,52 +2113,63 @@
                         currentPeriodElement.textContent = reportData.week_period || '2025-11-03 至 2025-11-09';
                     }
 
+                    // 更新左侧边栏文件夹结构
+                    updateSidebarFolderStructure(currentProject, newWeek);
+
                     renderReport(reportData);
                     console.log('Week changed to:', newWeek);
                 } else {
-                    alert('该周数据加载失败');
+                    showToast('该周数据加载失败', 'error');
                 }
             } catch (error) {
                 console.log('Unexpected error loading week:', newWeek, 'Error:', error.message);
-                alert('数据加载出错，请重试');
+                showToast('数据加载出错，请重试', 'error');
             }
         }
 
-        // 切换编辑模式
+        // 进入编辑模式
         function toggleEditMode() {
-            isEditMode = !isEditMode;
+            isEditMode = true;
             const editBtn = document.getElementById('editBtn');
             const saveBtn = document.getElementById('saveBtn');
             const container = document.querySelector('.container');
 
-            if (isEditMode) {
-                editBtn.textContent = '退出编辑';
-                editBtn.classList.add('primary');
+            // 隐藏"编辑内容"按钮，显示"保存修改"按钮
+            editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline-block';
                 container.classList.add('edit-mode');
                 enableInlineEditing();
-            } else {
-                editBtn.textContent = '编辑内容';
-                editBtn.classList.remove('primary');
+        }
+
+        // 退出编辑模式
+        function exitEditMode() {
+            isEditMode = false;
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const container = document.querySelector('.container');
+
+            // 显示"编辑内容"按钮，隐藏"保存修改"按钮
+            editBtn.style.display = 'inline-block';
                 saveBtn.style.display = 'none';
                 container.classList.remove('edit-mode');
                 disableInlineEditing();
-            }
         }
 
         // 保存所有编辑
         async function saveAllEdits() {
             if (!currentProject) {
-                alert('请先选择项目');
+                showToast('请先选择项目', 'warning');
                 return;
             }
 
             try {
                 const weekData = collectCurrentWeekData();
                 await updateWeekReport(currentProject, currentWeek, weekData);
-                alert('保存成功！');
+                showToast('保存成功！', 'success');
+                // 保存成功后退出编辑模式
+                exitEditMode();
             } catch (error) {
-                alert('保存失败: ' + error.message);
+                showToast('保存失败: ' + error.message, 'error');
             }
         }
 
@@ -1701,24 +2187,29 @@
             // 收集达成事项
             const completedTaskRows = document.querySelectorAll('#completed-tasks .editable-row');
             completedTaskRows.forEach(row => {
-                const task = row.querySelector('[data-field="task"]')?.textContent || '';
-                const description = row.querySelector('[data-field="description"]')?.textContent || '';
-                if (task.trim()) {
-                    data.completed_tasks.push({ task: task.trim(), description: description.trim() });
+                const task = (row.querySelector('[data-field="task"]')?.textContent || '').trim();
+                const description = (row.querySelector('[data-field="description"]')?.textContent || '').trim();
+                // 只要有任务名称就保存（description 可以为空）
+                if (task) {
+                    data.completed_tasks.push({ 
+                        task: task, 
+                        description: description || ''  // 确保是字符串，不能是 undefined
+                    });
                 }
             });
 
             // 收集未达成事项
             const incompleteTaskRows = document.querySelectorAll('#not-completed-tasks .editable-row');
             incompleteTaskRows.forEach(row => {
-                const task = row.querySelector('[data-field="task"]')?.textContent || '';
-                const expected = row.querySelector('[data-field="expected"]')?.textContent || '';
-                const reason = row.querySelector('[data-field="reason"]')?.textContent || '';
-                if (task.trim()) {
+                const task = (row.querySelector('[data-field="task"]')?.textContent || '').trim();
+                const expected = (row.querySelector('[data-field="expected"]')?.textContent || '').trim();
+                const reason = (row.querySelector('[data-field="reason"]')?.textContent || '').trim();
+                // 只要有任务名称就保存
+                if (task) {
                     data.incomplete_tasks.push({
-                        task: task.trim(),
-                        expected: expected.trim(),
-                        reason: reason.trim()
+                        task: task,
+                        expected: expected || '',  // 确保是字符串
+                        reason: reason || ''      // 确保是字符串
                     });
                 }
             });
@@ -1744,12 +2235,13 @@
             // 收集外部反馈
             const feedbackItems = document.querySelectorAll('#achievements-list .editable-row');
             feedbackItems.forEach(item => {
-                const source = item.querySelector('[data-field="source"]')?.textContent || '';
-                const content = item.querySelector('[data-field="content"]')?.textContent || '';
-                if (source.trim() && content.trim()) {
+                const source = (item.querySelector('[data-field="source"]')?.textContent || '').trim();
+                const content = (item.querySelector('[data-field="content"]')?.textContent || '').trim();
+                // 只要有来源或内容就保存
+                if (source || content) {
                     data.external_feedback.push({
-                        source: source.trim(),
-                        content: content.trim()
+                        source: source || '',   // 确保是字符串
+                        content: content || ''  // 确保是字符串
                     });
                 }
             });
@@ -1757,16 +2249,27 @@
             // 收集下一步计划
             const planRows = document.querySelectorAll('#next-steps-list .editable-row');
             planRows.forEach(row => {
-                const task = row.querySelector('[data-field="task"]')?.textContent || '';
-                const goal = row.querySelector('[data-field="goal"]')?.textContent || '';
-                const priorityText = row.querySelector('[data-field="priority"]')?.textContent || 'P1';
-                const priority = priorityText.startsWith('P') ? parseInt(priorityText.substring(1)) : 1;
+                const task = (row.querySelector('[data-field="task"]')?.textContent || '').trim();
+                const goal = (row.querySelector('[data-field="goal"]')?.textContent || '').trim();
+                let priorityText = (row.querySelector('[data-field="priority"]')?.textContent || 'P1').trim();
+                
+                // 确保 priority 是字符串格式（P0, P1, P2）
+                if (!priorityText || !priorityText.startsWith('P')) {
+                    // 如果是数字或空，转换为 P 格式
+                    const priorityNum = parseInt(priorityText) || 1;
+                    priorityText = `P${priorityNum}`;
+                }
+                // 确保是有效的优先级格式（P0, P1, P2）
+                if (!/^P[0-2]$/.test(priorityText)) {
+                    priorityText = 'P1';
+                }
 
-                if (task.trim()) {
+                // 只要有任务名称就保存
+                if (task) {
                     data.next_week_plan.push({
-                        task: task.trim(),
-                        priority: priority,
-                        goal: goal.trim()
+                        task: task,
+                        priority: priorityText,  // 保持为字符串格式（P0, P1, P2）
+                        goal: goal || ''        // 确保是字符串
                     });
                 }
             });
@@ -1878,11 +2381,294 @@
         }
 
         function handleAddRow(e) {
+            e.stopPropagation();
             const dataPath = e.target.getAttribute('data-path');
             if (!dataPath) return;
 
-            // 这里可以添加新增行逻辑
-            console.log(`Add new row for ${dataPath}`);
+            let container;
+            let newRow;
+            let newIndex;
+
+            switch(dataPath) {
+                case 'completed_tasks':
+                    container = document.getElementById('completed-tasks');
+                    if (!container) return;
+                    
+                    // 如果表格不存在，创建表格
+                    let tbody = container.querySelector('tbody');
+                    if (!tbody) {
+                        container.innerHTML = `
+                            <table class="task-table">
+                                <thead>
+                                    <tr>
+                                        <th>任务名称</th>
+                                        <th>完成情况</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <button class="add-row-btn" data-path="completed_tasks">+ 添加完成任务</button>
+                        `;
+                        tbody = container.querySelector('tbody');
+                        // 重新绑定添加按钮事件
+                        const newAddBtn = container.querySelector('.add-row-btn');
+                        if (newAddBtn) {
+                            newAddBtn.addEventListener('click', handleAddRow);
+                        }
+                    }
+                    
+                    newIndex = tbody.querySelectorAll('.editable-row').length;
+                    
+                    newRow = document.createElement('tr');
+                    newRow.className = 'editable-row';
+                    newRow.setAttribute('data-path', 'completed_tasks');
+                    newRow.setAttribute('data-index', newIndex);
+                    newRow.innerHTML = `
+                        <td>
+                            <div class="task-name editable-text" data-path="completed_tasks" data-index="${newIndex}" data-field="task" data-placeholder="任务名称"></div>
+                        </td>
+                        <td>
+                            <div class="task-desc editable-text" data-path="completed_tasks" data-index="${newIndex}" data-field="description" data-placeholder="任务描述"></div>
+                        </td>
+                        <td class="row-actions">
+                            <button class="row-action-btn delete" title="删除">×</button>
+                        </td>
+                    `;
+                    tbody.appendChild(newRow);
+                    break;
+
+                case 'incomplete_tasks':
+                    container = document.getElementById('not-completed-tasks');
+                    if (!container) return;
+                    
+                    // 如果表格不存在，创建表格
+                    let tbody2 = container.querySelector('tbody');
+                    if (!tbody2) {
+                        container.innerHTML = `
+                            <table class="task-table">
+                                <thead>
+                                    <tr>
+                                        <th>任务名称</th>
+                                        <th>预期目标</th>
+                                        <th>未完成原因</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <button class="add-row-btn" data-path="incomplete_tasks">+ 添加未完成任务</button>
+                        `;
+                        tbody2 = container.querySelector('tbody');
+                        // 重新绑定添加按钮事件
+                        const newAddBtn2 = container.querySelector('.add-row-btn');
+                        if (newAddBtn2) {
+                            newAddBtn2.addEventListener('click', handleAddRow);
+                        }
+                    }
+                    
+                    newIndex = tbody2.querySelectorAll('.editable-row').length;
+                    
+                    newRow = document.createElement('tr');
+                    newRow.className = 'editable-row';
+                    newRow.setAttribute('data-path', 'incomplete_tasks');
+                    newRow.setAttribute('data-index', newIndex);
+                    newRow.innerHTML = `
+                        <td>
+                            <div class="task-name editable-text" data-path="incomplete_tasks" data-index="${newIndex}" data-field="task" data-placeholder="任务名称"></div>
+                        </td>
+                        <td>
+                            <div class="task-desc editable-text" data-path="incomplete_tasks" data-index="${newIndex}" data-field="expected" data-placeholder="预期目标"></div>
+                        </td>
+                        <td>
+                            <div class="task-desc editable-text" data-path="incomplete_tasks" data-index="${newIndex}" data-field="reason" data-placeholder="未完成原因"></div>
+                        </td>
+                        <td class="row-actions">
+                            <button class="row-action-btn delete" title="删除">×</button>
+                        </td>
+                    `;
+                    tbody2.appendChild(newRow);
+                    break;
+
+                case 'motivation_direction':
+                    container = document.getElementById('reasons-list');
+                    if (!container) return;
+                    
+                    // 移除"暂无"提示
+                    const emptyMsg = container.querySelector('.text-muted');
+                    if (emptyMsg) emptyMsg.remove();
+                    
+                    // 确保有添加按钮
+                    let addBtn = container.querySelector('.add-row-btn');
+                    if (!addBtn) {
+                        addBtn = document.createElement('button');
+                        addBtn.className = 'add-row-btn';
+                        addBtn.setAttribute('data-path', 'motivation_direction');
+                        addBtn.textContent = '+ 添加动机方向';
+                        addBtn.addEventListener('click', handleAddRow);
+                        container.appendChild(addBtn);
+                    }
+                    
+                    newIndex = container.querySelectorAll('.editable-row').length;
+                    
+                    newRow = document.createElement('div');
+                    newRow.className = 'data-item editable-row';
+                    newRow.setAttribute('data-path', 'motivation_direction');
+                    newRow.setAttribute('data-index', newIndex);
+                    newRow.innerHTML = `
+                        <span class="editable-text" data-path="motivation_direction" data-index="${newIndex}" data-field="item" data-placeholder="输入动机方向"></span>
+                        <div class="row-actions">
+                            <button class="row-action-btn delete" title="删除">×</button>
+                        </div>
+                    `;
+                    // 插入到添加按钮之前
+                    container.insertBefore(newRow, addBtn);
+                    break;
+
+                case 'internal_reflection':
+                    container = document.getElementById('why-not-list');
+                    if (!container) return;
+                    
+                    const emptyMsg2 = container.querySelector('.text-muted');
+                    if (emptyMsg2) emptyMsg2.remove();
+                    
+                    // 确保有添加按钮
+                    let addBtn2 = container.querySelector('.add-row-btn');
+                    if (!addBtn2) {
+                        addBtn2 = document.createElement('button');
+                        addBtn2.className = 'add-row-btn';
+                        addBtn2.setAttribute('data-path', 'internal_reflection');
+                        addBtn2.textContent = '+ 添加内部反思';
+                        addBtn2.addEventListener('click', handleAddRow);
+                        container.appendChild(addBtn2);
+                    }
+                    
+                    newIndex = container.querySelectorAll('.editable-row').length;
+                    
+                    newRow = document.createElement('div');
+                    newRow.className = 'data-item editable-row';
+                    newRow.setAttribute('data-path', 'internal_reflection');
+                    newRow.setAttribute('data-index', newIndex);
+                    newRow.innerHTML = `
+                        <span class="editable-text" data-path="internal_reflection" data-index="${newIndex}" data-field="item" data-placeholder="输入内部反思"></span>
+                        <div class="row-actions">
+                            <button class="row-action-btn delete" title="删除">×</button>
+                        </div>
+                    `;
+                    container.insertBefore(newRow, addBtn2);
+                    break;
+
+                case 'external_feedback':
+                    container = document.getElementById('achievements-list');
+                    if (!container) return;
+                    
+                    const emptyMsg3 = container.querySelector('.text-muted');
+                    if (emptyMsg3) emptyMsg3.remove();
+                    
+                    // 确保有添加按钮
+                    let addBtn3 = container.querySelector('.add-row-btn');
+                    if (!addBtn3) {
+                        addBtn3 = document.createElement('button');
+                        addBtn3.className = 'add-row-btn';
+                        addBtn3.setAttribute('data-path', 'external_feedback');
+                        addBtn3.textContent = '+ 添加外部反馈';
+                        addBtn3.addEventListener('click', handleAddRow);
+                        container.appendChild(addBtn3);
+                    }
+                    
+                    newIndex = container.querySelectorAll('.editable-row').length;
+                    
+                    newRow = document.createElement('div');
+                    newRow.className = 'data-item editable-row';
+                    newRow.setAttribute('data-path', 'external_feedback');
+                    newRow.setAttribute('data-index', newIndex);
+                    newRow.innerHTML = `
+                        <div class="task-name editable-text" data-path="external_feedback" data-index="${newIndex}" data-field="source" data-placeholder="反馈来源"></div>
+                        <div class="task-desc editable-text" data-path="external_feedback" data-index="${newIndex}" data-field="content" data-placeholder="反馈内容"></div>
+                        <div class="row-actions">
+                            <button class="row-action-btn delete" title="删除">×</button>
+                        </div>
+                    `;
+                    container.insertBefore(newRow, addBtn3);
+                    break;
+
+                case 'next_week_plan':
+                    container = document.getElementById('next-steps-list');
+                    if (!container) return;
+                    
+                    // 如果表格不存在，创建表格
+                    let tbody3 = container.querySelector('tbody');
+                    if (!tbody3) {
+                        container.innerHTML = `
+                            <table class="task-table">
+                                <thead>
+                                    <tr>
+                                        <th>优先级</th>
+                                        <th>任务名称</th>
+                                        <th>目标</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <button class="add-row-btn" data-path="next_week_plan">+ 添加下一步计划</button>
+                        `;
+                        tbody3 = container.querySelector('tbody');
+                        // 重新绑定添加按钮事件
+                        const newAddBtn3 = container.querySelector('.add-row-btn');
+                        if (newAddBtn3) {
+                            newAddBtn3.addEventListener('click', handleAddRow);
+                        }
+                    }
+                    
+                    newIndex = tbody3.querySelectorAll('.editable-row').length;
+                    
+                    newRow = document.createElement('tr');
+                    newRow.className = 'editable-row';
+                    newRow.setAttribute('data-path', 'next_week_plan');
+                    newRow.setAttribute('data-index', newIndex);
+                    newRow.innerHTML = `
+                        <td>
+                            <span class="priority-badge editable-text" data-path="next_week_plan" data-index="${newIndex}" data-field="priority" data-placeholder="P1">P1</span>
+                        </td>
+                        <td>
+                            <div class="task-name editable-text" data-path="next_week_plan" data-index="${newIndex}" data-field="task" data-placeholder="任务名称"></div>
+                        </td>
+                        <td>
+                            <div class="task-desc editable-text" data-path="next_week_plan" data-index="${newIndex}" data-field="goal" data-placeholder="目标描述"></div>
+                        </td>
+                        <td class="row-actions">
+                            <button class="row-action-btn delete" title="删除">×</button>
+                        </td>
+                    `;
+                    tbody3.appendChild(newRow);
+                    break;
+            }
+
+            // 重新绑定编辑事件到新添加的行（必须在编辑模式下）
+            if (isEditMode && newRow) {
+                const editableElements = newRow.querySelectorAll('.editable-text');
+                editableElements.forEach(element => {
+                    element.contentEditable = 'true';
+                    element.addEventListener('focus', handleEditStart);
+                    element.addEventListener('blur', handleEditEnd);
+                    element.addEventListener('keydown', handleKeyDown);
+                    element.addEventListener('input', handleInput);
+                });
+
+                const deleteBtn = newRow.querySelector('.row-action-btn.delete');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', handleDeleteRow);
+                }
+
+                newRow.addEventListener('click', handleRowClick);
+                
+                // 自动聚焦到第一个可编辑字段
+                const firstEditable = newRow.querySelector('.editable-text');
+                if (firstEditable) {
+                    setTimeout(() => firstEditable.focus(), 100);
+                }
+            } else {
+                // 如果不在编辑模式，提示用户进入编辑模式
+                showToast('请先进入编辑模式', 'info');
+            }
         }
 
         // 维度切换
@@ -1968,6 +2754,39 @@
             }, 2000);
         }
 
+        // 通用 Toast 通知函数
+        function showToast(message, type = 'info', duration = 3000) {
+            // 获取所有现有的 toast
+            const existingToasts = document.querySelectorAll('.toast');
+            const toastCount = existingToasts.length;
+
+            // 创建新的 toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            // 计算位置（多个 toast 堆叠显示）
+            const topOffset = 20 + (toastCount * 70); // 每个 toast 间隔 70px
+            toast.style.top = `${topOffset}px`;
+            
+            document.body.appendChild(toast);
+
+            // 自动移除
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-in';
+                setTimeout(() => {
+                    toast.remove();
+                    // 重新调整剩余 toast 的位置
+                    const remainingToasts = document.querySelectorAll('.toast');
+                    remainingToasts.forEach((remainingToast, index) => {
+                        remainingToast.style.top = `${20 + index * 70}px`;
+                    });
+                }, 300);
+            }, duration);
+
+            return toast;
+        }
+
         // 编辑状态
         function editStatus(cellElement, event) {
             if (event) {
@@ -2040,10 +2859,686 @@
 
         // 文件选择监听
         document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                document.getElementById('fileName').textContent = e.target.files[0].name;
+            const files = e.target.files;
+            if (files.length > 0) {
+                const folderPath = files[0].webkitRelativePath.split('/')[0];
+                document.getElementById('fileName').textContent = `文件夹: ${folderPath}`;
+
+                // 显示文件夹结构（会自动包含手动添加的文档）
+                displayFolderStructure(files);
+            } else {
+                document.getElementById('fileName').textContent = '未选择';
+                // 如果还有手动文档，仍然显示
+                if (manualDocuments && manualDocuments.length > 0) {
+                    updateManualDocumentsDisplay();
+                } else {
+                hideFolderStructure();
+                }
             }
         });
+
+        // 构建文件夹树结构
+        function buildFolderTree(files) {
+            const tree = {};
+
+            Array.from(files).forEach(file => {
+                // 过滤掉系统文件和隐藏文件
+                if (file.name.startsWith('.') ||
+                    file.name === '.DS_Store' ||
+                    file.name === 'Thumbs.db' ||
+                    file.name === 'desktop.ini') {
+                    return;
+                }
+
+                const path = file.webkitRelativePath;
+                const parts = path.split('/');
+                let current = tree;
+
+                parts.forEach((part, index) => {
+                    // 过滤掉隐藏文件夹
+                    if (part.startsWith('.')) {
+                        return;
+                    }
+
+                    if (!current[part]) {
+                        current[part] = {
+                            type: index === parts.length - 1 ? 'file' : 'folder',
+                            children: {},
+                            file: index === parts.length - 1 ? file : null
+                        };
+                    }
+                    current = current[part].children;
+                });
+            });
+
+            return tree;
+        }
+
+        // 生成树状结构的HTML
+        function generateTreeHTML(tree, prefix = '') {
+            let html = '';
+
+            Object.keys(tree).sort().forEach(name => {
+                const item = tree[name];
+                const fileName = name.toLowerCase();
+                const isTextFile = item.type === 'file' && (
+                    fileName.endsWith('.html') || 
+                    fileName.endsWith('.htm') || 
+                    fileName.endsWith('.txt') || 
+                    fileName.endsWith('.md')
+                );
+                const isFolder = item.type === 'folder';
+
+                if (isFolder) {
+                    // 文件夹
+                    html += `
+                        <div class="folder-item folder" onclick="toggleFolder(this)">
+                            <span class="folder-toggle collapsed"></span>
+                            📁 ${name}
+                        </div>
+                        <div class="folder-children" style="display: none;">
+                            ${generateTreeHTML(item.children, prefix + '  ')}
+                        </div>
+                    `;
+                } else if (isTextFile) {
+                    // HTML文件或其他文本文件
+                    const displayName = cleanNotionFilename(name);
+                    // 检查是否是手动添加的文档
+                    const fileData = item.file;
+                    const isManual = fileData && fileData.isManual;
+                    const fileItemAttr = isManual ? `data-file-item='${JSON.stringify(fileData).replace(/'/g, "&apos;")}'` : '';
+                    html += `<div class="folder-item file html" onclick="showFileContent('${name}', this)" data-file="${name}" ${fileItemAttr} title="${name}">📄 ${displayName}</div>`;
+                } else {
+                    // 其他文件
+                    html += `<div class="folder-item file">📄 ${name}</div>`;
+                }
+            });
+
+            return html;
+        }
+
+        // 切换文件夹展开/折叠
+        function toggleFolder(element) {
+            const toggle = element.querySelector('.folder-toggle');
+            const children = element.nextElementSibling;
+
+            if (children.style.display === 'none') {
+                children.style.display = 'block';
+                toggle.classList.remove('collapsed');
+                toggle.classList.add('expanded');
+            } else {
+                children.style.display = 'none';
+                toggle.classList.remove('expanded');
+                toggle.classList.add('collapsed');
+            }
+        }
+
+        // 显示文件内容
+        function showFileContent(filename, element) {
+            // 使用清理后的显示名称
+            const displayName = cleanNotionFilename(filename);
+
+            // 检查是否是手动添加的文档（通过查找手动文档列表）
+            if (manualDocuments && manualDocuments.length > 0) {
+                const fileNameWithoutExt = filename.replace(/\.(html|htm|txt|md)$/i, '');
+                const manualDoc = manualDocuments.find(doc => {
+                    const docFileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+                    return docFileName === fileNameWithoutExt;
+                });
+                
+                if (manualDoc) {
+                    showDialog(displayName, manualDoc.content);
+                    return;
+                }
+            }
+
+            // 读取文件内容并显示
+            const fileInput = document.getElementById('fileInput');
+            const files = Array.from(fileInput.files);
+            const file = files.find(f => f.name === filename);
+
+            if (file && filename.toLowerCase().endsWith('.html')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    showDialog(displayName, e.target.result);
+                };
+                reader.readAsText(file);
+            } else {
+                showDialog(displayName, `<p>无法预览此文件类型</p>`);
+            }
+        }
+
+        // 显示文件夹结构
+        function displayFolderStructure(files) {
+            const structureCard = document.getElementById('folderStructureCard');
+            const structureContainer = document.getElementById('folderStructure');
+
+            // 构建文件夹树结构
+            const tree = buildFolderTree(files);
+
+            // 如果有手动添加的文档，添加到树结构中
+            if (manualDocuments && manualDocuments.length > 0) {
+                if (!tree['其他文档']) {
+                    tree['其他文档'] = {
+                        type: 'folder',
+                        children: {},
+                        file: null
+                    };
+                }
+                
+                manualDocuments.forEach((doc, index) => {
+                    const fileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') + '.html';
+                    tree['其他文档'].children[fileName] = {
+                        type: 'file',
+                        children: {},
+                        file: {
+                            name: fileName,
+                            content: doc.content,
+                            isManual: true
+                        }
+                    };
+                });
+            }
+
+            // 生成HTML
+            const html = generateTreeHTML(tree);
+            structureContainer.innerHTML = html;
+
+            // 显示文件夹结构卡片
+            structureCard.style.display = 'block';
+        }
+
+        // 隐藏文件夹结构
+        function hideFolderStructure() {
+            const structureCard = document.getElementById('folderStructureCard');
+            structureCard.style.display = 'none';
+        }
+
+        // 清理Notion文件名，去掉ID部分
+        function cleanNotionFilename(filename) {
+            // 去掉.html后缀
+            let name = filename.replace('.html', '');
+
+            // Notion文件名通常包含32位十六进制ID，我们需要去掉这些ID
+            // 使用正则表达式直接替换掉所有32位十六进制字符串
+            const idPattern = /[a-f0-9]{32}/gi; // 匹配32位十六进制ID（去掉边界匹配）
+
+            // 直接替换掉所有ID，保留其他内容
+            name = name.replace(idPattern, '').trim();
+
+            // 清理多余的空格（多个连续空格变成单个空格）
+            name = name.replace(/\s+/g, ' ').trim();
+
+            // 如果清理后文件名太短或为空，使用默认名称
+            if (!name || name.length < 2) {
+                name = '未命名文档';
+            }
+
+            return name;
+        }
+
+        // 显示侧边栏文件夹结构（从后端获取真实文件列表）
+        async function displaySidebarFolderStructure(projectId, week) {
+            const sidebarContainer = document.getElementById('sidebarFolderStructure');
+
+            try {
+                // 从后端获取文件列表
+                const response = await fetch(`${API_BASE_URL}/projects/${projectId}/week/${week}/files`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const files = data.files || [];
+
+                    // 构建文件夹结构（和下方文件夹结构显示一致）
+                    // 由于后端返回的是平铺文件列表，我们需要根据文件名推断结构
+                    // 对于手动添加的文档，文件名格式通常是 title_xxx.html
+                    // 我们可以尝试识别，但更简单的方式是显示所有文件在"其他文档"下
+                    // 或者显示为平铺结构，但添加"其他文档"文件夹
+                    
+                    // 先尝试根据文件路径构建树结构（如果有路径信息）
+                    // 如果没有路径信息，就显示为平铺结构，但添加"其他文档"分组
+                    const weekFolderName = '第' + week + '周文件';
+                    const tree = {};
+                    tree[weekFolderName] = {
+                        type: 'folder',
+                        children: {},
+                        file: null
+                    };
+
+                    // 将所有文件添加到"其他文档"文件夹下
+                    if (files.length > 0) {
+                        tree[weekFolderName].children['其他文档'] = {
+                            type: 'folder',
+                            children: {},
+                            file: null
+                        };
+                        
+                        files.forEach(file => {
+                            tree[weekFolderName].children['其他文档'].children[file] = {
+                                type: 'file',
+                                children: {},
+                                file: null
+                            };
+                        });
+                    }
+
+                    // 生成HTML（使用与下方文件夹结构相同的生成函数）
+                    const html = generateSidebarTreeHTML(tree);
+                    sidebarContainer.innerHTML = html;
+                } else {
+                    console.error('获取文件列表失败:', data);
+                    sidebarContainer.innerHTML = '<div class="folder-item" style="color: #999; font-style: italic;">加载失败</div>';
+                }
+            } catch (error) {
+                console.error('获取文件列表出错:', error);
+                sidebarContainer.innerHTML = '<div class="folder-item" style="color: #999; font-style: italic;">加载失败</div>';
+            }
+        }
+
+        // 生成侧边栏树状结构的HTML（简化版，支持文件夹和文件）
+        function generateSidebarTreeHTML(tree, prefix = '') {
+            let html = '';
+
+            Object.keys(tree).sort().forEach(name => {
+                const item = tree[name];
+                const isFolder = item.type === 'folder';
+
+                if (isFolder) {
+                    // 文件夹
+                    html += `
+                        <div class="folder-item folder" onclick="toggleSidebarFolder(this)">
+                            <span class="folder-toggle collapsed"></span>
+                            📁 ${name}
+                        </div>
+                        <div class="folder-children" style="display: none;">
+                            ${generateSidebarTreeHTML(item.children, prefix + '  ')}
+                        </div>
+                    `;
+                } else {
+                    // 文件
+                    const fileName = name.toLowerCase();
+                    const isTextFile = fileName.endsWith('.html') || fileName.endsWith('.htm') || fileName.endsWith('.txt') || fileName.endsWith('.md');
+                    if (isTextFile) {
+                        const displayName = name.replace(/\.(html|htm|txt|md)$/i, '');
+                        // 获取项目ID和周数（从全局变量或通过其他方式）
+                        const projectId = currentProject;
+                        const week = currentWeek;
+                        html += `<div class="folder-item file html" onclick="showSidebarFileContent('${name}', ${week}, '${projectId}')" title="${name}">📄 ${displayName}</div>`;
+                    } else {
+                        html += `<div class="folder-item file">📄 ${name}</div>`;
+                    }
+                }
+            });
+
+            return html;
+        }
+
+        // 切换侧边栏文件夹展开/折叠
+        function toggleSidebarFolder(element) {
+            const toggle = element.querySelector('.folder-toggle');
+            const children = element.nextElementSibling;
+
+            if (children.style.display === 'none') {
+                children.style.display = 'block';
+                toggle.classList.remove('collapsed');
+                toggle.classList.add('expanded');
+            } else {
+                children.style.display = 'none';
+                toggle.classList.remove('expanded');
+                toggle.classList.add('collapsed');
+            }
+        }
+
+        // 显示对话框
+        function showDialog(title, content) {
+            // 移除已存在的对话框
+            const existingDialog = document.querySelector('.dialog-overlay');
+            if (existingDialog) {
+                existingDialog.remove();
+            }
+
+            // 创建对话框HTML
+            const dialogHTML = `
+                <div class="dialog-overlay" onclick="closeDialog()">
+                    <div class="dialog" onclick="event.stopPropagation()">
+                        <div class="dialog-header">
+                            <h3 class="dialog-title">${title}</h3>
+                            <button class="dialog-close" onclick="closeDialog()">×</button>
+                        </div>
+                        <div class="dialog-content">
+                            <div>
+                                ${content}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加到页面
+            document.body.insertAdjacentHTML('beforeend', dialogHTML);
+        }
+
+        // 关闭对话框
+        function closeDialog() {
+            const dialog = document.querySelector('.dialog-overlay');
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        // 显示添加文档对话框
+        function showAddDocumentDialog() {
+            // 移除已存在的对话框
+            const existingDialog = document.querySelector('.dialog-overlay');
+            if (existingDialog) {
+                existingDialog.remove();
+            }
+
+            // 创建对话框HTML
+            const dialogHTML = `
+                <div class="dialog-overlay" onclick="closeAddDocumentDialog()">
+                    <div class="dialog dialog-add-document" onclick="event.stopPropagation()" style="max-width: 800px; max-height: 80vh;">
+                        <div class="dialog-header">
+                            <h3 class="dialog-title">添加文档</h3>
+                            <button class="dialog-close" onclick="closeAddDocumentDialog()">×</button>
+                        </div>
+                        <div class="dialog-content">
+                            <div class="dialog-form">
+                                <div class="dialog-form-content">
+                                    <label for="docTitle">文档标题</label>
+                                    <input type="text" id="docTitle" placeholder="输入文档标题" value="">
+                                    
+                                    <label for="docContent">文档内容</label>
+                                    <textarea id="docContent" placeholder="在此粘贴或输入文档内容..."></textarea>
+                                </div>
+                                <div class="dialog-actions">
+                                    <button class="btn" onclick="closeAddDocumentDialog()">取消</button>
+                                    <button class="btn primary" onclick="saveManualDocument()">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加到页面
+            document.body.insertAdjacentHTML('beforeend', dialogHTML);
+            
+            // 聚焦到标题输入框
+            setTimeout(() => {
+                const titleInput = document.getElementById('docTitle');
+                if (titleInput) {
+                    titleInput.focus();
+                }
+            }, 100);
+        }
+
+        // 关闭添加文档对话框
+        function closeAddDocumentDialog() {
+            const dialog = document.querySelector('.dialog-overlay');
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        // 保存手动添加的文档
+        function saveManualDocument() {
+            const titleInput = document.getElementById('docTitle');
+            const contentInput = document.getElementById('docContent');
+
+            if (!titleInput || !contentInput) {
+                return;
+            }
+
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (!title) {
+                showToast('请输入文档标题', 'warning');
+                titleInput.focus();
+                return;
+            }
+
+            if (!content) {
+                showToast('请输入文档内容', 'warning');
+                contentInput.focus();
+                return;
+            }
+
+            // 添加到手动文档列表
+            manualDocuments.push({
+                title: title,
+                content: content
+            });
+
+            showToast(`文档"${title}"已添加`, 'success');
+            closeAddDocumentDialog();
+            
+            // 更新已添加文档列表显示
+            updateManualDocumentsDisplay();
+        }
+
+        // 更新手动添加文档的显示
+        function updateManualDocumentsDisplay() {
+            // 更新文件夹结构显示（如果文件选择不为空）
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                displayFolderStructure(fileInput.files);
+            } else if (manualDocuments.length > 0) {
+                // 如果只有手动文档，也显示文件夹结构
+                const structureCard = document.getElementById('folderStructureCard');
+                const structureContainer = document.getElementById('folderStructure');
+                if (structureCard && structureContainer) {
+                    // 构建只有手动文档的树结构
+                    const tree = {
+                        '其他文档': {
+                            type: 'folder',
+                            children: {},
+                            file: null
+                        }
+                    };
+                    
+                    manualDocuments.forEach((doc, index) => {
+                        const fileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') + '.html';
+                        tree['其他文档'].children[fileName] = {
+                            type: 'file',
+                            children: {},
+                            file: {
+                                name: fileName,
+                                content: doc.content,
+                                isManual: true
+                            }
+                        };
+                    });
+                    
+                    const html = generateTreeHTML(tree);
+                    structureContainer.innerHTML = html;
+                    structureCard.style.display = 'block';
+                }
+            } else {
+                // 如果没有手动文档，隐藏文件夹结构
+                const structureCard = document.getElementById('folderStructureCard');
+                if (structureCard) {
+                    structureCard.style.display = 'none';
+                }
+            }
+        }
+
+        // 删除手动添加的文档
+        function removeManualDocument(index) {
+            if (index >= 0 && index < manualDocuments.length) {
+                const doc = manualDocuments[index];
+                manualDocuments.splice(index, 1);
+                showToast(`文档"${doc.title}"已删除`, 'success');
+                // 更新显示（会重新构建文件夹结构）
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    displayFolderStructure(fileInput.files);
+                } else {
+                    updateManualDocumentsDisplay();
+                }
+            }
+        }
+
+        // 显示侧边栏文件内容
+        async function showSidebarFileContent(filename, week, projectId) {
+            // API返回的文件名已经是清理过的，直接去掉.html后缀作为显示名称
+            const displayName = filename.replace('.html', '');
+
+            try {
+                // 从后端获取文件内容
+                const response = await fetch(`${API_BASE_URL}/projects/${projectId}/week/${week}/files/${filename}`);
+                if (response.ok) {
+                    const content = await response.text();
+                    showDialog(displayName, content);
+                } else {
+                    // 如果API不存在，使用mock内容作为后备
+                    console.warn('文件内容API不存在，使用mock内容');
+                    const mockContent = generateSidebarFileContent(filename, week);
+                    showDialog(displayName, mockContent);
+                }
+            } catch (error) {
+                console.error('获取文件内容出错:', error);
+                // 使用mock内容作为后备
+                const mockContent = generateSidebarFileContent(filename, week);
+                showDialog(displayName, mockContent);
+            }
+        }
+
+        // 生成侧边栏文件内容
+        function generateSidebarFileContent(filename, week) {
+            const baseName = filename.replace('.html', '');
+
+            // 根据文件名和周数生成不同的内容
+            if (week === 1) {
+                switch (baseName) {
+                    case '原型图':
+                        return `<h2>第${week}周 - ${baseName}</h2><p>项目原型设计，包含主要功能流程和用户交互说明。</p>`;
+                    case '设计图':
+                        return `<h2>第${week}周 - ${baseName}</h2><p>UI设计系统，色彩搭配和组件规范。</p>`;
+                    case '产品文档':
+                        return `<h2>第${week}周 - ${baseName}</h2><p>产品需求文档和功能规格说明。</p>`;
+                }
+            } else if (week === 2) {
+                switch (baseName) {
+                    case '更新文档':
+                        return `<h2>第${week}周 - ${baseName}</h2><p>项目更新日志和功能改进记录。</p>`;
+                    case '会议记录':
+                        return `<h2>第${week}周 - ${baseName}</h2><p>团队会议纪要和讨论要点。</p>`;
+                    case '进度报告':
+                        return `<h2>第${week}周 - ${baseName}</h2><p>项目进度汇报和里程碑达成情况。</p>`;
+                }
+            }
+
+            return `<h2>第${week}周 - ${baseName}</h2><p>这是第${week}周的${baseName}文件内容。</p>`;
+        }
+
+        // 在选择项目或切换周数时更新侧边栏文件夹结构
+        function updateSidebarFolderStructure(projectId, week = 1) {
+            if (projectId && projectId !== '未选择项目') {
+                displaySidebarFolderStructure(projectId, week);
+            } else {
+                document.getElementById('sidebarFolderStructure').innerHTML = '';
+            }
+        }
+
+        // 重置导入表单
+        function resetImportForm() {
+            // 清空手动添加的文档
+            manualDocuments = [];
+            updateManualDocumentsDisplay();
+            console.log('重置导入表单');
+
+            // 清空项目名称
+            const projectNameInput = document.getElementById('projectName');
+            if (projectNameInput) {
+                projectNameInput.value = '';
+            }
+
+            // 重置周开始日期为本周一
+            const weekStartDateInput = document.getElementById('weekStartDate');
+            if (weekStartDateInput) {
+                weekStartDateInput.value = getThisMonday();
+            }
+
+            // 清空文件选择
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+
+            // 隐藏文件夹结构
+            hideFolderStructure();
+
+            // 重置文件名称显示
+            const fileNameElement = document.getElementById('fileName');
+            if (fileNameElement) {
+                fileNameElement.textContent = '未选择';
+            }
+            
+            // 移除手动文档显示区域（如果存在）
+            const manualDocsDisplay = document.getElementById('manualDocumentsDisplay');
+            if (manualDocsDisplay) {
+                const manualDocsCard = manualDocsDisplay.closest('.card');
+                if (manualDocsCard) {
+                    manualDocsCard.remove();
+                }
+            }
+
+            console.log('导入表单已重置');
+        }
+
+        // 格式化预计时间
+        function formatEstimatedTime(seconds) {
+            if (!seconds || seconds === 0) {
+                return '0秒';
+            }
+            if (seconds < 60) {
+                return `${Math.ceil(seconds)}秒`;
+            } else if (seconds < 3600) {
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.ceil(seconds % 60);
+                return `${minutes}分${secs > 0 ? secs + '秒' : ''}`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                return `${hours}小时${minutes > 0 ? minutes + '分钟' : ''}`;
+            }
+        }
+
+        // 更新处理状态显示
+        function updateProcessingStatus(data) {
+            console.log('更新处理状态:', data);
+
+            const processedPages = document.getElementById('processedPages');
+            const usedTokens = document.getElementById('usedTokens');
+            const estimatedTime = document.getElementById('estimatedTime');
+            const processingStatus = document.getElementById('processingStatus');
+
+            console.log('DOM元素:', {
+                processedPages: !!processedPages,
+                usedTokens: !!usedTokens,
+                estimatedTime: !!estimatedTime,
+                processingStatus: !!processingStatus
+            });
+
+            if (processedPages) {
+                processedPages.textContent = data.pages || 0;
+                console.log('更新文件数:', data.pages || 0);
+            }
+            if (usedTokens) {
+                usedTokens.textContent = (data.tokens || 0).toLocaleString();
+                console.log('更新token数:', data.tokens || 0);
+            }
+            if (estimatedTime) {
+                estimatedTime.textContent = data.estimatedTime || '0秒';
+                console.log('更新预计时间:', data.estimatedTime || '0秒');
+            }
+            if (processingStatus) {
+                processingStatus.textContent = data.status || '处理中...';
+                console.log('更新状态:', data.status || '处理中...');
+            }
+        }
 
         // 页面初始化
         document.addEventListener('DOMContentLoaded', async function() {

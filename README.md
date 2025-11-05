@@ -80,6 +80,91 @@ Teamie 是一款专为科研创业者设计的高效项目管理工具，帮助�
 4. **访问应用**
    打开浏览器访问：http://localhost:8000
 
+### Docker 部署
+
+#### 环境要求
+- Docker
+- OpenAI API Key
+
+#### 部署步骤
+
+1. **构建镜像**
+   ```bash
+   docker build -t teamie .
+   ```
+
+2. **配置环境变量**
+   ```bash
+   # 创建并编辑 .env 文件
+   cd backend
+   cp .env.example .env
+   # 编辑 .env 文件，填入你的 OpenAI API Key
+   OPENAI_API_KEY=sk-your-actual-api-key-here
+   cd ..
+   ```
+
+3. **运行容器**
+   ```bash
+   docker run -d \
+     --name teamie \
+     -p 8081:8081 \
+     -v $(pwd)/backend/.env:/app/backend/.env \
+     -v $(pwd)/backend/data:/app/backend/data \
+     teamie
+   ```
+
+4. **访问应用**
+   打开浏览器访问：http://localhost:8081
+
+#### Docker 管理命令
+
+- **查看日志**：`docker logs -f teamie`
+- **停止容器**：`docker stop teamie`
+- **重启容器**：`docker restart teamie`
+- **删除容器**：`docker rm teamie`
+- **更新镜像**：`docker build -t teamie . && docker restart teamie`
+
+#### Docker Compose 方式（推荐）
+
+如果遇到路径问题，可以使用 Docker Compose：
+
+1. **使用 Docker Compose 运行**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **管理命令**
+   ```bash
+   # 查看日志
+   docker-compose logs -f
+
+   # 停止服务
+   docker-compose down
+
+   # 重启服务
+   docker-compose restart
+
+   # 重建镜像
+   docker-compose build --no-cache
+
+   # 查看运行状态
+   docker-compose ps
+   ```
+
+#### 路径问题排查
+
+如果遇到 "must be lowercase" 错误：
+- 确保项目路径中没有大写字母
+- 或者使用 Docker Compose（推荐）
+- 或者移动项目到简单路径如 `/tmp/teamie`
+
+#### 注意事项
+
+- Docker Compose 会自动为镜像添加项目名称前缀（如 `teamie-teamie`）
+- 如果需要自定义镜像名称，请直接使用 `docker build -t teamie .`
+- 使用 Docker Compose 时，镜像名称已明确设置为 `teamie:latest`
+- 应用会自动检测前端文件路径，支持本地开发和 Docker 部署
+
 ### 使用说明
 
 1. **导入项目**

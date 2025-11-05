@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  teamie:
+    build: .
+    image: teamie:latest
+    container_name: teamie
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./backend/.env:/app/backend/.env
+      - ./backend/data:/app/backend/data
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8081
+    restart: unless-stopped

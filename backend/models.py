@@ -48,6 +48,9 @@ class UploadResponse(BaseModel):
     success: bool
     message: str
     project_id: Optional[str] = None
+    file_count: Optional[int] = None
+    token_count: Optional[int] = None
+    estimated_time_seconds: Optional[float] = None
 
 class ReportResponse(BaseModel):
     success: bool

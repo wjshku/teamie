@@ -5,3 +5,4 @@ python-multipart==0.0.6
 openai==0.28.1
 python-dotenv==1.0.0
 beautifulsoup4==4.12.3
+tiktoken==0.5.2

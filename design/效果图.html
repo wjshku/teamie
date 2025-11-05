@@ -776,6 +776,214 @@
             background: rgba(55, 53, 47, 0.05);
             color: rgba(55, 53, 47, 0.8);
         }
+
+        /* 文件夹结构样式 */
+        .folder-structure {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .folder-item {
+            padding: 4px 8px;
+            margin: 2px 0;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+
+        .folder-item:hover {
+            background: #f0f0f0;
+        }
+
+        .folder-item.folder {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .folder-item.file {
+            padding-left: 24px;
+            color: #666;
+        }
+
+        .folder-item.file.html {
+            color: #007acc;
+        }
+
+        .folder-item.file.html:hover {
+            background: #e6f3ff;
+        }
+
+        .folder-toggle {
+            display: inline-block;
+            width: 12px;
+            margin-right: 4px;
+            transition: transform 0.2s;
+            font-size: 10px;
+            vertical-align: middle;
+        }
+
+        .folder-toggle.collapsed:before {
+            content: "▶";
+            transform: rotate(90deg);
+        }
+
+        .folder-toggle.expanded:before {
+            content: "▶";
+            transform: rotate(180deg);
+        }
+
+        /* Dialog 样式 */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .dialog {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 800px;
+            max-height: 80vh;
+            width: 90%;
+            overflow: hidden;
+            animation: dialogSlideIn 0.2s ease-out;
+        }
+
+        @keyframes dialogSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .dialog-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .dialog-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .dialog-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .dialog-close:hover {
+            background: #eee;
+            color: #666;
+        }
+
+        .dialog-content {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .dialog-content pre {
+            background: #f8f8f8;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .file-info {
+            background: #f0f8ff;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 侧边栏文件夹结构样式 */
+        .sidebar-folder-structure {
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .sidebar-folder-structure .folder-item {
+            padding: 3px 6px;
+            margin: 1px 0;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background-color 0.2s;
+            font-size: 10px;
+        }
+
+        .sidebar-folder-structure .folder-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-folder-structure .folder-item.folder {
+            font-weight: 600;
+            color: #ccc;
+        }
+
+        .sidebar-folder-structure .folder-item.file {
+            padding-left: 16px;
+            color: #999;
+        }
+
+        .sidebar-folder-structure .folder-item.file.html {
+            color: #007acc;
+        }
+
+        .sidebar-folder-structure .folder-item.file.html:hover {
+            background: rgba(0, 122, 204, 0.1);
+        }
+
+        .sidebar-folder-structure .folder-toggle {
+            display: inline-block;
+            width: 8px;
+            margin-right: 2px;
+            transition: transform 0.2s;
+            font-size: 8px;
+        }
+
+        .sidebar-folder-structure .folder-children {
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -783,18 +991,22 @@
         <!-- 左侧导航 -->
         <div class="sidebar">
             <div class="logo">Teamie</div>
-            <div class="nav-item active" onclick="switchNav('import')">导入新项目</div>
+            <div class="nav-item" onclick="switchNav('import')">导入项目</div>
             <div class="nav-item" onclick="switchNav('dashboard')">查看项目进展</div>
-            <div class="project-info" id="projectInfo" style="display: none;">
-                当前项目:<br/>
-                <span id="currentProject">项目 A - Teamie 开发</span>
+            <div class="project-info" id="projectInfo" style="display: block;">
+                <span id="currentProject">项目 A - Teamie 开发</span><br/>
+                <span id="currentPeriod">2025-11-03 至 2025-11-09</span>
+                <!-- 文件夹结构显示 -->
+                <div id="sidebarFolderStructure" class="sidebar-folder-structure" style="margin-top: 12px;">
+                    <!-- 文件夹结构将在这里显示 -->
+                </div>
             </div>
         </div>
         
         <!-- 主内容区 -->
         <div class="main">
             <div class="header">
-                <h2 id="screenTitle">导入新项目</h2>
+                <h2 id="screenTitle">导入项目</h2>
                 <div class="header-right">
                     <span id="headerInfo"></span>
                 </div>
@@ -804,28 +1016,45 @@
                 <!-- 屏幕 1: 导入页面 -->
                 <div id="screen1" class="screen active" style="display: block;">
                     <div class="tabs">
-                        <button class="tab-btn active" onclick="switchScreen(1)">上传文件</button>
+                        <button class="tab-btn active" onclick="switchScreen(1)">导入项目</button>
                     </div>
                     
                     <div class="card">
-                        <div class="card-title">选择 Notion HTML 文件</div>
+                        <div class="card-title">选择 Notion HTML 文件夹</div>
                         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                            <p>📁 拖拽文件或点击选择</p>
-                            <small>支持 Notion 导出的 HTML 文件（含子页面）</small>
-                            <input type="file" id="fileInput" style="display: none;" accept=".html">
+                            <p>📁 拖拽文件夹或点击选择</p>
+                            <small>选择包含 Notion 导出 HTML 文件的文件夹（支持子页面）</small>
+                            <input type="file" id="fileInput" style="display: none;" webkitdirectory multiple accept=".html">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <label for="projectName" style="display: block; font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px;">项目名称</label>
+                            <input type="text" id="projectName" placeholder="输入项目名称" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label for="weekStartDate" style="display: block; font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px;">本周开始日期（周一）</label>
+                            <input type="date" id="weekStartDate" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
                         </div>
                     </div>
                     
                     <div class="card">
-                        <div class="card-title">文件状态</div>
+                        <div class="card-title">文件夹状态</div>
                         <div class="data-item">
-                            <span class="data-label">当前文件</span>
+                            <span class="data-label">当前文件夹</span>
                             <span class="data-value" id="fileName">未选择</span>
+                        </div>
+                        <!-- 文件夹结构预览 -->
+                        <div id="folderStructureCard" style="display: none; margin-top: 16px;">
+                            <div id="folderStructure" class="folder-structure">
+                                <!-- 文件夹结构将在这里动态生成 -->
+                            </div>
                         </div>
                     </div>
                     
                     <div style="display: flex; gap: 12px;">
-                        <button class="btn primary" onclick="simulateUpload()">上传并分析</button>
+                        <button class="btn primary" onclick="handleUpload()">上传并分析</button>
                         <button class="btn" onclick="cancelImport()">取消</button>
                     </div>
                 </div>
@@ -835,7 +1064,7 @@
                     <div style="text-align: center; padding: 60px 20px;">
                         <div class="spinner" style="margin: 0 auto 20px;"></div>
                         <h3 style="margin-bottom: 10px;">处理中...</h3>
-                        <p class="text-muted">正在解析您的 Notion 文件</p>
+                        <p class="text-muted">正在解析您的 Notion 文件夹</p>
                         
                         <div class="card" style="margin-top: 30px; text-align: left;">
                             <div class="data-item">
@@ -1891,7 +2120,7 @@
             } else {
                 projectInfo.style.display = 'none';
                 showScreen('screen1');
-                document.getElementById('screenTitle').textContent = '导入新项目';
+                document.getElementById('screenTitle').textContent = '导入项目';
             }
         }
 
@@ -2600,13 +2829,312 @@
             }
         }
         
+        // 文件夹选择和结构显示功能
         document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                document.getElementById('fileName').textContent = e.target.files[0].name;
+            const files = e.target.files;
+            if (files.length > 0) {
+                const folderPath = files[0].webkitRelativePath.split('/')[0];
+                const htmlFiles = Array.from(files).filter(file => file.name.toLowerCase().endsWith('.html'));
+                document.getElementById('fileName').textContent = `文件夹: ${folderPath} (${htmlFiles.length} 个 HTML 文件)`;
+
+                // 显示文件夹结构
+                displayFolderStructure(files);
+            } else {
+                document.getElementById('fileName').textContent = '未选择';
+                hideFolderStructure();
             }
         });
 
-        // 页面初始化时显示默认项目的数据
+        // 显示文件夹结构
+        function displayFolderStructure(files) {
+            const structureCard = document.getElementById('folderStructureCard');
+            const structureContainer = document.getElementById('folderStructure');
+
+            // 构建文件夹树结构
+            const tree = buildFolderTree(files);
+
+            // 生成HTML
+            structureContainer.innerHTML = generateTreeHTML(tree);
+
+            // 显示结构卡片
+            structureCard.style.display = 'block';
+        }
+
+        // 隐藏文件夹结构
+        function hideFolderStructure() {
+            const structureCard = document.getElementById('folderStructureCard');
+            structureCard.style.display = 'none';
+        }
+
+        // 构建文件夹树结构
+        function buildFolderTree(files) {
+            const tree = {};
+
+            Array.from(files).forEach(file => {
+                const path = file.webkitRelativePath;
+                const parts = path.split('/');
+                let current = tree;
+
+                parts.forEach((part, index) => {
+                    if (!current[part]) {
+                        current[part] = {
+                            type: index === parts.length - 1 ? 'file' : 'folder',
+                            children: {},
+                            file: index === parts.length - 1 ? file : null
+                        };
+                    }
+                    current = current[part].children;
+                });
+            });
+
+            return tree;
+        }
+
+        // 生成树状结构的HTML
+        function generateTreeHTML(tree, prefix = '') {
+            let html = '';
+
+            Object.keys(tree).sort().forEach(name => {
+                const item = tree[name];
+                const isHtmlFile = item.type === 'file' && name.toLowerCase().endsWith('.html');
+                const isFolder = item.type === 'folder';
+
+                if (isFolder) {
+                    // 文件夹
+                    html += `
+                        <div class="folder-item folder" onclick="toggleFolder(this)">
+                            <span class="folder-toggle collapsed"></span>
+                            📁 ${name}
+                        </div>
+                        <div class="folder-children" style="display: none;">
+                            ${generateTreeHTML(item.children, prefix + '  ')}
+                        </div>
+                    `;
+                } else if (isHtmlFile) {
+                    // HTML文件
+                    html += `<div class="folder-item file html" onclick="showFileContent('${name}', this)" data-file="${name}">📄 ${name}</div>`;
+                } else {
+                    // 其他文件
+                    html += `<div class="folder-item file">📄 ${name}</div>`;
+                }
+            });
+
+            return html;
+        }
+
+        // 切换文件夹展开/折叠
+        function toggleFolder(element) {
+            const toggle = element.querySelector('.folder-toggle');
+            const children = element.nextElementSibling;
+
+            if (children.style.display === 'none') {
+                children.style.display = 'block';
+                toggle.classList.remove('collapsed');
+                toggle.classList.add('expanded');
+            } else {
+                children.style.display = 'none';
+                toggle.classList.remove('expanded');
+                toggle.classList.add('collapsed');
+            }
+        }
+
+        // 显示文件内容
+        function showFileContent(filename, element) {
+            // 从element的data属性或其他方式获取文件内容
+            // 这里我们创建一个模拟的文档内容用于演示
+            const mockContent = generateMockContent(filename);
+
+            showDialog(filename, mockContent);
+        }
+
+        // 生成模拟文档内容
+        function generateMockContent(filename) {
+            const baseName = filename.replace('.html', '');
+
+            switch (baseName) {
+                case '原型图':
+                    return `<h1>Teamie 原型图</h1>
+<p>这是 Teamie 项目的原型设计文档。</p>
+
+<h2>核心功能原型</h2>
+<ul>
+    <li>项目列表界面 - 展示所有项目状态</li>
+    <li>周报编辑器 - 结构化输入界面</li>
+    <li>数据可视化 - 图表展示进展</li>
+    <li>文件导入功能 - 支持拖拽上传</li>
+</ul>
+
+<h2>用户流程</h2>
+<p>用户可以快速导入 Notion 文档，系统自动生成结构化周报，支持手动编辑和导出。</p>
+
+<h2>设计理念</h2>
+<p>简洁直观，降低认知负担，提升工作效率。</p>`;
+
+                case '设计图':
+                    return `<h1>Teamie 设计图</h1>
+<p>Teamie 项目的视觉设计系统。</p>
+
+<h2>色彩系统</h2>
+<ul>
+    <li>主色调：深蓝色 (#333)</li>
+    <li>强调色：蓝色 (#007acc)</li>
+    <li>背景色：浅灰 (#fafafa)</li>
+</ul>
+
+<h2>字体层级</h2>
+<ul>
+    <li>H1: 24px, 700weight</li>
+    <li>H2: 18px, 600weight</li>
+    <li>正文: 14px, 400weight</li>
+</ul>
+
+<h2>组件设计</h2>
+<p>卡片式布局，圆角按钮，阴影效果，营造现代感。</p>
+
+<h2>响应式设计</h2>
+<p>支持桌面端和移动端自适应布局。</p>`;
+
+                case '产品文档':
+                    return `<h1>Teamie 产品文档</h1>
+<p>Teamie 项目的完整产品说明文档。</p>
+
+<h2>产品概述</h2>
+<p>Teamie 是一款专为科研创业者设计的项目管理工具，帮助用户在一个界面中快速了解各项目的整体进展。</p>
+
+<h2>核心功能</h2>
+<ul>
+    <li>Notion 文档导入 - 自动解析项目内容</li>
+    <li>周进展分析 - 基于6个维度生成报告</li>
+    <li>项目视图 - 统一的项目管理界面</li>
+    <li>AI 辅助分析 - 智能生成结构化内容</li>
+</ul>
+
+<h2>目标用户</h2>
+<p>科研工作者、创业者、多项目并行工作者。</p>
+
+<h2>技术架构</h2>
+<p>前端 Vue.js，后端 FastAPI，AI 集成 OpenAI GPT-4，本地数据存储。</p>
+
+<h2>使用流程</h2>
+<p>导入 → 分析 → 查看 → 编辑 → 导出，形成完整的项目管理闭环。</p>`;
+
+                default:
+                    return `<h1>${baseName}</h1>
+<p>这是 ${filename} 的内容预览。</p>
+
+<h2>主要内容</h2>
+<ul>
+    <li>项目概述</li>
+    <li>技术方案</li>
+    <li>实施计划</li>
+    <li>风险评估</li>
+</ul>
+
+<h2>详细信息</h2>
+<p>这里包含了详细的项目文档内容，包括：</p>
+<ul>
+    <li>背景介绍</li>
+    <li>目标设定</li>
+    <li>实施方案</li>
+    <li>预期成果</li>
+</ul>
+
+<h2>总结</h2>
+<p>本项目预计在完成所有既定目标后，将为团队带来显著的价值提升。</p>`;
+            }
+        }
+
+        // 显示对话框
+        function showDialog(title, content) {
+            // 移除已存在的对话框
+            const existingDialog = document.querySelector('.dialog-overlay');
+            if (existingDialog) {
+                existingDialog.remove();
+            }
+
+            // 创建对话框HTML
+            const dialogHTML = `
+                <div class="dialog-overlay" onclick="closeDialog()">
+                    <div class="dialog" onclick="event.stopPropagation()">
+                        <div class="dialog-header">
+                            <h3 class="dialog-title">${title}</h3>
+                            <button class="dialog-close" onclick="closeDialog()">×</button>
+                        </div>
+                        <div class="dialog-content">
+                            <div>
+                                ${content}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加到页面
+            document.body.insertAdjacentHTML('beforeend', dialogHTML);
+        }
+
+        // 关闭对话框
+        function closeDialog() {
+            const dialog = document.querySelector('.dialog-overlay');
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        // 显示侧边栏文件夹结构（简化版）
+        // 显示侧边栏文件夹结构（简化版）
+        function displaySidebarFolderStructure(files) {
+            const sidebarContainer = document.getElementById('sidebarFolderStructure');
+
+            // 构建文件夹树结构
+            const tree = buildFolderTree(files);
+
+            // 生成简化版的HTML（只显示文件名，不支持展开/折叠）
+            let html = '';
+
+            Object.keys(tree).forEach(folderName => {
+                const folderItem = tree[folderName];
+                if (folderItem.type === 'folder') {
+                    html += `<div class="folder-item folder">📁 ${folderName}</div>`;
+
+                    // 显示该文件夹下的所有HTML文件
+                    Object.keys(folderItem.children).forEach(fileName => {
+                        const fileItem = folderItem.children[fileName];
+                        if (fileItem.type === 'file' && fileName.toLowerCase().endsWith('.html')) {
+                            html += `<div class="folder-item file html" onclick="showFileContent('${fileName}', this)" data-file="${fileName}">📄 ${fileName.replace('.html', '')}</div>`;
+                        }
+                    });
+                }
+            });
+
+            sidebarContainer.innerHTML = html;
+        }
+
+        // 创建mock文件数据
+        function createMockFiles() {
+            return [
+                {
+                    name: '原型图.html',
+                    webkitRelativePath: 'Teamie Oct 20 - 26/原型图.html',
+                    size: 1024,
+                    type: 'text/html'
+                },
+                {
+                    name: '设计图.html',
+                    webkitRelativePath: 'Teamie Oct 20 - 26/设计图.html',
+                    size: 2048,
+                    type: 'text/html'
+                },
+                {
+                    name: '产品文档.html',
+                    webkitRelativePath: 'Teamie Oct 20 - 26/产品文档.html',
+                    size: 3072,
+                    type: 'text/html'
+                }
+            ];
+        }
+
+        // 页面初始化时显示默认项目的数据和mock文件夹结构
         document.addEventListener('DOMContentLoaded', function() {
             currentProject = '项目 A - Teamie 开发';
             currentWeek = 1;
@@ -2616,6 +3144,16 @@
             isEditMode = false;
             const container = document.querySelector('.container');
             container.classList.remove('edit-mode');
+
+            // 显示mock文件夹结构
+            const mockFiles = createMockFiles();
+            displayFolderStructure(mockFiles);
+
+            // 显示侧边栏文件夹结构
+            displaySidebarFolderStructure(mockFiles);
+
+            // 更新文件夹状态显示
+            document.getElementById('fileName').textContent = '文件夹: Teamie Oct 20 - 26 (3 个 HTML 文件)';
         });
     </script>
 </body>
