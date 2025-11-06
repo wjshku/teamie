@@ -302,7 +302,13 @@ class DataManager:
         # filename 可能包含文件夹路径，如 "其他文档/file.html"
         filepath = os.path.join(week_dir, filename.replace('/', os.sep))
 
+        logger.debug(f"Looking for file: {filepath}")
+        logger.debug(f"Week dir: {week_dir}")
+        logger.debug(f"Filename: {filename}")
+        logger.debug(f"Filepath exists: {os.path.exists(filepath)}")
+
         if not os.path.exists(filepath):
+            logger.warning(f"File not found: {filepath}")
             return None
 
         try:

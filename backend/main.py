@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, Response
@@ -46,20 +46,11 @@ data_dir = os.getenv("DATA_DIR", "data")
 data_manager = DataManager(data_dir)
 ai_analyzer = AIAnalyzer()
 
-# 模型配置表（tokens/秒）
-MODEL_CONFIG = {
-    "gpt-4o-mini": {
-        "tokens_per_second": 1000,
-        "encoding_model": "gpt-4"
-    },
-    "gpt-5-nano": {
-        "tokens_per_second": 600,
-        "encoding_model": "gpt-4" 
-    }
-}
+# 从 config 模块导入模型配置
+from config import MODEL_CONFIG, get_current_model, get_available_models
 
-# 当前使用的模型（可通过环境变量配置）
-CURRENT_MODEL = os.getenv("AI_MODEL", "gpt-5-nano")
+# 当前使用的模型（从配置文件读取）
+CURRENT_MODEL = get_current_model()
 
 def get_model_config(model_name: str = None) -> dict:
     """获取模型配置"""
@@ -67,8 +58,8 @@ def get_model_config(model_name: str = None) -> dict:
         model_name = CURRENT_MODEL
     
     if model_name not in MODEL_CONFIG:
-        logger.warning(f"模型 {model_name} 不在配置表中，使用默认模型 gpt-5-nano")
-        model_name = "gpt-5-nano"
+        logger.warning(f"模型 {model_name} 不在配置表中，使用默认模型")
+        model_name = get_current_model()
     
     return MODEL_CONFIG[model_name]
 
@@ -76,6 +67,24 @@ def get_tokens_per_second(model_name: str = None) -> float:
     """获取模型的处理速度（tokens/秒）"""
     config = get_model_config(model_name)
     return config["tokens_per_second"]
+
+def estimate_prompt_tokens(file_contents: list, previous_week_plan: Optional[list] = None) -> int:
+    """估算发送给AI的prompt的token数量"""
+    estimated_tokens = 0
+
+    # 系统prompt长度（粗略估算）
+    estimated_tokens += 1000  # 系统prompt大约1000 tokens
+
+    # 文件内容长度
+    total_content_length = sum(len(item['content']) for item in file_contents)
+    # 简单估算：1字符 ≈ 0.3 tokens（中文和英文混合）
+    estimated_tokens += int(total_content_length * 0.3)
+
+    # 如果有上周计划，增加额外tokens
+    if previous_week_plan and len(previous_week_plan) > 0:
+        estimated_tokens += len(previous_week_plan) * 50  # 每项计划大约50 tokens
+
+    return estimated_tokens
 
 # 初始化 tiktoken 编码器（用于计算 token 数量）
 def get_token_count(text: str, model_name: str = None) -> int:
@@ -114,8 +123,10 @@ async def process_files_in_background(project_id: str, file_contents: list, week
 
         # 分析文件内容生成报告
         logger.info("正在分析文件内容...")
-        week_data = ai_analyzer.analyze_html_contents(project_id, file_contents)
+        analysis_result = ai_analyzer.analyze_html_contents(project_id, file_contents)
+        week_data = analysis_result['week_data']
         logger.info("文件内容分析完成")
+        logger.info(f"AI分析统计: prompt长度={analysis_result['prompt_length']}, prompt_tokens={analysis_result['prompt_tokens']}, completion_tokens={analysis_result['completion_tokens']}, total_tokens={analysis_result['total_tokens']}")
 
         # 设置周期间隔（基于用户选择的日期）
         if week_start_date:
@@ -450,7 +461,7 @@ def get_project_week_files(project_id: str, week: int):
         logger.error(f"错误详情: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"获取文件列表失败: {str(e)}")
 
-@app.get("/api/projects/{project_id}/week/{week}/files/{filename}")
+@app.get("/api/projects/{project_id}/week/{week}/files/{filename:path}")
 def get_project_week_file_content(project_id: str, week: int, filename: str):
     """获取项目指定周的单个文件内容"""
     logger.info(f"获取项目 {project_id} 第 {week} 周的文件 {filename} 内容")
@@ -491,13 +502,16 @@ def get_project_week_file_content(project_id: str, week: int, filename: str):
 
 @app.post("/api/projects/{project_id}/analyze-next-week")
 async def analyze_next_week(
-    project_id: str, 
-    html_content: str = None, 
-    files: List[UploadFile] = File(None),
-    file_paths: List[str] = Form(None)  # 文件路径信息列表
+    request: Request,
+    project_id: str,
+    html_content: str = Form(None),
+    file_paths: List[str] = Form(None),  # 文件路径信息列表
+    update_current_week: str = Form("false"),  # 是否更新当前周（而不是创建新周）
+    week_start_date: str = Form(None),  # 周开始日期
+    files: List[UploadFile] = File(None)
 ):
     """分析新一周的进展（支持多文件，保持文件夹结构）"""
-    logger.info(f"开始分析项目 {project_id} 的新一周进展")
+    logger.info(f"开始分析项目 {project_id} 的新一周进展, week_start_date: {repr(week_start_date)}")
 
     try:
         # 获取上一周的数据（用于上下文）
@@ -510,9 +524,29 @@ async def analyze_next_week(
         current_week = max(project.weeks.keys()) if project.weeks else 0
         previous_week_plan = None
 
+        # 判断是更新当前周还是创建新周
+        is_update_current = update_current_week.lower() == "true"
+        target_week = current_week if is_update_current else (current_week + 1)
+
         if current_week > 0 and project.weeks.get(current_week):
             previous_week_plan = project.weeks[current_week].next_week_plan
             logger.info(f"找到上一周({current_week})的计划数据")
+
+        # 如果是更新当前周，需要获取已有的文件内容
+        existing_file_contents = []
+        if is_update_current and current_week > 0:
+            logger.info(f"更新当前周({current_week})，获取已有文件...")
+            # 获取当前周的所有文件
+            existing_files = data_manager.get_files(project_id, current_week)
+            for file_path in existing_files:
+                content = data_manager.get_file_content_by_name(project_id, current_week, file_path)
+                if content:
+                    existing_file_contents.append({
+                        'filename': file_path.split('/')[-1],
+                        'content': content,
+                        'relative_path': file_path
+                    })
+            logger.info(f"找到 {len(existing_file_contents)} 个已有文件")
 
         # 处理文件路径信息（如果有）
         path_map = {}
@@ -522,8 +556,8 @@ async def analyze_next_week(
                     path_map[i] = path
 
         # 处理输入：支持单文件字符串或多文件上传
-        file_contents = []
-        new_week = current_week + 1
+        file_contents = existing_file_contents.copy()  # 先复制已有文件
+        new_week = target_week
         supported_extensions = ('.html', '.htm', '.txt', '.md')
 
         file_index = 0
@@ -569,25 +603,86 @@ async def analyze_next_week(
         if not file_contents:
             raise HTTPException(status_code=400, detail="未找到有效的文件（支持 html/txt/md 格式）")
 
-        logger.info(f"共处理 {len(file_contents)} 个文件")
+        logger.info(f"共处理 {len(file_contents)} 个文件（其中 {len(existing_file_contents)} 个已有文件，{len(file_contents) - len(existing_file_contents)} 个新文件）")
 
-        # 分析新一周数据
-        logger.info(f"正在分析第 {new_week} 周的数据")
-        week_data = ai_analyzer.analyze_html_contents(project_id, file_contents, previous_week_plan)
-        logger.info("新一周数据分析完成")
+        # 在调用AI前估算token数量
+        estimated_prompt_tokens = estimate_prompt_tokens(file_contents, previous_week_plan)
+        estimated_time_seconds = estimated_prompt_tokens / 600  # 假设600 tokens/s
 
-        # 保存数据
-        logger.info(f"正在保存第 {new_week} 周的数据")
-        data_manager.update_week_data(project_id, new_week, week_data)
-        logger.info(f"第 {new_week} 周数据保存成功")
+        logger.info(f"估算的prompt tokens: {estimated_prompt_tokens}, 预计处理时间: {estimated_time_seconds:.2f}秒")
 
+        # 获取现有数据（如果是更新当前周）
+        existing_week_data = None
+        if is_update_current:
+            existing_week_data = data_manager.get_week_data(project_id, new_week)
+            logger.info(f"更新当前周，获取现有数据: week_period={repr(existing_week_data.week_period if existing_week_data else None)}")
+
+        # 分析数据
+        action_text = "更新" if is_update_current else "分析"
+        logger.info(f"正在{action_text}第 {new_week} 周的数据")
+        analysis_result = ai_analyzer.analyze_html_contents(project_id, file_contents, previous_week_plan)
+        week_data = analysis_result['week_data']
+        logger.info(f"第 {new_week} 周数据{action_text}完成")
+        logger.info(f"AI分析统计: prompt长度={analysis_result['prompt_length']}, prompt_tokens={analysis_result['prompt_tokens']}, completion_tokens={analysis_result['completion_tokens']}, total_tokens={analysis_result['total_tokens']}")
+
+        # 设置周期间隔 - 详细调试信息
+        logger.info(f"🔍 设置周期间隔 - 开始调试:")
+        logger.info(f"   is_update_current: {is_update_current}")
+        logger.info(f"   existing_week_data 存在: {existing_week_data is not None}")
+        if existing_week_data:
+            logger.info(f"   existing_week_data.week_period: {repr(existing_week_data.week_period)}")
+        logger.info(f"   week_start_date: {repr(week_start_date)}")
+        logger.info(f"   new_week: {new_week}")
+
+        if is_update_current and existing_week_data and existing_week_data.week_period:
+            # 更新当前周时保留现有的周期间隔
+            week_data.week_period = existing_week_data.week_period
+            logger.info(f"✅ 保留现有周期间隔: {week_data.week_period}")
+        else:
+            # 创建新周时设置周期间隔（前端保证传递有效的日期）
+            logger.info(f"🔄 创建新周，准备解析日期: {repr(week_start_date)}")
+            try:
+                clean_date = week_start_date.strip()
+                logger.info(f"   清理后的日期: {repr(clean_date)}")
+                start_date = datetime.fromisoformat(clean_date)
+                logger.info(f"   解析后的 start_date: {start_date}")
+                end_date = start_date + timedelta(days=6)  # 周一到周日
+                logger.info(f"   计算后的 end_date: {end_date}")
+                week_data.week_period = f"{start_date.strftime('%Y-%m-%d')} 至 {end_date.strftime('%Y-%m-%d')}"
+                logger.info(f"✅ 设置第 {new_week} 周期间隔: {week_data.week_period}")
+            except Exception as e:
+                logger.error(f"❌ 日期解析失败: week_start_date={repr(week_start_date)}, 错误: {str(e)}")
+                logger.error(f"   错误详情: {traceback.format_exc()}")
+                week_data.week_period = None
+
+        logger.info(f"📊 设置周期间隔 - 最终结果: week_data.week_period = {repr(week_data.week_period)}")
+
+        # 将统计信息添加到响应中（使用实际的统计数据）
         result = {
             "success": True,
-            "message": f"第{new_week}周分析完成",
+            "message": f"第{new_week}周{action_text}完成",
             "week": new_week,
-            "data": week_data.dict()
+            "data": week_data.dict(),
+            "week_period": week_data.week_period,
+            "prompt_length": analysis_result['prompt_length'],
+            "prompt_tokens": analysis_result['prompt_tokens'],
+            "completion_tokens": analysis_result['completion_tokens'],
+            "total_tokens": analysis_result['total_tokens']
         }
-        logger.info(f"项目 {project_id} 第 {new_week} 周分析完成")
+
+        # 保存数据
+        logger.info(f"💾 保存前检查: week_data.week_period = {repr(week_data.week_period)}")
+        data_manager.update_week_data(project_id, new_week, week_data)
+        logger.info(f"项目 {project_id} 第 {new_week} 周{action_text}完成")
+
+        # 验证保存结果
+        saved_data = data_manager.get_week_data(project_id, new_week)
+        if saved_data:
+            logger.info(f"✅ 保存后验证: saved_data.week_period = {repr(saved_data.week_period)}")
+            if saved_data.week_period != week_data.week_period:
+                logger.error(f"❌ 数据不一致! 内存中: {repr(week_data.week_period)}, 保存后: {repr(saved_data.week_period)}")
+        else:
+            logger.error(f"❌ 保存失败! 无法获取保存的数据")
         return result
 
     except HTTPException:
@@ -632,6 +727,49 @@ async def delete_week_data(project_id: str, week: int):
         logger.error(f"删除周数据失败: {str(e)}")
         logger.error(f"错误详情: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"删除失败: {str(e)}")
+
+@app.get("/api/models")
+async def get_models():
+    """获取所有可用的模型列表和当前使用的模型"""
+    try:
+        available_models = get_available_models()
+        current_model = get_current_model()
+        return {
+            "success": True,
+            "available_models": available_models,
+            "current_model": current_model
+        }
+    except Exception as e:
+        logger.error(f"获取模型列表失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"获取模型列表失败: {str(e)}")
+
+@app.post("/api/models/{model_id}")
+async def set_model(model_id: str):
+    """设置当前使用的模型"""
+    try:
+        from config import set_current_model
+        
+        if model_id not in MODEL_CONFIG:
+            raise HTTPException(status_code=400, detail=f"模型 {model_id} 不在配置表中")
+        
+        set_current_model(model_id)
+        
+        # 更新全局变量
+        global CURRENT_MODEL
+        CURRENT_MODEL = model_id
+        
+        logger.info(f"模型已切换为: {model_id}")
+        
+        return {
+            "success": True,
+            "message": f"模型已切换为 {model_id}",
+            "current_model": model_id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"设置模型失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"设置模型失败: {str(e)}")
 
 # 挂载前端文件（必须在所有API路由之后）
 # 在开发环境中禁用缓存，确保每次都获取最新内容

@@ -7,7 +7,7 @@ import openai
 from dotenv import load_dotenv
 from models import WeekData, NextWeekPlan
 from data_manager import DataManager
-from config import AI_MODEL
+from config import get_current_model
 
 logger = logging.getLogger(__name__)
 
@@ -152,8 +152,8 @@ class AIAnalyzer:
             logger.error(f"JSON提取过程中发生错误: {str(e)}")
             return text
 
-    def analyze_html_contents(self, project_id: str, file_contents: list, previous_week_plan: Optional[list] = None) -> WeekData:
-        """分析多个文件内容生成周报（支持 html/txt/md）"""
+    def analyze_html_contents(self, project_id: str, file_contents: list, previous_week_plan: Optional[list] = None) -> Dict[str, Any]:
+        """分析多个文件内容生成周报（支持 html/txt/md），返回包含WeekData和统计信息的字典"""
         logger.info(f"开始分析项目 {project_id} 的 {len(file_contents)} 个文件")
 
         # 提取所有文件的文本内容并合并
@@ -164,7 +164,7 @@ class AIAnalyzer:
             filename = file_item['filename']
             content = file_item['content']
             file_summaries.append(f"文件 {i+1}: {filename} ({len(content)} 字符)")
-            
+
             # 根据文件格式提取文本
             text_content = self._extract_text_from_file(content, filename)
             merged_text_content += f"\n\n=== 文件: {filename} ===\n{text_content}"
@@ -175,8 +175,8 @@ class AIAnalyzer:
         # 使用原有的单文件分析逻辑
         return self.analyze_html_content(project_id, merged_text_content, previous_week_plan)
 
-    def analyze_html_content(self, project_id: str, text_content: str, previous_week_plan: Optional[list] = None) -> WeekData:
-        """分析文本内容生成周报（text_content 应该是已提取的纯文本）"""
+    def analyze_html_content(self, project_id: str, text_content: str, previous_week_plan: Optional[list] = None) -> Dict[str, Any]:
+        """分析文本内容生成周报（text_content 应该是已提取的纯文本），返回包含WeekData和统计信息的字典"""
         logger.info(f"开始分析项目 {project_id} 的文本内容")
         logger.debug(f"文本内容长度: {len(text_content)} 字符")
 
@@ -205,22 +205,48 @@ class AIAnalyzer:
             logger.info("这是首次汇报，没有上一周数据")
             user_prompt += "这是首次汇报，没有上周数据。\n"
 
+        # 计算prompt的总长度（字符数）
+        total_prompt_length = len(system_prompt) + len(user_prompt)
+        logger.info(f"发送给AI的总prompt长度: {total_prompt_length} 字符")
+
         try:
             logger.info("正在调用OpenAI API进行分析")
             self._ensure_initialized()
 
-            response = openai.ChatCompletion.create(
-                model=AI_MODEL,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=6000
-            )
+            # 从配置文件获取当前使用的模型
+            current_model = get_current_model()
+            logger.info(f"使用模型: {current_model}")
+
+            if current_model == "gpt-5-nano":
+                response = openai.ChatCompletion.create(
+                    model=current_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    max_completion_tokens=6000
+                )
+            else:
+                response = openai.ChatCompletion.create(
+                    model=current_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    max_tokens=6000
+                )
 
             result_text = response.choices[0].message.content.strip()
             logger.info("OpenAI API调用成功")
             logger.debug(f"API响应长度: {len(result_text)} 字符")
+
+            # 获取token使用统计
+            usage = response.get('usage', {})
+            prompt_tokens = usage.get('prompt_tokens', 0)
+            completion_tokens = usage.get('completion_tokens', 0)
+            total_tokens = usage.get('total_tokens', 0)
+
+            logger.info(f"OpenAI API token使用统计: prompt={prompt_tokens}, completion={completion_tokens}, total={total_tokens}")
 
             # 尝试解析JSON
             try:
@@ -233,7 +259,14 @@ class AIAnalyzer:
                 week_data = WeekData(**result_data)
                 logger.info("WeekData对象创建成功")
 
-                return week_data
+                # 返回包含WeekData和统计信息的字典
+                return {
+                    'week_data': week_data,
+                    'prompt_length': total_prompt_length,
+                    'prompt_tokens': prompt_tokens,
+                    'completion_tokens': completion_tokens,
+                    'total_tokens': total_tokens
+                }
 
             except json.JSONDecodeError as e:
                 logger.error(f"JSON解析错误: {e}")
@@ -242,7 +275,13 @@ class AIAnalyzer:
                 logger.error(f"原始响应内容后200字符: {result_text[-200:]}...")
                 # 返回默认数据
                 logger.warning("JSON解析失败，返回默认的WeekData对象")
-                return WeekData()
+                return {
+                    'week_data': WeekData(),
+                    'prompt_length': total_prompt_length,
+                    'prompt_tokens': prompt_tokens,
+                    'completion_tokens': completion_tokens,
+                    'total_tokens': total_tokens
+                }
 
         except Exception as e:
             logger.error(f"调用OpenAI API时发生错误: {str(e)}")
@@ -250,7 +289,13 @@ class AIAnalyzer:
             import traceback
             logger.error(f"完整堆栈跟踪: {traceback.format_exc()}")
             logger.warning("返回默认的WeekData对象")
-            return WeekData()
+            return {
+                'week_data': WeekData(),
+                'prompt_length': 0,
+                'prompt_tokens': 0,
+                'completion_tokens': 0,
+                'total_tokens': 0
+            }
 
     def update_week_data_with_plan(self, week_data: WeekData, next_week_plan: list) -> WeekData:
         """用用户输入的next_week_plan更新周数据"""
