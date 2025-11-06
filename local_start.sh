@@ -49,9 +49,9 @@ echo "✅ 项目结构正确"
 cd "$BACKEND_DIR"
 
 # 创建数据目录（使用环境变量或默认值）
-DATA_DIR="${DATA_DIR:-../data}"
+DATA_DIR="${DATA_DIR:-data}"
 echo "📁 数据目录: $DATA_DIR"
-# 不创建目录，因为数据目录应该在项目根目录
+# 数据目录相对于后端目录
 
 # 检查 .env 文件
 if [ ! -f ".env" ]; then
@@ -66,7 +66,7 @@ HOST=0.0.0.0
 PORT=8000
 
 # 数据存储配置
-DATA_DIR=../data
+DATA_DIR=data
 EOF
     echo "📝 已创建 .env 文件"
     echo "⚠️  请编辑 .env 文件并设置你的 OpenAI API Key"
