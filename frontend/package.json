@@ -1,0 +1,20 @@
+{
+  "name": "teamie-frontend",
+  "version": "1.0.0",
+  "description": "Teamie project management tool frontend",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'No build step required for vanilla JS'",
+    "start": "npx http-server -p 3000",
+    "dev": "npx http-server -p 3000 -o"
+  },
+  "dependencies": {
+    "notion-to-html": "^0.1.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "keywords": ["notion", "markdown", "project-management"],
+  "author": "Teamie Team",
+  "license": "MIT"
+}

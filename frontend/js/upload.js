@@ -230,10 +230,42 @@ function generateTreeHTML(tree, prefix = '') {
             const fileData = item.file;
             const isManual = fileData && fileData.isManual;
             const fileItemAttr = isManual ? `data-file-item='${JSON.stringify(fileData).replace(/'/g, "&apos;")}'` : '';
-            html += `<div class="folder-item file html" onclick="showFileContent('${name}', this)" data-file="${name}" ${fileItemAttr} title="${name}">📄 ${displayName}</div>`;
+
+            // 为手动文档添加编辑和删除按钮
+            const actionButtons = isManual ? `
+                <div class="file-actions">
+                    <button class="file-action-btn edit-btn" onclick="editManualDocument('${name}', event)" title="编辑文档">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                    <button class="file-action-btn delete-btn" onclick="deleteManualDocument('${name}', event)" title="删除文档">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                    </button>
+                </div>
+            ` : '';
+
+            html += `<div class="folder-item file html" onclick="showFileContent('${name}', this)" data-file="${name}" ${fileItemAttr} title="${name}">
+                <div class="file-info">
+                    <span class="file-icon">📄</span>
+                    <span class="file-name">${displayName}</span>
+                </div>
+                ${actionButtons}
+            </div>`;
         } else {
-            // 其他文件
-            html += `<div class="folder-item file">📄 ${name}</div>`;
+            // 其他文件（不支持编辑删除）
+            html += `<div class="folder-item file">
+                <div class="file-info">
+                    <span class="file-icon">📄</span>
+                    <span class="file-name">${name}</span>
+                </div>
+            </div>`;
         }
     });
 
@@ -256,6 +288,79 @@ function toggleFolder(element) {
     }
 }
 
+// 检测内容是否为 markdown 格式
+function isMarkdown(content) {
+    // 检查 markdown 的典型特征
+    const markdownPatterns = [
+        /^#{1,6}\s+.+$/m,  // 标题 (# ## ###)
+        /\*\*.*?\*\*/,      // 粗体 (**text**)
+        /\*.*?\*/,          // 斜体 (*text*)
+        /^[-*+]\s+.+$/m,    // 无序列表 (- item)
+        /^\d+\.\s+.+$/m,    // 有序列表 (1. item)
+        /`.*?`/,            // 行内代码 (`code`)
+        /^```[\s\S]*?```$/m, // 代码块 (```code```)
+        /\[.*?\]\(.*?\)/,    // 链接 ([text](url))
+        /!\[.*?\]\(.*?\)/,   // 图片 (![alt](url))
+    ];
+
+    return markdownPatterns.some(pattern => pattern.test(content));
+}
+
+// Notion 风格的 HTML 后处理
+function notionifyHTML(html) {
+    return html
+        // 任务列表处理 - 创建更好的 HTML 结构
+        .replace(/<li>\[ \] (.*?)<\/li>/g, '<li class="task-list-item"><input type="checkbox">$1</li>')
+        .replace(/<li>\[x\] (.*?)<\/li>/gi, '<li class="task-list-item"><input type="checkbox" checked>$1</li>')
+        .replace(/<li>\[X\] (.*?)<\/li>/g, '<li class="task-list-item"><input type="checkbox" checked>$1</li>')
+        // 优化引用块样式
+        .replace(/<blockquote>/g, '<blockquote class="notion-quote">')
+        // 优化代码块
+        .replace(/<pre><code>/g, '<pre class="notion-code-block"><code>')
+        .replace(/<\/code><\/pre>/g, '</code></pre>')
+        // 确保段落有适当的间距
+        .replace(/<p>/g, '<p class="notion-paragraph">')
+        // 优化列表
+        .replace(/<ul>/g, '<ul class="notion-list">')
+        .replace(/<ol>/g, '<ol class="notion-list">')
+        // 优化表格
+        .replace(/<table>/g, '<table class="notion-table">')
+        .replace(/<th>/g, '<th class="notion-table-header">')
+        .replace(/<td>/g, '<td class="notion-table-cell">');
+}
+
+// 解析内容（支持 markdown）
+async function parseContent(content) {
+    if (typeof marked !== 'undefined' && isMarkdown(content)) {
+        // 配置 marked 选项，模拟 Notion 风格
+        marked.setOptions({
+            breaks: true,      // 转换换行为 <br>
+            gfm: true,         // 启用 GitHub 风格 markdown
+            headerIds: false,  // 不生成标题 ID
+            mangle: false,     // 不转义 HTML
+            smartLists: true,  // 智能列表
+            smartypants: true  // 智能标点
+        });
+
+        // 处理 marked 库的新版本（返回 Promise）
+        try {
+            const result = await marked.parse(content);
+            // 确保返回的是字符串
+            if (typeof result === 'string') {
+                // 应用 Notion 风格的后处理
+                return notionifyHTML(result);
+            } else {
+                console.warn('Markdown 解析返回非字符串结果，使用原始内容');
+                return content;
+            }
+        } catch (error) {
+            console.warn('Markdown 解析失败，使用原始内容:', error);
+            return content;
+        }
+    }
+    return content;
+}
+
 // 显示文件内容
 function showFileContent(filename, element) {
     // 使用清理后的显示名称
@@ -270,7 +375,9 @@ function showFileContent(filename, element) {
         });
 
         if (manualDoc) {
-            showDialog(displayName, manualDoc.content);
+            parseContent(manualDoc.content).then(parsedContent => {
+                showDialog(displayName, parsedContent);
+            });
             return;
         }
     }
@@ -284,6 +391,14 @@ function showFileContent(filename, element) {
         const reader = new FileReader();
         reader.onload = function(e) {
             showDialog(displayName, e.target.result);
+        };
+        reader.readAsText(file);
+    } else if (file && (filename.toLowerCase().endsWith('.md') || filename.toLowerCase().endsWith('.txt'))) {
+        // 支持 .md 和 .txt 文件的 markdown 解析
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const parsedContent = await parseContent(e.target.result);
+            showDialog(displayName, parsedContent);
         };
         reader.readAsText(file);
     } else {
@@ -612,5 +727,150 @@ async function handleUpload() {
             status: '上传失败: ' + error.message
         });
         showToast('上传失败: ' + error.message, 'error');
+    }
+}
+
+// 编辑手动文档
+function editManualDocument(filename, event) {
+    event.stopPropagation(); // 阻止事件冒泡，避免触发文件预览
+
+    // 找到对应的手动文档
+    const fileNameWithoutExt = filename.replace(/\.(html|htm|txt|md)$/i, '');
+    const manualDoc = manualDocuments.find(doc => {
+        const docFileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+        return docFileName === fileNameWithoutExt;
+    });
+
+    if (!manualDoc) {
+        showToast('未找到文档', 'error');
+        return;
+    }
+
+    // 显示编辑对话框
+    showEditDocumentDialog(manualDoc, filename);
+}
+
+// 删除手动文档
+function deleteManualDocument(filename, event) {
+    event.stopPropagation(); // 阻止事件冒泡
+
+    // 确认删除
+    if (!confirm(`确定要删除文档 "${filename}" 吗？此操作不可撤销。`)) {
+        return;
+    }
+
+    // 找到并删除文档
+    const fileNameWithoutExt = filename.replace(/\.(html|htm|txt|md)$/i, '');
+    const docIndex = manualDocuments.findIndex(doc => {
+        const docFileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+        return docFileName === fileNameWithoutExt;
+    });
+
+    if (docIndex !== -1) {
+        manualDocuments.splice(docIndex, 1);
+        showToast('文档已删除', 'success');
+
+        // 重新显示文件夹结构
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            displayFolderStructure(fileInput.files);
+        } else if (manualDocuments.length > 0) {
+            // 如果只有手动文档，创建一个空的树结构来显示手动文档
+            const tree = {};
+            displayFolderStructure([]);
+        } else {
+            hideFolderStructure();
+        }
+    } else {
+        showToast('删除失败：未找到文档', 'error');
+    }
+}
+
+// 显示编辑文档对话框
+function showEditDocumentDialog(doc, filename) {
+    // 移除已存在的对话框
+    const existingDialog = document.querySelector('.dialog-overlay');
+    if (existingDialog) {
+        existingDialog.remove();
+    }
+
+    const dialogHTML = `
+        <div class="dialog-overlay" onclick="closeEditDocumentDialog()">
+            <div class="dialog" onclick="event.stopPropagation()" style="max-width: 800px; max-height: 80vh;">
+                <div class="dialog-header">
+                    <h3 class="dialog-title">编辑文档</h3>
+                    <button class="dialog-close" onclick="closeEditDocumentDialog()">×</button>
+                </div>
+                <div class="dialog-content" style="padding: 20px;">
+                    <div class="dialog-form">
+                        <div class="form-group">
+                            <label for="editDocTitle" style="display: block; margin-bottom: 8px; font-weight: 600;">文档标题</label>
+                            <input type="text" id="editDocTitle" value="${doc.title}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label for="editDocContent" style="display: block; margin-bottom: 8px; font-weight: 600;">文档内容</label>
+                            <textarea id="editDocContent" style="width: 100%; height: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; resize: vertical;">${doc.content}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="dialog-actions" style="padding: 16px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 12px;">
+                    <button class="btn" onclick="closeEditDocumentDialog()">取消</button>
+                    <button class="btn primary" onclick="saveEditedDocument('${filename}')">保存</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', dialogHTML);
+}
+
+// 关闭编辑文档对话框
+function closeEditDocumentDialog() {
+    const dialog = document.querySelector('.dialog-overlay');
+    if (dialog) {
+        dialog.remove();
+    }
+}
+
+// 保存编辑后的文档
+function saveEditedDocument(originalFilename) {
+    const newTitle = document.getElementById('editDocTitle').value.trim();
+    const newContent = document.getElementById('editDocContent').value.trim();
+
+    if (!newTitle) {
+        showToast('请输入文档标题', 'error');
+        return;
+    }
+
+    if (!newContent) {
+        showToast('请输入文档内容', 'error');
+        return;
+    }
+
+    // 找到并更新文档
+    const fileNameWithoutExt = originalFilename.replace(/\.(html|htm|txt|md)$/i, '');
+    const docIndex = manualDocuments.findIndex(doc => {
+        const docFileName = doc.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+        return docFileName === fileNameWithoutExt;
+    });
+
+    if (docIndex !== -1) {
+        manualDocuments[docIndex] = {
+            title: newTitle,
+            content: newContent
+        };
+
+        showToast('文档已保存', 'success');
+        closeEditDocumentDialog();
+
+        // 重新显示文件夹结构
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            displayFolderStructure(fileInput.files);
+        } else if (manualDocuments.length > 0) {
+            displayFolderStructure([]);
+        }
+    } else {
+        showToast('保存失败：未找到文档', 'error');
     }
 }
