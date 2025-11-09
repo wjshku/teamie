@@ -68,10 +68,11 @@ def get_tokens_per_second(model_name: str = None) -> float:
     config = get_model_config(model_name)
     return config["tokens_per_second"]
 
-def estimate_prompt_tokens(file_contents: list, previous_week_plan: Optional[list] = None) -> int:
-    """估算发送给AI的prompt的token数量"""
+def estimate_total_tokens(file_contents: list, previous_week_plan: Optional[list] = None) -> int:
+    """估算AI调用的总token数量（包括prompt + completion）"""
     estimated_tokens = 0
 
+    # 1. Prompt tokens 估算
     # 系统prompt长度（粗略估算）
     estimated_tokens += 1000  # 系统prompt大约1000 tokens
 
@@ -83,6 +84,14 @@ def estimate_prompt_tokens(file_contents: list, previous_week_plan: Optional[lis
     # 如果有上周计划，增加额外tokens
     if previous_week_plan and len(previous_week_plan) > 0:
         estimated_tokens += len(previous_week_plan) * 50  # 每项计划大约50 tokens
+
+    # 2. Completion tokens 估算（AI回复长度）
+    # 基于经验值：AI回复通常是输入的30-50%，但至少有基础结构
+    base_completion_tokens = 2000  # 基础回复结构（JSON格式等）
+    content_based_completion = int(estimated_tokens * 0.3)  # 输入内容的30%作为回复
+    estimated_completion_tokens = max(base_completion_tokens, content_based_completion)
+
+    estimated_tokens += estimated_completion_tokens
 
     return estimated_tokens
 
@@ -110,7 +119,7 @@ async def process_files_in_background(project_id: str, file_contents: list, week
     """后台处理文件保存和AI分析"""
     try:
         logger.info(f"后台任务开始: 项目 {project_id}")
-        
+
         # 保存原始文件内容到data目录（保持原格式和文件夹结构）
         logger.info("正在保存原始文件...")
         for file_item in file_contents:
@@ -143,6 +152,70 @@ async def process_files_in_background(project_id: str, file_contents: list, week
         logger.info(f"后台任务完成: 项目 {project_id} 分析完成")
     except Exception as e:
         logger.error(f"后台任务失败: 项目 {project_id}, 错误: {str(e)}")
+        logger.error(f"错误详情: {traceback.format_exc()}")
+
+async def process_next_week_in_background(project_id: str, week: int, file_contents: list, week_start_date: str, previous_week_plan: list, is_update_current: bool):
+    """后台处理新一周的文件保存和AI分析"""
+    try:
+        logger.info(f"后台任务开始: 项目 {project_id} 第 {week} 周")
+
+        # 保存文件内容（保持文件夹结构）
+        logger.info("正在保存新一周的文件...")
+        for file_item in file_contents:
+            filename = file_item['filename']
+            content = file_item['content']
+            relative_path = file_item.get('relative_path')  # 获取相对路径
+            data_manager.save_file_content(project_id, content, filename, week=week, relative_path=relative_path)
+            logger.info(f"文件 {filename} 保存成功 (路径: {relative_path or '根目录'})")
+        logger.info(f"第 {week} 周文件保存完成")
+
+        # 获取现有数据（如果是更新当前周）
+        existing_week_data = None
+        if is_update_current:
+            existing_week_data = data_manager.get_week_data(project_id, week)
+            logger.info(f"更新当前周，获取现有数据: week_period={repr(existing_week_data.week_period if existing_week_data else None)}")
+
+        # 分析数据
+        action_text = "更新" if is_update_current else "分析"
+        logger.info(f"正在{action_text}第 {week} 周的数据")
+        analysis_result = ai_analyzer.analyze_html_contents(project_id, file_contents, previous_week_plan)
+        week_data = analysis_result['week_data']
+        logger.info(f"第 {week} 周数据{action_text}完成")
+        logger.info(f"AI分析统计: prompt长度={analysis_result['prompt_length']}, prompt_tokens={analysis_result['prompt_tokens']}, completion_tokens={analysis_result['completion_tokens']}, total_tokens={analysis_result['total_tokens']}")
+
+        # 设置周期间隔
+        if is_update_current and existing_week_data and existing_week_data.week_period:
+            # 更新当前周时保留现有的周期间隔
+            week_data.week_period = existing_week_data.week_period
+            logger.info(f"保留现有周期间隔: {week_data.week_period}")
+        else:
+            # 创建新周时设置周期间隔
+            if week_start_date:
+                try:
+                    clean_date = week_start_date.strip()
+                    start_date = datetime.fromisoformat(clean_date)
+                    end_date = start_date + timedelta(days=6)  # 周一到周日
+                    week_data.week_period = f"{start_date.strftime('%Y-%m-%d')} 至 {end_date.strftime('%Y-%m-%d')}"
+                    logger.info(f"设置第 {week} 周期间隔: {week_data.week_period}")
+                except Exception as e:
+                    logger.error(f"日期解析失败: {str(e)}")
+                    week_data.week_period = None
+
+        # 保存数据
+        logger.info(f"正在保存第 {week} 周数据...")
+        data_manager.update_week_data(project_id, week, week_data)
+        logger.info(f"项目 {project_id} 第 {week} 周{action_text}完成")
+
+        # 验证保存结果
+        saved_data = data_manager.get_week_data(project_id, week)
+        if saved_data:
+            logger.info(f"保存后验证成功: saved_data.week_period = {repr(saved_data.week_period)}")
+        else:
+            logger.error(f"保存失败! 无法获取保存的数据")
+
+        logger.info(f"后台任务完成: 项目 {project_id} 第 {week} 周{action_text}完成")
+    except Exception as e:
+        logger.error(f"后台任务失败: 项目 {project_id} 第 {week} 周, 错误: {str(e)}")
         logger.error(f"错误详情: {traceback.format_exc()}")
 
 @app.post("/api/upload", response_model=UploadResponse)
@@ -221,21 +294,16 @@ async def upload_files(
         tokens_per_second = get_tokens_per_second()
         logger.info(f"使用模型: {CURRENT_MODEL}, 处理速度: {tokens_per_second} tokens/秒")
 
-        # 计算 token 数量
-        total_token_count = 0
-        for file_item in file_contents:
-            content = file_item['content']
-            token_count = get_token_count(content, CURRENT_MODEL)
-            total_token_count += token_count
-            logger.debug(f"文件 {file_item['filename']} token 数量: {token_count}")
+        # 计算总token数量（包括prompt + completion）
+        estimated_total_tokens = estimate_total_tokens(file_contents)
 
         # 计算预计处理时间（秒）
-        estimated_time = total_token_count / tokens_per_second
+        estimated_time = estimated_total_tokens / tokens_per_second
 
         # 文件数量
         file_count = len(file_contents)
 
-        logger.info(f"上传文件总数: {len(files)}, 符合要求的文件数量: {file_count}, 总 token 数量: {total_token_count}，预计处理时间: {estimated_time:.2f} 秒")
+        logger.info(f"上传文件总数: {len(files)}, 符合要求的文件数量: {file_count}, 估算总 tokens: {estimated_total_tokens}，预计处理时间: {estimated_time:.2f} 秒")
 
         # 创建项目（需要立即创建，以便返回 project_id）
         logger.info(f"正在创建项目: {project_name}")
@@ -243,7 +311,7 @@ async def upload_files(
         logger.info(f"项目创建成功，ID: {project_id}")
 
         # 立即返回响应，让前端显示 token 和预计时间
-        logger.info(f"立即返回响应，项目ID: {project_id}, 文件数量: {file_count}, Token: {total_token_count}, 预计时间: {estimated_time:.2f}秒")
+        logger.info(f"立即返回响应，项目ID: {project_id}, 文件数量: {file_count}, Token: {estimated_total_tokens}, 预计时间: {estimated_time:.2f}秒")
         
         # 添加后台任务：保存文件、AI分析、保存数据
         background_tasks.add_task(
@@ -258,7 +326,7 @@ async def upload_files(
             message=f"成功上传 {file_count} 个文件，正在后台分析中...",
             project_id=project_id,
             file_count=file_count,
-            token_count=total_token_count,
+            token_count=estimated_total_tokens,
             estimated_time_seconds=estimated_time
         )
 
@@ -502,6 +570,7 @@ def get_project_week_file_content(project_id: str, week: int, filename: str):
 
 @app.post("/api/projects/{project_id}/analyze-next-week")
 async def analyze_next_week(
+    background_tasks: BackgroundTasks,
     request: Request,
     project_id: str,
     html_content: str = Form(None),
@@ -605,85 +674,36 @@ async def analyze_next_week(
 
         logger.info(f"共处理 {len(file_contents)} 个文件（其中 {len(existing_file_contents)} 个已有文件，{len(file_contents) - len(existing_file_contents)} 个新文件）")
 
-        # 在调用AI前估算token数量
-        estimated_prompt_tokens = estimate_prompt_tokens(file_contents, previous_week_plan)
-        estimated_time_seconds = estimated_prompt_tokens / 600  # 假设600 tokens/s
+        # 在调用AI前估算token数量（包括prompt + completion）
+        estimated_total_tokens = estimate_total_tokens(file_contents, previous_week_plan)
+        tokens_per_second = get_tokens_per_second()  # 获取当前模型的处理速度
+        estimated_time_seconds = estimated_total_tokens / tokens_per_second
 
-        logger.info(f"估算的prompt tokens: {estimated_prompt_tokens}, 预计处理时间: {estimated_time_seconds:.2f}秒")
+        logger.info(f"估算的总tokens (prompt + completion): {estimated_total_tokens}, 使用模型处理速度: {tokens_per_second} tokens/秒, 预计处理时间: {estimated_time_seconds:.2f}秒")
 
-        # 获取现有数据（如果是更新当前周）
-        existing_week_data = None
-        if is_update_current:
-            existing_week_data = data_manager.get_week_data(project_id, new_week)
-            logger.info(f"更新当前周，获取现有数据: week_period={repr(existing_week_data.week_period if existing_week_data else None)}")
+        # 立即返回响应，让前端显示 token 和预计时间
+        logger.info(f"立即返回响应，项目: {project_id}, 第{new_week}周, 文件数量: {len(file_contents)}, Token: {estimated_total_tokens}, 预计时间: {estimated_time_seconds:.2f}秒")
 
-        # 分析数据
+        # 添加后台任务：保存文件、AI分析、保存数据
         action_text = "更新" if is_update_current else "分析"
-        logger.info(f"正在{action_text}第 {new_week} 周的数据")
-        analysis_result = ai_analyzer.analyze_html_contents(project_id, file_contents, previous_week_plan)
-        week_data = analysis_result['week_data']
-        logger.info(f"第 {new_week} 周数据{action_text}完成")
-        logger.info(f"AI分析统计: prompt长度={analysis_result['prompt_length']}, prompt_tokens={analysis_result['prompt_tokens']}, completion_tokens={analysis_result['completion_tokens']}, total_tokens={analysis_result['total_tokens']}")
+        background_tasks.add_task(
+            process_next_week_in_background,
+            project_id=project_id,
+            week=new_week,
+            file_contents=file_contents,
+            week_start_date=week_start_date,
+            previous_week_plan=previous_week_plan,
+            is_update_current=is_update_current
+        )
 
-        # 设置周期间隔 - 详细调试信息
-        logger.info(f"🔍 设置周期间隔 - 开始调试:")
-        logger.info(f"   is_update_current: {is_update_current}")
-        logger.info(f"   existing_week_data 存在: {existing_week_data is not None}")
-        if existing_week_data:
-            logger.info(f"   existing_week_data.week_period: {repr(existing_week_data.week_period)}")
-        logger.info(f"   week_start_date: {repr(week_start_date)}")
-        logger.info(f"   new_week: {new_week}")
-
-        if is_update_current and existing_week_data and existing_week_data.week_period:
-            # 更新当前周时保留现有的周期间隔
-            week_data.week_period = existing_week_data.week_period
-            logger.info(f"✅ 保留现有周期间隔: {week_data.week_period}")
-        else:
-            # 创建新周时设置周期间隔（前端保证传递有效的日期）
-            logger.info(f"🔄 创建新周，准备解析日期: {repr(week_start_date)}")
-            try:
-                clean_date = week_start_date.strip()
-                logger.info(f"   清理后的日期: {repr(clean_date)}")
-                start_date = datetime.fromisoformat(clean_date)
-                logger.info(f"   解析后的 start_date: {start_date}")
-                end_date = start_date + timedelta(days=6)  # 周一到周日
-                logger.info(f"   计算后的 end_date: {end_date}")
-                week_data.week_period = f"{start_date.strftime('%Y-%m-%d')} 至 {end_date.strftime('%Y-%m-%d')}"
-                logger.info(f"✅ 设置第 {new_week} 周期间隔: {week_data.week_period}")
-            except Exception as e:
-                logger.error(f"❌ 日期解析失败: week_start_date={repr(week_start_date)}, 错误: {str(e)}")
-                logger.error(f"   错误详情: {traceback.format_exc()}")
-                week_data.week_period = None
-
-        logger.info(f"📊 设置周期间隔 - 最终结果: week_data.week_period = {repr(week_data.week_period)}")
-
-        # 将统计信息添加到响应中（使用实际的统计数据）
-        result = {
+        return {
             "success": True,
-            "message": f"第{new_week}周{action_text}完成",
+            "message": f"成功上传文件，正在{action_text}第{new_week}周进展...",
             "week": new_week,
-            "data": week_data.dict(),
-            "week_period": week_data.week_period,
-            "prompt_length": analysis_result['prompt_length'],
-            "prompt_tokens": analysis_result['prompt_tokens'],
-            "completion_tokens": analysis_result['completion_tokens'],
-            "total_tokens": analysis_result['total_tokens']
+            "file_count": len(file_contents),
+            "token_count": estimated_total_tokens,
+            "estimated_time_seconds": estimated_time_seconds
         }
-
-        # 保存数据
-        logger.info(f"💾 保存前检查: week_data.week_period = {repr(week_data.week_period)}")
-        data_manager.update_week_data(project_id, new_week, week_data)
-        logger.info(f"项目 {project_id} 第 {new_week} 周{action_text}完成")
-
-        # 验证保存结果
-        saved_data = data_manager.get_week_data(project_id, new_week)
-        if saved_data:
-            logger.info(f"✅ 保存后验证: saved_data.week_period = {repr(saved_data.week_period)}")
-            if saved_data.week_period != week_data.week_period:
-                logger.error(f"❌ 数据不一致! 内存中: {repr(week_data.week_period)}, 保存后: {repr(saved_data.week_period)}")
-        else:
-            logger.error(f"❌ 保存失败! 无法获取保存的数据")
-        return result
 
     except HTTPException:
         raise

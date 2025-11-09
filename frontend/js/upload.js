@@ -522,49 +522,15 @@ async function handleUpload() {
                 console.warn('❌ 前端周开始日期为空');
             }
 
-            // 在跳转前估算token数量
-            let estimatedTokens = 0;
-            let fileCount = 0;
-
-            // 计算文件数量
-            const supportedExtensions = ['.html', '.htm', '.txt', '.md'];
-            if (files && files.length > 0) {
-                for (const file of files) {
-                    const fileName = file.name.toLowerCase();
-                    const lastDot = fileName.lastIndexOf('.');
-                    const fileExt = lastDot > 0 ? '.' + fileName.substring(lastDot + 1) : '';
-                    if (supportedExtensions.includes(fileExt)) {
-                        fileCount++;
-                    }
-                }
-            }
-            if (manualDocuments && manualDocuments.length > 0) {
-                fileCount += manualDocuments.length;
-            }
-
-            // 估算tokens：系统prompt(1000) + 文件内容(0.3倍) + 上周计划(如果有)
-            estimatedTokens += 1000; // 系统prompt
-            if (files && files.length > 0) {
-                // 粗略估算文件大小
-                const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
-                estimatedTokens += Math.round(totalSize * 0.3 / 100); // 假设平均字符数
-            }
-            if (manualDocuments && manualDocuments.length > 0) {
-                const manualSize = manualDocuments.reduce((sum, doc) => sum + doc.content.length, 0);
-                estimatedTokens += Math.round(manualSize * 0.3);
-            }
-
-            const estimatedTime = estimatedTokens / 600; // 假设600 tokens/s
-
-            // 显示估算的状态
+            // 显示处理中状态
             updateProcessingStatus({
-                pages: fileCount,
-                tokens: Math.round(estimatedTokens),
-                estimatedTime: formatEstimatedTime(estimatedTime),
+                pages: 0,
+                tokens: 0,
+                estimatedTime: '计算中...',
                 status: '正在上传文件并分析...'
             });
 
-            // 立即跳转到加载页面
+            // 跳转到加载页面
             console.log('跳转到加载页面 screen2');
             showScreen('screen2');
             console.log('页面跳转完成，等待UI重绘');
@@ -577,7 +543,7 @@ async function handleUpload() {
             if (result && result.success) {
                 updateProcessingStatus({
                     pages: result.file_count || 0,
-                    tokens: result.prompt_tokens || result.token_count || 0,
+                    tokens: result.token_count || 0,
                     estimatedTime: formatEstimatedTime(result.estimated_time_seconds || 0),
                     status: '文件上传成功，正在分析新一周进展...'
                 });
