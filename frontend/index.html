@@ -234,6 +234,39 @@
     <!-- Dialog容器 -->
     <div id="dialogContainer"></div>
 
+    <!-- AI聊天功能 -->
+    <div id="aiChatTrigger" class="ai-chat-trigger" onclick="toggleAIChat()" title="AI 助手">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </div>
+
+    <div id="aiChatPanel" class="ai-chat-panel hidden">
+        <div class="ai-chat-header">
+            <h3>AI 助手</h3>
+            <button onclick="closeAIChat()">×</button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message ai-message-welcome">
+                <div class="ai-message-content">
+                    <p>👋 你好！我是AI助手，可以帮你优化周报内容。</p>
+                    <p>你可以：</p>
+                    <ul>
+                        <li>输入"优化达成事项"来改进内容</li>
+                        <li>输入"添加更多内容"来补充信息</li>
+                        <li>输入"检查准确性"来审核内容</li>
+                        <li>输入"精简内容"来简化描述</li>
+                        <li>或直接描述你想要的修改</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <textarea id="aiChatInput" placeholder="描述您想要修改的内容..." onkeydown="handleChatKeyDown(event)"></textarea>
+            <button onclick="sendAIMessage()" id="aiChatSendBtn">发送</button>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="js/main.js"></script>

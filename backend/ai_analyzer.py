@@ -42,7 +42,7 @@ class AIAnalyzer:
 
     def _load_prompt(self) -> str:
         """加载分析prompt"""
-        prompt_path = os.path.join(os.path.dirname(__file__), "prompt.txt")
+        prompt_path = os.path.join(os.path.dirname(__file__), "weekly_report_prompt.txt")
         with open(prompt_path, 'r', encoding='utf-8') as f:
             return f.read()
 
