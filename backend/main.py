@@ -11,13 +11,11 @@ from typing import Optional, List
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import tiktoken
+import openai
 
 from models import *
 from data_manager import DataManager
 from ai_analyzer import AIAnalyzer
-
-# 加载环境变量
-load_dotenv('.env')
 
 # 配置日志
 logging.basicConfig(
@@ -29,6 +27,17 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# 加载环境变量
+load_dotenv('.env')
+
+# 初始化OpenAI API key
+openai_api_key = os.getenv("OPENAI_API_KEY")
+if openai_api_key:
+    openai.api_key = openai_api_key
+    logger.info("OpenAI API key已初始化")
+else:
+    logger.warning("OpenAI API key未设置")
 
 app = FastAPI(title="Teamie API", version="1.0.0")
 
@@ -408,28 +417,55 @@ async def update_week_plan(project_id: str, week: int, plan_data: Dict[str, Any]
         raise HTTPException(status_code=500, detail=f"更新失败: {str(e)}")
 
 @app.put("/api/projects/{project_id}/week/{week}")
-async def update_week_report(project_id: str, week: int, week_data: WeekData):
-    """更新完整周报数据"""
-    logger.info(f"正在更新项目 {project_id} 第 {week} 周的完整周报数据")
-    logger.debug(f"周报数据类型: {type(week_data)}, 字段: {week_data.__dict__.keys() if hasattr(week_data, '__dict__') else 'N/A'}")
+async def update_week_report(project_id: str, week: int, request: Request):
+    """更新周报数据（支持完整更新和部分更新）"""
+    logger.info(f"正在更新项目 {project_id} 第 {week} 周的周报数据")
 
     try:
-        logger.info("正在保存周报数据")
+        update_data = await request.json()
+        logger.debug(f"更新数据: {update_data}")
+
+        # 检查是否是部分更新（只有部分字段）
+        is_partial_update = len(update_data) < 6  # WeekData有6个主要字段
+
+        if is_partial_update:
+            logger.info("检测到部分更新请求")
+            # 获取当前周报数据
+            project = data_manager.get_project(project_id)
+            if not project:
+                logger.error(f"项目 {project_id} 不存在")
+                raise HTTPException(status_code=404, detail="项目不存在")
+
+            current_week_data = project.weeks.get(week, WeekData())
+
+            # 合并更新数据
+            for field, value in update_data.items():
+                if hasattr(current_week_data, field):
+                    setattr(current_week_data, field, value)
+                    logger.debug(f"更新字段 {field}: {value}")
+
+            week_data = current_week_data
+        else:
+            logger.info("检测到完整更新请求")
+            # 完整更新，验证所有字段
+            week_data = WeekData(**update_data)
+
+        # 保存数据
         success = data_manager.update_week_data(project_id, week, week_data)
 
         if not success:
-            logger.error(f"项目 {project_id} 不存在，无法更新周报")
-            raise HTTPException(status_code=404, detail="项目不存在")
+            logger.error(f"保存更新失败")
+            raise HTTPException(status_code=500, detail="保存更新失败")
 
-        logger.info(f"项目 {project_id} 第 {week} 周的周报更新成功")
-        return {"success": True, "message": "周报更新成功"}
+        update_type = "部分" if is_partial_update else "完整"
+        logger.info(f"项目 {project_id} 第 {week} 周的周报{update_type}更新成功")
+        return {"success": True, "message": f"项目 {project_id} 第 {week} 周的周报{update_type}更新成功"}
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"更新周报失败: {str(e)}")
         logger.error(f"错误详情: {traceback.format_exc()}")
-        logger.error(f"项目ID: {project_id}, 周数: {week}")
         raise HTTPException(status_code=500, detail=f"更新失败: {str(e)}")
 
 @app.get("/api/projects/{project_id}")
@@ -815,6 +851,204 @@ for path in frontend_paths:
 if not frontend_dir:
     raise RuntimeError("Frontend directory not found. Checked paths: " + ", ".join(frontend_paths))
 
+# AI聊天接口
+@app.post("/api/ai/chat")
+async def ai_chat(request: Request):
+    """处理AI聊天请求"""
+    try:
+        logger.info("开始解析AI聊天请求数据")
+        data = await request.json()
+        logger.info(f"接收到的原始数据: {data}")
+        user_message = data.get("message", "")
+        context = data.get("context", {})
+        project_id = data.get("project_id")
+        week = data.get("week")
+
+        if not user_message:
+            raise HTTPException(status_code=400, detail="消息不能为空")
+
+        logger.info(f"AI聊天请求: project_id={project_id}, week={week}, message='{user_message[:50]}...'")
+
+        # 获取项目和周数据作为上下文
+        context_data = {}
+        if project_id and week:
+            try:
+                logger.info(f"开始获取项目 {project_id} 的上下文数据")
+                project = data_manager.get_project(project_id)
+                if project and project.weeks.get(week):
+                    week_data = project.weeks[week]
+                    logger.info("开始构建原始上下文数据")
+                    raw_context_data = {
+                        "current_report": {
+                            "completed_tasks": week_data.completed_tasks,
+                            "incomplete_tasks": week_data.incomplete_tasks,
+                            "motivation_direction": week_data.motivation_direction,
+                            "internal_reflection": week_data.internal_reflection,
+                            "external_feedback": week_data.external_feedback,
+                            "next_week_plan": week_data.next_week_plan
+                        },
+                        "available_documents": data_manager.get_files(project_id, week)
+                    }
+                    logger.info("开始安全序列化上下文数据")
+                    # 安全序列化以避免JSON序列化错误
+                    context_data = safe_serialize(raw_context_data)
+                    logger.info("上下文数据序列化完成")
+                else:
+                    logger.warning(f"项目 {project_id} 或周 {week} 不存在")
+            except Exception as e:
+                logger.warning(f"获取上下文数据失败: {e}")
+                import traceback
+                logger.warning(f"错误详情: {traceback.format_exc()}")
+
+        # 确定使用哪个prompt模板
+        prompt_template = determine_prompt_template(user_message, context)
+
+        # 构建AI请求
+        system_prompt = load_chat_prompt(prompt_template)
+
+        # 构建用户prompt
+        logger.info("开始构建用户prompt")
+        user_prompt = build_chat_user_prompt(user_message, context, context_data)
+        logger.info(f"用户prompt构建完成，长度: {len(user_prompt)}")
+
+        # 调用AI (参考ai_analyzer.py的实现)
+        try:
+            current_model = get_current_model()
+            logger.info(f"使用模型 {current_model} 处理AI聊天请求")
+
+            if current_model == "gpt-5-nano":
+                response = openai.ChatCompletion.create(
+                    model=current_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    max_completion_tokens=4000,  # 聊天回复限制在4000 tokens
+                    temperature=0.7
+                )
+            else:
+                response = openai.ChatCompletion.create(
+                    model=current_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    max_tokens=4000,
+                    temperature=0.7
+                )
+
+            ai_response = response.choices[0].message.content.strip()
+
+            # 记录token使用情况
+            prompt_tokens = response.usage.get('prompt_tokens', 0)
+            completion_tokens = response.usage.get('completion_tokens', 0)
+            total_tokens = response.usage.get('total_tokens', 0)
+
+            logger.info(f"AI聊天响应完成: prompt_tokens={prompt_tokens}, completion_tokens={completion_tokens}, total_tokens={total_tokens}")
+
+            return {
+                "success": True,
+                "response": ai_response,
+                "usage": {
+                    "prompt_tokens": prompt_tokens,
+                    "completion_tokens": completion_tokens,
+                    "total_tokens": total_tokens
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"AI调用失败: {str(e)}")
+            import traceback
+            logger.error(f"错误详情: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"AI服务暂时不可用: {str(e)}")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"AI聊天处理失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="处理请求时出现错误")
+
+def determine_prompt_template(user_message: str, context: dict) -> str:
+    """根据用户消息确定使用哪个prompt模板"""
+    message_lower = user_message.lower()
+
+    # 根据关键词匹配不同的prompt模板
+    if any(keyword in message_lower for keyword in ['优化', '改进', '重新表述', '优化达成事项', '改进描述']):
+        return "content_optimization"
+    elif any(keyword in message_lower for keyword in ['添加', '补充', '增加', '添加更多']):
+        return "content_addition"
+    elif any(keyword in message_lower for keyword in ['检查', '审核', '验证', '准确性']):
+        return "content_review"
+    elif any(keyword in message_lower for keyword in ['精简', '简化', '缩短']):
+        return "content_simplification"
+    elif any(keyword in message_lower for keyword in ['重组', '重新排序', '调整结构']):
+        return "content_reorganization"
+    elif any(keyword in message_lower for keyword in ['对比', '差异', '比较']):
+        return "content_comparison"
+    elif any(keyword in message_lower for keyword in ['基于文档', '参考文档', '使用文档']):
+        return "document_reference"
+    elif any(keyword in message_lower for keyword in ['建议', '如何改进']):
+        return "smart_suggestion"
+    elif any(keyword in message_lower for keyword in ['修复', '修改', '纠正']):
+        return "quick_fix"
+    elif any(keyword in message_lower for keyword in ['格式', '转换为', '改成']):
+        return "format_conversion"
+    else:
+        # 默认使用智能建议
+        return "smart_suggestion"
+
+def load_chat_prompt(template_name: str) -> str:
+    """加载对应的聊天prompt模板"""
+    try:
+        prompt_file = os.path.join(os.path.dirname(__file__), "ai_chat_prompts.txt")
+
+        with open(prompt_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # 根据模板名称提取对应的prompt
+        # 这里简化处理，直接返回整个文件内容作为系统prompt
+        # 在实际应用中可以根据模板名称提取特定的prompt部分
+        return content
+
+    except Exception as e:
+        logger.warning(f"加载聊天prompt失败，使用默认prompt: {e}")
+        return "你是一位专业的项目分析师助手。请基于用户的要求和提供的上下文，帮助优化项目周报内容。"
+
+def safe_serialize(obj):
+    """安全序列化对象，处理Pydantic模型"""
+    # 优先使用 model_dump() (Pydantic v2)
+    if hasattr(obj, 'model_dump'):
+        return obj.model_dump()
+    # 兼容旧版本的 dict() 方法
+    elif hasattr(obj, 'dict'):
+        return obj.dict()
+    elif isinstance(obj, list):
+        return [safe_serialize(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: safe_serialize(value) for key, value in obj.items()}
+    else:
+        return obj
+
+def build_chat_user_prompt(user_message: str, context: dict, context_data: dict) -> str:
+    """构建用户prompt"""
+    prompt_parts = [f"用户请求：{user_message}"]
+
+    # 添加上下文信息
+    if context.get('focused_section'):
+        prompt_parts.append(f"当前聚焦区域：{context['focused_section']}")
+
+    if context_data.get('current_report'):
+        # 确保所有对象都能被序列化
+        serializable_report = safe_serialize(context_data['current_report'])
+        prompt_parts.append(f"当前周报内容：{json.dumps(serializable_report, ensure_ascii=False, indent=2)}")
+
+    if context_data.get('available_documents'):
+        doc_list = [doc if isinstance(doc, str) else doc.get('filename', '未知文档') for doc in context_data['available_documents']]
+        prompt_parts.append(f"可用文档：{', '.join(doc_list)}")
+
+    return "\n\n".join(prompt_parts)
+
+# 挂载前端静态文件（放在最后，确保不覆盖API路由）
 app.mount("/", NoCacheStaticFiles(directory=frontend_dir, html=True), name="frontend")
 
 if __name__ == "__main__":

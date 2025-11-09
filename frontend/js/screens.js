@@ -118,6 +118,19 @@ function showScreen(screenId) {
             const projectInfo = document.getElementById('projectInfo');
             projectInfo.style.display = 'none';
         }
+
+        // 控制AI助手按钮显示
+        if (screenId === 'screen3') {
+            // 在每周进展页面显示AI助手按钮
+            if (typeof showAIHelperButton === 'function') {
+                showAIHelperButton();
+            }
+        } else {
+            // 在其他页面隐藏AI助手按钮
+            if (typeof hideAIHelperButton === 'function') {
+                hideAIHelperButton();
+            }
+        }
     } else {
         console.error('Screen not found:', screenId);
     }
