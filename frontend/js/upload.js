@@ -493,7 +493,24 @@ async function handleUpload() {
     }
 
     // 判断是导入新进展还是创建新项目
-    const isImportNewProgress = currentProject && currentProject !== null;
+    // 先验证currentProject是否仍然有效
+    let isImportNewProgress = false;
+    if (currentProject && currentProject !== null) {
+        // 检查项目是否仍然存在
+        const projectExists = projects.some(p => p.id === currentProject);
+        if (projectExists) {
+            isImportNewProgress = true;
+        } else {
+            console.warn('当前项目已不存在，重置状态');
+            currentProject = null;
+            currentWeek = 1;
+            // 隐藏项目信息区域
+            const projectInfo = document.getElementById('projectInfo');
+            if (projectInfo) {
+                projectInfo.style.display = 'none';
+            }
+        }
+    }
 
     if (isImportNewProgress) {
         // 导入新进展：不需要项目名称，使用当前项目

@@ -250,6 +250,22 @@ async function deleteProject(projectId, projectName, event) {
         });
 
         showToast('项目删除成功', 'success');
+
+        // 检查是否删除了当前项目
+        if (currentProject === projectId) {
+            console.log('删除了当前项目，重置状态');
+            currentProject = null;
+            currentWeek = 1;
+            // 隐藏项目信息区域
+            const projectInfo = document.getElementById('projectInfo');
+            if (projectInfo) {
+                projectInfo.style.display = 'none';
+            }
+            // 切换到项目列表页面
+            showScreen('screen4');
+            document.getElementById('screenTitle').textContent = '项目进展一览';
+        }
+
         // 重新加载项目列表
         await loadProjects();
     } catch (error) {
