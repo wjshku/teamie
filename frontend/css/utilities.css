@@ -1,0 +1,91 @@
+/* Utilities Styles - 工具类（动画、隐藏类、确认界面等） */
+
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ai-message {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* AI修改确认界面样式 */
+.ai-modification-confirmation {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 10px 0;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.confirmation-header {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.confirmation-message {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #4285f4;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.modifications-list {
+    margin-bottom: 16px;
+}
+
+.modification-item {
+    background: white;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s;
+}
+
+.modification-item:hover {
+    border-color: #4285f4;
+    box-shadow: 0 2px 8px rgba(66, 133, 244, 0.1);
+}
+
+.modification-section {
+    font-weight: 600;
+    color: #4285f4;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.modification-preview {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+    max-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+

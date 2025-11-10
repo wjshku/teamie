@@ -604,6 +604,110 @@ def get_project_week_file_content(project_id: str, week: int, filename: str):
         logger.error(f"错误详情: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"获取文件内容失败: {str(e)}")
 
+@app.put("/api/projects/{project_id}/week/{week}/files/{filename:path}")
+async def update_project_week_file_content(project_id: str, week: int, filename: str, request: Request):
+    """更新项目指定周的文件内容"""
+    logger.info(f"更新项目 {project_id} 第 {week} 周的文件 {filename} 内容")
+
+    try:
+        # 检查项目是否存在
+        project = data_manager.get_project(project_id)
+        if not project:
+            logger.warning(f"项目 {project_id} 不存在")
+            raise HTTPException(status_code=404, detail="项目不存在")
+
+        # 获取请求体中的文件内容
+        body = await request.body()
+        content = body.decode('utf-8')
+
+        # filename 参数可能包含完整路径，如 "其他文档/test.html" 或只是 "test.html"
+        logger.info(f"=== 开始更新文件 ===")
+        logger.info(f"项目ID: {project_id}, 周数: {week}")
+        logger.info(f"接收到的filename参数: {repr(filename)}")
+        logger.info(f"文件内容长度: {len(content)} 字符")
+        logger.info(f"文件内容预览（前200字符）: {content[:200]}")
+        
+        # 获取文件列表，查找匹配的文件
+        file_list = data_manager.get_files(project_id, week)
+        logger.info(f"当前文件列表（共{len(file_list)}个文件）: {file_list}")
+        
+        # 尝试精确匹配
+        full_file_path = None
+        if filename in file_list:
+            # 精确匹配
+            full_file_path = filename
+            logger.info(f"找到精确匹配的文件: {full_file_path}")
+        else:
+            # 尝试部分匹配（文件名相同）
+            logger.info(f"未找到精确匹配，尝试部分匹配...")
+            for file_path in file_list:
+                if file_path.endswith('/' + filename) or (not '/' in file_path and file_path == filename):
+                    full_file_path = file_path
+                    logger.info(f"找到部分匹配的文件: {full_file_path}")
+                    break
+        
+        # 如果还是找不到，使用传入的filename（可能已经是完整路径）
+        if full_file_path is None:
+            full_file_path = filename
+            logger.warning(f"未在文件列表中找到匹配项，使用传入的filename: {full_file_path}")
+
+        # 提取文件夹路径和文件名
+        if '/' in full_file_path:
+            # 有文件夹路径，分离文件夹和文件名
+            path_parts = full_file_path.split('/')
+            actual_filename = path_parts[-1]  # 最后一部分是文件名
+            folder_path = '/'.join(path_parts[:-1])  # 前面的部分是文件夹路径
+            relative_path = folder_path
+            logger.info(f"检测到文件夹路径: {folder_path}")
+        else:
+            # 根目录文件
+            actual_filename = full_file_path
+            relative_path = None
+            logger.info(f"根目录文件，无文件夹路径")
+
+        logger.info(f"保存参数: actual_filename={repr(actual_filename)}, relative_path={repr(relative_path)}, full_file_path={repr(full_file_path)}")
+
+        # 保存前读取原文件内容（如果存在）
+        original_content = data_manager.get_file_content_by_name(project_id, week, full_file_path)
+        if original_content:
+            logger.info(f"原文件存在，长度: {len(original_content)} 字符")
+            logger.info(f"原文件内容预览（前200字符）: {original_content[:200]}")
+        else:
+            logger.info(f"原文件不存在，将创建新文件")
+
+        # 保存文件内容（使用实际的文件名和相对路径）
+        logger.info(f"正在保存文件到: project_id={project_id}, week={week}, filename={actual_filename}, relative_path={relative_path}")
+        data_manager.save_file_content(project_id, content, actual_filename, week=week, relative_path=relative_path)
+        logger.info(f"save_file_content 调用完成")
+        
+        # 验证文件是否保存成功
+        logger.info(f"验证保存结果，尝试读取文件: {full_file_path}")
+        saved_content = data_manager.get_file_content_by_name(project_id, week, full_file_path)
+        if saved_content is None:
+            logger.error(f"❌ 文件保存后验证失败，无法读取文件: {full_file_path}")
+            logger.error(f"请检查文件路径是否正确: data/{project_id}/week_{week}/{full_file_path}")
+        else:
+            logger.info(f"✅ 文件保存成功并验证通过")
+            logger.info(f"保存后的文件长度: {len(saved_content)} 字符")
+            logger.info(f"保存后的文件内容预览（前200字符）: {saved_content[:200]}")
+            
+            # 对比内容是否一致
+            if saved_content == content:
+                logger.info(f"✅ 保存的内容与提交的内容完全一致")
+            else:
+                logger.warning(f"⚠️ 保存的内容与提交的内容不一致！")
+                logger.warning(f"提交内容长度: {len(content)}, 保存内容长度: {len(saved_content)}")
+        
+        logger.info(f"=== 文件更新完成 ===")
+        return {"success": True, "message": f"文件 {filename} 更新成功"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"更新文件内容失败: {str(e)}")
+        logger.error(f"错误详情: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"更新文件内容失败: {str(e)}")
+
 @app.post("/api/projects/{project_id}/analyze-next-week")
 async def analyze_next_week(
     background_tasks: BackgroundTasks,

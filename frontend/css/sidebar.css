@@ -1,0 +1,127 @@
+/* Sidebar Styles - 侧边栏文件夹结构样式 */
+
+/* 文件列表项样式 */
+.folder-item.file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin: 2px 0;
+}
+
+.folder-item.file:hover {
+    background-color: #f8f9fa;
+}
+
+.folder-item.file .file-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.folder-item.file .file-icon {
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.folder-item.file .file-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.folder-item.file .file-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.folder-item.file:hover .file-actions {
+    opacity: 1;
+}
+
+.file-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.file-action-btn:hover {
+    background-color: #e9ecef;
+}
+
+.file-action-btn.edit-btn:hover {
+    color: #007bff;
+}
+
+.file-action-btn.delete-btn:hover {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+/* 侧边栏文件夹结构样式 */
+.sidebar-folder-structure {
+    font-size: 11px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sidebar-folder-structure .folder-item {
+    padding: 3px 6px;
+    margin: 1px 0;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 0.2s;
+    font-size: 10px;
+}
+
+.sidebar-folder-structure .folder-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-folder-structure .folder-item.folder {
+    font-weight: 600;
+    color: #ccc;
+}
+
+.sidebar-folder-structure .folder-item.file {
+    padding-left: 16px;
+    color: #999;
+}
+
+.sidebar-folder-structure .folder-item.file.html {
+    color: #007acc;
+}
+
+.sidebar-folder-structure .folder-item.file.html:hover {
+    background: rgba(0, 122, 204, 0.1);
+}
+
+.sidebar-folder-structure .folder-toggle {
+    display: inline-block;
+    width: 8px;
+    margin-right: 2px;
+    transition: transform 0.2s;
+    font-size: 8px;
+}
+
+.sidebar-folder-structure .folder-children {
+    margin-left: 8px;
+}
+

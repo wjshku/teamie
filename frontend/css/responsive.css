@@ -1,0 +1,34 @@
+/* Responsive Styles - 响应式样式 */
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .document-selector-modern {
+        max-width: calc(100vw - 32px);
+        left: 16px !important;
+        right: 16px !important;
+        width: auto !important;
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+    .ai-helper-trigger {
+        bottom: 16px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+    }
+
+    .ai-helper-panel {
+        bottom: 16px;
+        right: 58px;
+        width: calc(100vw - 80px);
+        max-width: 280px;
+    }
+
+    #aiHelperInput {
+        padding: 0 16px;
+        font-size: 16px; /* 防止iOS缩放 */
+    }
+}
+

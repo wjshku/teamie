@@ -1,0 +1,100 @@
+/* Task List Styles - 任务列表样式（独立模块，便于维护） */
+
+/* 任务列表容器样式 */
+.dialog-content .notion-todo-list {
+    list-style: none !important;
+    margin: 6px 0 !important;
+    padding-left: 0 !important;
+}
+
+.dialog-content .notion-todo-list .notion-todo-list {
+    margin-left: 24px !important;
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+}
+
+/* 任务列表项样式 - Notion风格：无背景卡片，简洁显示 */
+.dialog-content .task-list-item {
+    display: flex;
+    align-items: flex-start;
+    list-style: none !important;
+    margin: 2px 0 !important;
+    gap: 8px;
+    padding: 0 !important;
+    background: transparent !important;
+    transition: none;
+    position: relative;
+}
+
+.dialog-content .task-list-item:hover {
+    background: transparent !important;
+}
+
+/* 复选框样式 - Notion风格：简洁的方形复选框 */
+.dialog-content .task-list-item input[type="checkbox"],
+.dialog-content .task-list-item .task-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    border: 1.5px solid #d1d5db;
+    border-radius: 3px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: white;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.dialog-content .task-list-item input[type="checkbox"]:hover,
+.dialog-content .task-list-item .task-checkbox:hover {
+    border-color: #9ca3af;
+    background-color: #f9fafb;
+}
+
+.dialog-content .task-list-item input[type="checkbox"]:checked,
+.dialog-content .task-list-item .task-checkbox:checked {
+    background-color: #4285f4;
+    border-color: #4285f4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px;
+}
+
+/* 任务文本样式 - Notion风格 */
+.dialog-content .task-list-item .task-text {
+    flex: 1;
+    word-break: break-word;
+    color: #37352f;
+    font-size: 14px;
+    line-height: 1.5;
+    min-width: 0;
+    padding: 0;
+}
+
+/* 已完成任务样式 - Notion风格：灰色文字+删除线，无背景 */
+.dialog-content .task-list-item.task-completed {
+    background: transparent !important;
+}
+
+.dialog-content .task-list-item.task-completed .task-text {
+    color: #9ca3af;
+    text-decoration: line-through;
+}
+
+/* 嵌套任务列表样式 */
+.dialog-content .task-list-item .notion-todo-list {
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
+}
+
+/* 普通复选框样式（非任务列表中的） */
+.dialog-content input[type="checkbox"]:not(.task-checkbox) {
+    margin-right: 8px;
+    accent-color: #4285f4;
+}
+

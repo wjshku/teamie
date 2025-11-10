@@ -1,0 +1,197 @@
+/* Notion Styles - Notion风格的内容样式（Markdown渲染） */
+
+/* Markdown 内容样式 - 模拟 Notion 风格 */
+.dialog-content h1,
+.dialog-content h2,
+.dialog-content h3,
+.dialog-content h4,
+.dialog-content h5,
+.dialog-content h6 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 16px 0 8px 0;
+    color: #37352f;
+    letter-spacing: -0.01em;
+}
+
+.dialog-content h1 { font-size: 24px; margin-top: 24px; }
+.dialog-content h2 { font-size: 20px; margin-top: 20px; }
+.dialog-content h3 { font-size: 18px; margin-top: 18px; }
+.dialog-content h4 { font-size: 16px; margin-top: 16px; }
+.dialog-content h5 { font-size: 14px; margin-top: 14px; }
+.dialog-content h6 { font-size: 12px; margin-top: 12px; }
+
+.dialog-content p {
+    margin: 8px 0;
+    line-height: 1.6;
+    color: #37352f;
+}
+
+.dialog-content ul,
+.dialog-content ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    color: #37352f;
+}
+
+.dialog-content li {
+    margin: 4px 0;
+    line-height: 1.5;
+}
+
+.dialog-content blockquote {
+    border-left: 4px solid #e9ecef;
+    padding-left: 16px;
+    margin: 16px 0;
+    color: #6c757d;
+    font-style: italic;
+    background: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 0 4px 4px 0;
+}
+
+.dialog-content a {
+    color: #4285f4;
+    text-decoration: none;
+}
+
+.dialog-content a:hover {
+    text-decoration: underline;
+}
+
+.dialog-content strong,
+.dialog-content b {
+    font-weight: 600;
+    color: #37352f;
+}
+
+.dialog-content em,
+.dialog-content i {
+    font-style: italic;
+    color: #37352f;
+}
+
+.dialog-content code {
+    background: #f1f3f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    color: #d73a49;
+}
+
+.dialog-content pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 12px 0;
+    overflow-x: auto;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.dialog-content pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+    color: inherit;
+}
+
+.dialog-content table {
+    border-collapse: collapse;
+    margin: 16px 0;
+    width: 100%;
+}
+
+.dialog-content th,
+.dialog-content td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.dialog-content th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.dialog-content hr {
+    border: none;
+    border-top: 1px solid #e9ecef;
+    margin: 24px 0;
+}
+
+/* Notion 风格的 markdown 样式 */
+.dialog-content .notion-paragraph {
+    margin: 6px 0 12px 0;
+    line-height: 1.6;
+    color: #37352f;
+}
+
+.dialog-content .notion-quote {
+    border-left: 4px solid #e9ecef !important;
+    padding-left: 16px !important;
+    margin: 16px 0 !important;
+    color: #6c757d !important;
+    font-style: italic !important;
+    background: #f8f9fa !important;
+    padding: 12px 16px !important;
+    border-radius: 0 4px 4px 0 !important;
+}
+
+.dialog-content .notion-code-block {
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 6px !important;
+    padding: 16px !important;
+    margin: 12px 0 !important;
+    overflow-x: auto !important;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+
+.dialog-content .notion-code-block code {
+    background: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    font-size: inherit !important;
+    color: inherit !important;
+}
+
+.dialog-content .notion-list {
+    margin: 8px 0 !important;
+    padding-left: 24px !important;
+    color: #37352f !important;
+}
+
+.dialog-content .notion-list li {
+    margin: 4px 0 !important;
+    line-height: 1.5 !important;
+}
+
+.dialog-content .notion-table {
+    border-collapse: collapse !important;
+    margin: 16px 0 !important;
+    width: 100% !important;
+    border: 1px solid #ddd !important;
+}
+
+.dialog-content .notion-table-header {
+    background: #f8f9fa !important;
+    font-weight: 600 !important;
+    border: 1px solid #ddd !important;
+    padding: 8px 12px !important;
+    text-align: left !important;
+}
+
+.dialog-content .notion-table-cell {
+    border: 1px solid #ddd !important;
+    padding: 8px 12px !important;
+    text-align: left !important;
+}
+

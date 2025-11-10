@@ -213,7 +213,22 @@ function generateSidebarTreeHTML(tree, prefix = '', basePath = '') {
                 // 获取项目ID和周数（从全局变量或通过其他方式）
                 const projectId = currentProject;
                 const week = currentWeek;
-                html += `<div class="folder-item file html" onclick="showSidebarFileContent('${currentPath}', ${week}, '${projectId}')" title="${currentPath}">📄 ${displayName}</div>`;
+                html += `
+                    <div class="folder-item file html" onclick="showSidebarFileContent('${currentPath}', ${week}, '${projectId}')" title="${currentPath}">
+                        <div class="file-info">
+                            <span class="file-icon">📄</span>
+                            <span class="file-name">${displayName}</span>
+                        </div>
+                        <div class="file-actions">
+                            <button class="file-action-btn edit-btn" onclick="editSidebarDocument('${currentPath}', ${week}, '${projectId}', event)" title="编辑文档">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
             } else {
                 html += `<div class="folder-item file">📄 ${name}</div>`;
             }
@@ -268,6 +283,108 @@ async function showSidebarFileContent(filename, week, projectId) {
         // 使用mock内容作为后备
         const mockContent = generateSidebarFileContent(filename, week);
         showDialog(displayName, mockContent);
+    }
+}
+
+// 编辑侧边栏文档
+async function editSidebarDocument(filename, week, projectId, event) {
+    event.stopPropagation();
+    
+    const displayName = filename.replace('.html', '');
+    
+    try {
+        // 从后端获取文件内容
+        const response = await fetch(`${API_BASE_URL}/projects/${projectId}/week/${week}/files/${filename}`);
+        if (response.ok) {
+            const content = await response.text();
+            // 显示编辑对话框，传入保存回调
+            showEditDialog(displayName, content, filename, week, projectId);
+        } else {
+            showToast('无法加载文档', 'error');
+        }
+    } catch (error) {
+        console.error('编辑文档失败:', error);
+        showToast('编辑失败', 'error');
+    }
+}
+
+// 显示编辑对话框
+function showEditDialog(title, content, filename, week, projectId) {
+    // 移除已存在的对话框
+    const existingDialog = document.querySelector('.dialog-overlay');
+    if (existingDialog) {
+        existingDialog.remove();
+    }
+
+    // 转义HTML特殊字符，防止XSS（用于HTML属性）
+    const escapedTitle = title.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const escapedFilename = filename.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const escapedProjectId = projectId.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    
+    const dialogHTML = `
+        <div class="dialog-overlay" onclick="closeDialog()">
+            <div class="dialog dialog-add-document" onclick="event.stopPropagation()">
+                <div class="dialog-header">
+                    <h3 class="dialog-title">编辑: ${escapedTitle}</h3>
+                    <button class="dialog-close" onclick="closeDialog()">×</button>
+                </div>
+                <div class="dialog-content">
+                    <div class="dialog-form">
+                        <div class="dialog-form-content">
+                            <textarea id="editDocumentInput" placeholder="输入文档内容..."></textarea>
+                        </div>
+                        <div class="dialog-actions">
+                            <button class="btn primary" onclick="saveEditDocument('${escapedFilename}', ${week}, '${escapedProjectId}')">保存修改</button>
+                            <button class="btn" onclick="closeDialog()">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', dialogHTML);
+    
+    // 设置textarea的内容（直接设置value，不需要转义）
+    const textarea = document.getElementById('editDocumentInput');
+    if (textarea) {
+        textarea.value = content;
+        textarea.focus();
+    }
+}
+
+// 保存编辑的文档
+async function saveEditDocument(filename, week, projectId) {
+    const textarea = document.getElementById('editDocumentInput');
+    if (!textarea) {
+        showToast('无法获取编辑内容', 'error');
+        return;
+    }
+
+    const editedContent = textarea.value;
+    
+    try {
+        // 调用后端API更新文件内容
+        const response = await fetch(`${API_BASE_URL}/projects/${projectId}/week/${week}/files/${filename}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'text/plain; charset=utf-8'
+            },
+            body: editedContent
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showToast('文档已保存', 'success');
+            closeDialog();
+        } else {
+            const errorText = await response.text();
+            console.error('保存失败:', errorText);
+            showToast('保存失败: ' + (errorText || '未知错误'), 'error');
+        }
+    } catch (error) {
+        console.error('保存文档失败:', error);
+        showToast('保存失败: ' + error.message, 'error');
     }
 }
 

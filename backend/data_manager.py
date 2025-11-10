@@ -201,26 +201,21 @@ class DataManager:
             
             # 如果有相对路径，构建文件夹结构
             if relative_path:
-                # 处理相对路径，去掉文件名部分，只保留文件夹路径
+                # 处理相对路径，relative_path 应该只包含文件夹路径，不包含文件名
                 path_parts = relative_path.replace('\\', '/').split('/')
-                if len(path_parts) > 1:
-                    # 有文件夹路径，去掉最后的文件名
-                    folder_parts = path_parts[:-1]
-                    # 清理文件夹名称，确保是文件系统安全的
-                    safe_folders = []
-                    for folder in folder_parts:
-                        if folder and folder != '.' and folder != '..':
-                            safe_folder = "".join(c for c in folder if c.isalnum() or c in (' ', '-', '_')).rstrip()
-                            if safe_folder:
-                                safe_folders.append(safe_folder)
-                    
-                    if safe_folders:
-                        # 创建文件夹路径
-                        folder_path = os.path.join(week_dir, *safe_folders)
-                        os.makedirs(folder_path, exist_ok=True)
-                        filepath = os.path.join(folder_path, safe_filename)
-                    else:
-                        filepath = os.path.join(week_dir, safe_filename)
+                # 清理文件夹名称，确保是文件系统安全的
+                safe_folders = []
+                for folder in path_parts:
+                    if folder and folder != '.' and folder != '..':
+                        safe_folder = "".join(c for c in folder if c.isalnum() or c in (' ', '-', '_')).rstrip()
+                        if safe_folder:
+                            safe_folders.append(safe_folder)
+                
+                if safe_folders:
+                    # 创建文件夹路径
+                    folder_path = os.path.join(week_dir, *safe_folders)
+                    os.makedirs(folder_path, exist_ok=True)
+                    filepath = os.path.join(folder_path, safe_filename)
                 else:
                     filepath = os.path.join(week_dir, safe_filename)
             else:
@@ -230,8 +225,21 @@ class DataManager:
             final_filename = "content.html"
             filepath = os.path.join(week_dir, final_filename)
 
+        # 记录保存的文件路径（用于调试）
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"保存文件到路径: {filepath}")
+        logger.info(f"文件内容长度: {len(content)} 字符")
+        
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(content)
+        
+        # 验证文件是否真的写入了
+        if os.path.exists(filepath):
+            actual_size = os.path.getsize(filepath)
+            logger.info(f"文件保存成功，文件大小: {actual_size} 字节")
+        else:
+            logger.error(f"文件保存失败，文件不存在: {filepath}")
 
     def get_file_content(self, project_id: str, week: int = 1) -> Optional[str]:
         """获取指定项目和周的所有文件内容（支持 html/txt/md）"""

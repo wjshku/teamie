@@ -308,11 +308,45 @@ function isMarkdown(content) {
 
 // Notion 风格的 HTML 后处理
 function notionifyHTML(html) {
+    // 先处理任务列表：识别并标记包含任务项的ul
+    // 使用更健壮的正则表达式匹配任务项格式：[ ], [x], [X]
+    html = html.replace(/<ul([^>]*)>([\s\S]*?)<\/ul>/g, function(match, attrs, content) {
+        // 检查这个ul是否包含任务项（支持各种格式）
+        const hasTaskItem = /<li[^>]*>\s*\[\s*([xX\s])\s*\]/i.test(content);
+        if (hasTaskItem) {
+            // 如果已经有class属性，追加；否则添加class
+            const classAttr = attrs.includes('class=') 
+                ? attrs.replace(/class="([^"]*)"/, 'class="$1 notion-todo-list"')
+                : attrs + ' class="notion-todo-list"';
+            return '<ul' + classAttr + '>' + content + '</ul>';
+        }
+        return match;
+    });
+
+    // 处理任务列表项 - 支持嵌套和多种格式
+    html = html.replace(/<li([^>]*)>\s*\[\s*\]\s*(.*?)<\/li>/gi, function(match, attrs, text) {
+        // 保留原有的li属性（如果有）
+        const classAttr = attrs.includes('class=') 
+            ? attrs.replace(/class="([^"]*)"/, 'class="$1 task-list-item"')
+            : attrs + ' class="task-list-item"';
+        return '<li' + classAttr + '><input type="checkbox" class="task-checkbox"><span class="task-text">' + text + '</span></li>';
+    });
+
+    html = html.replace(/<li([^>]*)>\s*\[x\]\s*(.*?)<\/li>/gi, function(match, attrs, text) {
+        const classAttr = attrs.includes('class=') 
+            ? attrs.replace(/class="([^"]*)"/, 'class="$1 task-list-item task-completed"')
+            : attrs + ' class="task-list-item task-completed"';
+        return '<li' + classAttr + '><input type="checkbox" class="task-checkbox" checked><span class="task-text">' + text + '</span></li>';
+    });
+
+    html = html.replace(/<li([^>]*)>\s*\[X\]\s*(.*?)<\/li>/g, function(match, attrs, text) {
+        const classAttr = attrs.includes('class=') 
+            ? attrs.replace(/class="([^"]*)"/, 'class="$1 task-list-item task-completed"')
+            : attrs + ' class="task-list-item task-completed"';
+        return '<li' + classAttr + '><input type="checkbox" class="task-checkbox" checked><span class="task-text">' + text + '</span></li>';
+    });
+
     return html
-        // 任务列表处理 - 创建更好的 HTML 结构
-        .replace(/<li>\[ \] (.*?)<\/li>/g, '<li class="task-list-item"><input type="checkbox">$1</li>')
-        .replace(/<li>\[x\] (.*?)<\/li>/gi, '<li class="task-list-item"><input type="checkbox" checked>$1</li>')
-        .replace(/<li>\[X\] (.*?)<\/li>/g, '<li class="task-list-item"><input type="checkbox" checked>$1</li>')
         // 优化引用块样式
         .replace(/<blockquote>/g, '<blockquote class="notion-quote">')
         // 优化代码块
@@ -320,8 +354,8 @@ function notionifyHTML(html) {
         .replace(/<\/code><\/pre>/g, '</code></pre>')
         // 确保段落有适当的间距
         .replace(/<p>/g, '<p class="notion-paragraph">')
-        // 优化列表
-        .replace(/<ul>/g, '<ul class="notion-list">')
+        // 优化普通列表（不包括任务列表）
+        .replace(/<ul(?![^>]*class="notion-todo-list")/g, '<ul class="notion-list"')
         .replace(/<ol>/g, '<ol class="notion-list">')
         // 优化表格
         .replace(/<table>/g, '<table class="notion-table">')
