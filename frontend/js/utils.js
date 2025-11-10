@@ -249,7 +249,14 @@ async function showSidebarFileContent(filename, week, projectId) {
         const response = await fetch(`${API_BASE_URL}/projects/${projectId}/week/${week}/files/${filename}`);
         if (response.ok) {
             const content = await response.text();
-            showDialog(displayName, content);
+            // 使用parseContent函数处理内容，支持Notion样式渲染
+            if (typeof parseContent === 'function') {
+                const parsedContent = await parseContent(content);
+                showDialog(displayName, parsedContent);
+            } else {
+                // 如果parseContent不存在，直接显示内容
+                showDialog(displayName, content);
+            }
         } else {
             // 如果API不存在，使用mock内容作为后备
             console.warn('文件内容API不存在，使用mock内容');

@@ -190,21 +190,15 @@ async function displaySidebarFolderStructure(projectId, week) {
         if (response.ok) {
             const files = data.files || [];
 
-            // 构建文件夹结构（根据文件路径构建树结构）
-            const weekFolderName = '第' + week + '周文件';
-            const tree = {};
-            tree[weekFolderName] = {
-                type: 'folder',
-                children: {},
-                file: null
-            };
+            // 使用统一的文件夹树构建逻辑（与upload.js保持一致）
+            let tree = {};
 
             // 根据文件路径构建树结构
             if (files.length > 0) {
                 files.forEach(file => {
                     // file 可能是 "folder/file.html" 或 "其他文档/file.html" 或 "file.html"
                     const pathParts = file.split('/');
-                    let current = tree[weekFolderName].children;
+                    let current = tree;
 
                     // 处理路径的每一部分
                     for (let i = 0; i < pathParts.length; i++) {
@@ -233,9 +227,14 @@ async function displaySidebarFolderStructure(projectId, week) {
                 });
             }
 
-            // 生成HTML（使用与下方文件夹结构相同的生成函数）
-            // 注意：我们从 tree[weekFolderName].children 开始，避免包含 "第X周文件" 前缀
-            const html = generateSidebarTreeHTML(tree[weekFolderName].children);
+            // 如果没有文件，显示空状态
+            if (Object.keys(tree).length === 0) {
+                sidebarContainer.innerHTML = '<div class="folder-item" style="color: #999; font-style: italic;">暂无文件</div>';
+                return;
+            }
+
+            // 生成HTML（使用侧边栏专用的生成函数）
+            const html = generateSidebarTreeHTML(tree);
             sidebarContainer.innerHTML = html;
         } else {
             console.error('获取文件列表失败:', data);

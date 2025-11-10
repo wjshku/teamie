@@ -26,10 +26,21 @@ function toggleAIHelper() {
         // 聚焦到输入框
         setTimeout(() => {
             const input = document.getElementById('aiHelperInput');
-            if (input) input.focus();
+            if (input) {
+                input.focus();
+                // 添加输入监听器，用于自动显示文档选择器
+                input.addEventListener('input', handleInputChange);
+            }
         }, 300);
     } else {
         panel.classList.add('hidden');
+        // 移除输入监听器
+        const input = document.getElementById('aiHelperInput');
+        if (input) {
+            input.removeEventListener('input', handleInputChange);
+        }
+        // 移除文档选择器
+        removeDocumentSelector();
     }
 }
 
@@ -42,6 +53,29 @@ function closeAIHelper() {
     removeDocumentSelector();
 }
 
+// 处理输入框内容变化，自动显示文档选择器
+function handleInputChange(event) {
+    const input = event.target;
+    const value = input.value;
+    const cursorPos = input.selectionStart;
+
+    // 检查光标前是否有@符号
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+
+    if (atIndex !== -1 && (atIndex === 0 || textBeforeCursor[atIndex - 1] === ' ' || textBeforeCursor[atIndex - 1] === '\n')) {
+        // 检查@后面是否已经有内容（如果有内容就不显示选择器）
+        const textAfterAt = value.substring(atIndex + 1, cursorPos);
+        if (!textAfterAt.includes(' ') && !textAfterAt.includes('\n')) {
+            showDocumentSelector(input);
+        } else {
+            removeDocumentSelector();
+        }
+    } else {
+        removeDocumentSelector();
+    }
+}
+
 // 处理助手键盘事件
 function handleHelperKeyDown(event) {
     const input = event.target;
@@ -49,10 +83,10 @@ function handleHelperKeyDown(event) {
     if (event.key === 'Enter') {
         event.preventDefault();
         sendAIInstruction();
-    } else if (event.key === '@') {
-        // 触发文档选择
-        event.preventDefault();
-        showDocumentSelector(input);
+    } else if (event.key === 'Escape') {
+        // ESC键关闭文档选择器
+        removeDocumentSelector();
+        input.focus();
     }
 }
 
@@ -148,6 +182,7 @@ async function showDocumentSelector(input) {
 
     function handleKeyDown(e) {
         if (e.key === 'Escape') {
+            e.preventDefault();
             removeDocumentSelector();
             input.focus();
         } else if (e.key === 'ArrowDown') {
@@ -163,13 +198,20 @@ async function showDocumentSelector(input) {
             if (selectedIndex >= 0 && filteredDocuments[selectedIndex]) {
                 selectDocument(filteredDocuments[selectedIndex].filename || filteredDocuments[selectedIndex]);
             }
+        } else if (e.key === 'Tab') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && filteredDocuments[selectedIndex]) {
+                selectDocument(filteredDocuments[selectedIndex].filename || filteredDocuments[selectedIndex]);
+            }
         }
     }
 
     function handleBlur(e) {
         // 延迟移除，让click事件有机会执行
         setTimeout(() => {
-            if (!selector.contains(document.activeElement)) {
+            const activeElement = document.activeElement;
+            // 如果焦点不在选择器内且不在输入框内，则移除选择器
+            if (!selector.contains(activeElement) && activeElement !== input) {
                 removeDocumentSelector();
             }
         }, 150);
@@ -233,12 +275,12 @@ function selectDocument(filename) {
     const atIndex = textBefore.lastIndexOf('@');
     if (atIndex === -1) return;
 
-    // 替换@到光标位置的内容
-    const newText = textBefore.substring(0, atIndex) + `@${filename} ` + textAfter;
+    // 替换@到光标位置的内容，插入文档引用格式
+    const newText = textBefore.substring(0, atIndex) + `@{${filename}} ` + textAfter;
     input.value = newText;
 
-    // 设置新的光标位置
-    input.selectionStart = input.selectionEnd = atIndex + filename.length + 2;
+    // 设置新的光标位置到文档引用之后
+    input.selectionStart = input.selectionEnd = atIndex + filename.length + 4; // @{filename} 的长度
 
     // 移除选择器
     removeDocumentSelector();
@@ -348,11 +390,11 @@ async function sendAIInstruction() {
 
     if (!input) return;
 
-    // 移除文档选择器
-    removeDocumentSelector();
-
     const instruction = input.value.trim();
     if (!instruction || isAIProcessing) return;
+
+    // 移除文档选择器
+    removeDocumentSelector();
 
     // 设置处理状态
     isAIProcessing = true;
@@ -653,11 +695,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(event) {
         const panel = document.getElementById('aiHelperPanel');
         const trigger = document.getElementById('aiHelperTrigger');
+        const documentSelector = document.getElementById('documentSelector');
 
         if (isAIHelperOpen &&
             panel &&
             !panel.contains(event.target) &&
-            !trigger.contains(event.target)) {
+            !trigger.contains(event.target) &&
+            !(documentSelector && documentSelector.contains(event.target))) {
             closeAIHelper();
         }
     });

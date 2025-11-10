@@ -1035,10 +1035,16 @@ def build_chat_user_prompt(user_message: str, context: dict, context_data: dict,
 def extract_document_references(message: str) -> list:
     """从消息中提取@文档引用"""
     import re
-    # 匹配 @文档名 格式
-    pattern = r'@([^@\s]+)'
+    # 匹配 @{文档名} 或 @文档名 格式
+    pattern = r'@\{([^}]+)\}|@([^@\s{}]+)'
     matches = re.findall(pattern, message)
-    return [match.strip() for match in matches if match.strip()]
+    # matches 返回的是元组列表 [(大括号内), (普通@后)]，需要合并
+    doc_names = []
+    for match in matches:
+        doc_name = match[0] or match[1]  # 优先使用大括号内的内容
+        if doc_name.strip():
+            doc_names.append(doc_name.strip())
+    return doc_names
 
 def get_document_content(data_manager: DataManager, project_id: str, week: int, doc_name: str) -> str:
     """获取文档内容"""
