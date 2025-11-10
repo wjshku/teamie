@@ -38,14 +38,308 @@ function closeAIHelper() {
     const panel = document.getElementById('aiHelperPanel');
     if (panel) panel.classList.add('hidden');
     isAIHelperOpen = false;
+    // 同时移除文档选择器
+    removeDocumentSelector();
 }
 
 // 处理助手键盘事件
 function handleHelperKeyDown(event) {
+    const input = event.target;
+
     if (event.key === 'Enter') {
         event.preventDefault();
         sendAIInstruction();
+    } else if (event.key === '@') {
+        // 触发文档选择
+        event.preventDefault();
+        showDocumentSelector(input);
     }
+}
+
+// 显示文档选择器
+async function showDocumentSelector(input) {
+    console.log('🔍 显示文档选择器');
+    console.log('🔍 currentProject:', currentProject, 'currentWeek:', currentWeek);
+
+    if (!currentProject) {
+        console.log('🔍 没有选择项目');
+        showToast('请先选择一个项目', 'warning');
+        return;
+    }
+
+    // 获取当前项目的文档列表
+    const documents = await fetchProjectDocuments();
+    console.log('🔍 获取到的文档:', documents);
+
+    if (!documents || documents.length === 0) {
+        console.log('🔍 没有文档，显示提示');
+        showToast('当前项目没有可用文档', 'warning');
+        return;
+    }
+
+    // 移除已存在的选择器
+    removeDocumentSelector();
+
+    // 创建现代化的文档选择器
+    const selector = document.createElement('div');
+    selector.className = 'document-selector-modern';
+    selector.id = 'documentSelector';
+
+    // 获取输入框位置
+    const inputRect = input.getBoundingClientRect();
+
+    selector.style.left = inputRect.left + 'px';
+    selector.style.width = Math.min(inputRect.width, 400) + 'px';
+    selector.style.bottom = (window.innerHeight - inputRect.top + 4) + 'px';
+
+    let selectedIndex = -1;
+    let filteredDocuments = [...documents];
+
+    function renderSelector() {
+        selector.innerHTML = `
+            <div class="document-selector-search">
+                <input type="text" placeholder="搜索文档..." class="document-search-input" id="documentSearchInput">
+            </div>
+            <div class="document-selector-list">
+                ${filteredDocuments.length > 0 ?
+                    filteredDocuments.map((doc, index) => `
+                        <div class="document-selector-item ${index === selectedIndex ? 'selected' : ''}"
+                             data-filename="${doc.filename || doc}"
+                             data-index="${index}">
+                            <div class="document-icon">📄</div>
+                            <div class="document-name">${doc.filename || doc}</div>
+                        </div>
+                    `).join('') :
+                    '<div class="document-selector-empty">未找到匹配的文档</div>'
+                }
+            </div>
+        `;
+
+        // 绑定事件
+        const searchInput = selector.querySelector('#documentSearchInput');
+        const items = selector.querySelectorAll('.document-selector-item');
+
+        searchInput.focus();
+        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('keydown', handleKeyDown);
+        searchInput.addEventListener('blur', handleBlur);
+
+        items.forEach((item, index) => {
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                selectDocument(filteredDocuments[index].filename || filteredDocuments[index], item);
+            });
+            item.addEventListener('mouseenter', () => {
+                selectedIndex = index;
+                updateSelection();
+            });
+        });
+    }
+
+    function handleSearch(e) {
+        const query = e.target.value.toLowerCase();
+        filteredDocuments = documents.filter(doc => {
+            const name = (doc.filename || doc).toLowerCase();
+            return name.includes(query);
+        });
+        selectedIndex = filteredDocuments.length > 0 ? 0 : -1;
+        renderSelector();
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === 'Escape') {
+            removeDocumentSelector();
+            input.focus();
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, filteredDocuments.length - 1);
+            updateSelection();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            updateSelection();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && filteredDocuments[selectedIndex]) {
+                selectDocument(filteredDocuments[selectedIndex].filename || filteredDocuments[selectedIndex]);
+            }
+        }
+    }
+
+    function handleBlur(e) {
+        // 延迟移除，让click事件有机会执行
+        setTimeout(() => {
+            if (!selector.contains(document.activeElement)) {
+                removeDocumentSelector();
+            }
+        }, 150);
+    }
+
+    function updateSelection() {
+        const items = selector.querySelectorAll('.document-selector-item');
+        items.forEach((item, index) => {
+            item.classList.toggle('selected', index === selectedIndex);
+        });
+
+        // 滚动到选中的项目
+        if (selectedIndex >= 0) {
+            const selectedItem = items[selectedIndex];
+            selectedItem.scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    // 添加到页面
+    document.body.appendChild(selector);
+    renderSelector();
+}
+
+// 移除文档选择器
+function removeDocumentSelector() {
+    const selector = document.getElementById('documentSelector');
+    if (selector) {
+        selector.remove();
+    }
+}
+
+// 获取项目文档列表
+async function fetchProjectDocuments() {
+    console.log('📁 获取文档列表，当前项目:', currentProject, '当前周:', currentWeek);
+    try {
+        const response = await apiCall(`/projects/${currentProject}/week/${currentWeek}/files`);
+        console.log('📁 API响应:', response);
+        if (response && response.files) {
+            console.log('📁 返回文件列表:', response.files);
+            return response.files || [];
+        }
+        console.log('📁 响应中没有文件列表');
+        return [];
+    } catch (error) {
+        console.error('获取文档列表失败:', error);
+        return [];
+    }
+}
+
+// 选择文档
+function selectDocument(filename) {
+    const input = document.getElementById('aiHelperInput');
+    if (!input) return;
+
+    // 获取当前光标位置
+    const cursorPos = input.selectionStart;
+    const textBefore = input.value.substring(0, cursorPos);
+    const textAfter = input.value.substring(cursorPos);
+
+    // 查找@符号的位置
+    const atIndex = textBefore.lastIndexOf('@');
+    if (atIndex === -1) return;
+
+    // 替换@到光标位置的内容
+    const newText = textBefore.substring(0, atIndex) + `@${filename} ` + textAfter;
+    input.value = newText;
+
+    // 设置新的光标位置
+    input.selectionStart = input.selectionEnd = atIndex + filename.length + 2;
+
+    // 移除选择器
+    removeDocumentSelector();
+
+    // 聚焦回输入框
+    input.focus();
+}
+
+// 解析AI生成的未完成任务文本格式
+function parseIncompleteTasksFromText(text) {
+    const tasks = [];
+    if (!text || typeof text !== 'string') return tasks;
+
+    // 按行分割
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+
+    for (const line of lines) {
+        // 匹配 "- [ ] 任务内容" 格式
+        const match = line.match(/^- \[ \]\s*(.+)$/);
+        if (match) {
+            const taskContent = match[1].trim();
+            // 简单地将任务内容作为task，expected和reason留空
+            // 在实际使用中，可能需要更复杂的解析逻辑
+            tasks.push({
+                task: taskContent,
+                expected: "",
+                reason: ""
+            });
+        } else if (line && !line.startsWith('-')) {
+            // 如果不是markdown格式，但有内容，也当作任务处理
+            tasks.push({
+                task: line,
+                expected: "",
+                reason: ""
+            });
+        }
+    }
+
+    return tasks;
+}
+
+// 解析AI生成的已完成任务文本格式
+function parseCompletedTasksFromText(text) {
+    const tasks = [];
+    if (!text || typeof text !== 'string') return tasks;
+
+    // 按行分割
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+
+    for (const line of lines) {
+        // 匹配 "- [x] 任务内容" 格式（已完成任务通常有x标记）
+        const match = line.match(/^- \[x\]\s*(.+)$/);
+        if (match) {
+            const taskContent = match[1].trim();
+            // 简单地将任务内容作为task，description留空
+            tasks.push({
+                task: taskContent,
+                description: ""
+            });
+        } else if (line && !line.startsWith('-')) {
+            // 如果不是markdown格式，但有内容，也当作任务处理
+            tasks.push({
+                task: line,
+                description: ""
+            });
+        }
+    }
+
+    return tasks;
+}
+
+// 解析AI生成的下一步计划文本格式
+function parseNextWeekPlansFromText(text) {
+    const plans = [];
+    if (!text || typeof text !== 'string') return plans;
+
+    // 按行分割
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+
+    for (const line of lines) {
+        // 匹配 "- 任务内容" 格式（下一步计划通常没有checkbox）
+        const match = line.match(/^- (.+)$/);
+        if (match) {
+            const taskContent = match[1].trim();
+            // 简单地将任务内容作为task，priority设为P1，goal留空
+            plans.push({
+                task: taskContent,
+                priority: "P1",
+                goal: ""
+            });
+        } else if (line && !line.startsWith('-') && line.length > 5) {
+            // 如果不是markdown格式，但有内容，也当作计划处理
+            plans.push({
+                task: line,
+                priority: "P1",
+                goal: ""
+            });
+        }
+    }
+
+    return plans;
 }
 
 // 发送AI指令
@@ -53,6 +347,9 @@ async function sendAIInstruction() {
     const input = document.getElementById('aiHelperInput');
 
     if (!input) return;
+
+    // 移除文档选择器
+    removeDocumentSelector();
 
     const instruction = input.value.trim();
     if (!instruction || isAIProcessing) return;
@@ -218,8 +515,13 @@ async function applySingleModification(sectionName, newContent) {
                 updateData[sectionName] = [{ task: newContent, description: "" }];
             }
         } catch (e) {
-            // 如果不是JSON，作为单个任务处理
-            updateData[sectionName] = [{ task: newContent, description: "" }];
+            // 尝试解析AI生成的文本格式，如 "- [x] 任务内容"
+            const tasks = parseCompletedTasksFromText(newContent);
+            if (tasks.length > 0) {
+                updateData[sectionName] = tasks;
+            } else {
+                updateData[sectionName] = [{ task: newContent, description: "" }];
+            }
         }
     } else if (sectionName === 'incomplete_tasks') {
         try {
@@ -230,7 +532,13 @@ async function applySingleModification(sectionName, newContent) {
                 updateData[sectionName] = [{ task: newContent, expected: "", reason: "" }];
             }
         } catch (e) {
-            updateData[sectionName] = [{ task: newContent, expected: "", reason: "" }];
+            // 尝试解析AI生成的文本格式，如 "- [ ] 任务描述"
+            const tasks = parseIncompleteTasksFromText(newContent);
+            if (tasks.length > 0) {
+                updateData[sectionName] = tasks;
+            } else {
+                updateData[sectionName] = [{ task: newContent, expected: "", reason: "" }];
+            }
         }
     } else if (sectionName === 'external_feedback') {
         try {
@@ -252,7 +560,13 @@ async function applySingleModification(sectionName, newContent) {
                 updateData[sectionName] = [{ task: newContent, priority: "P1", goal: "" }];
             }
         } catch (e) {
-            updateData[sectionName] = [{ task: newContent, priority: "P1", goal: "" }];
+            // 尝试解析AI生成的文本格式，如 "- 任务描述"
+            const plans = parseNextWeekPlansFromText(newContent);
+            if (plans.length > 0) {
+                updateData[sectionName] = plans;
+            } else {
+                updateData[sectionName] = [{ task: newContent, priority: "P1", goal: "" }];
+            }
         }
     } else if (sectionName === 'motivation_direction' || sectionName === 'internal_reflection') {
         // 这些是字符串数组

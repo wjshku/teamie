@@ -1609,6 +1609,107 @@ body {
     transform: scale(0.95);
 }
 
+/* 现代化文档选择器样式 */
+.document-selector-modern {
+    position: fixed;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    z-index: 1002;
+    max-height: 300px;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+}
+
+.document-selector-search {
+    padding: 8px;
+    border-bottom: 1px solid #f0f2f4;
+    background: #fafbfc;
+}
+
+.document-search-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    background: white;
+    color: #333;
+}
+
+.document-search-input:focus {
+    border-color: #999;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.document-selector-list {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.document-selector-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #24292f;
+    border-bottom: 1px solid #f0f2f4;
+    transition: background-color 0.1s;
+}
+
+.document-selector-item:hover,
+.document-selector-item.selected {
+    background: #f5f5f5;
+}
+
+.document-selector-item.selected {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.document-selector-item:last-child {
+    border-bottom: none;
+}
+
+.document-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.document-selector-item.selected .document-icon {
+    opacity: 1;
+}
+
+.document-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.document-selector-empty {
+    padding: 16px;
+    text-align: center;
+    color: #656d76;
+    font-size: 13px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .document-selector-modern {
+        max-width: calc(100vw - 32px);
+        left: 16px !important;
+        right: 16px !important;
+        width: auto !important;
+    }
+}
+
 .ai-helper-panel {
     position: fixed;
     bottom: 20px;
@@ -1760,4 +1861,5 @@ body {
     gap: 12px;
     justify-content: center;
 }
+
 

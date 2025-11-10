@@ -900,15 +900,12 @@ async def ai_chat(request: Request):
                 import traceback
                 logger.warning(f"错误详情: {traceback.format_exc()}")
 
-        # 确定使用哪个prompt模板
-        prompt_template = determine_prompt_template(user_message, context)
-
-        # 构建AI请求
-        system_prompt = load_chat_prompt(prompt_template)
+        # 加载统一的AI优化prompt
+        system_prompt = load_chat_prompt()
 
         # 构建用户prompt
         logger.info("开始构建用户prompt")
-        user_prompt = build_chat_user_prompt(user_message, context, context_data)
+        user_prompt = build_chat_user_prompt(user_message, context, context_data, data_manager, project_id, week)
         logger.info(f"用户prompt构建完成，长度: {len(user_prompt)}")
 
         # 调用AI (参考ai_analyzer.py的实现)
@@ -968,46 +965,15 @@ async def ai_chat(request: Request):
         logger.error(f"AI聊天处理失败: {str(e)}")
         raise HTTPException(status_code=500, detail="处理请求时出现错误")
 
-def determine_prompt_template(user_message: str, context: dict) -> str:
-    """根据用户消息确定使用哪个prompt模板"""
-    message_lower = user_message.lower()
 
-    # 根据关键词匹配不同的prompt模板
-    if any(keyword in message_lower for keyword in ['优化', '改进', '重新表述', '优化达成事项', '改进描述']):
-        return "content_optimization"
-    elif any(keyword in message_lower for keyword in ['添加', '补充', '增加', '添加更多']):
-        return "content_addition"
-    elif any(keyword in message_lower for keyword in ['检查', '审核', '验证', '准确性']):
-        return "content_review"
-    elif any(keyword in message_lower for keyword in ['精简', '简化', '缩短']):
-        return "content_simplification"
-    elif any(keyword in message_lower for keyword in ['重组', '重新排序', '调整结构']):
-        return "content_reorganization"
-    elif any(keyword in message_lower for keyword in ['对比', '差异', '比较']):
-        return "content_comparison"
-    elif any(keyword in message_lower for keyword in ['基于文档', '参考文档', '使用文档']):
-        return "document_reference"
-    elif any(keyword in message_lower for keyword in ['建议', '如何改进']):
-        return "smart_suggestion"
-    elif any(keyword in message_lower for keyword in ['修复', '修改', '纠正']):
-        return "quick_fix"
-    elif any(keyword in message_lower for keyword in ['格式', '转换为', '改成']):
-        return "format_conversion"
-    else:
-        # 默认使用智能建议
-        return "smart_suggestion"
-
-def load_chat_prompt(template_name: str) -> str:
-    """加载对应的聊天prompt模板"""
+def load_chat_prompt() -> str:
+    """加载统一的AI聊天prompt"""
     try:
         prompt_file = os.path.join(os.path.dirname(__file__), "ai_chat_prompts.txt")
 
         with open(prompt_file, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # 根据模板名称提取对应的prompt
-        # 这里简化处理，直接返回整个文件内容作为系统prompt
-        # 在实际应用中可以根据模板名称提取特定的prompt部分
         return content
 
     except Exception as e:
@@ -1029,9 +995,27 @@ def safe_serialize(obj):
     else:
         return obj
 
-def build_chat_user_prompt(user_message: str, context: dict, context_data: dict) -> str:
+def build_chat_user_prompt(user_message: str, context: dict, context_data: dict, data_manager: DataManager = None, project_id: str = None, week: int = None) -> str:
     """构建用户prompt"""
+    logger.info(f"build_chat_user_prompt被调用，参数: data_manager={data_manager is not None}, project_id={project_id}, week={week}")
     prompt_parts = [f"用户请求：{user_message}"]
+
+    # 处理@文档引用
+    if data_manager and project_id and week:
+        referenced_docs = extract_document_references(user_message)
+        logger.info(f"检测到文档引用: {referenced_docs}")
+        if referenced_docs:
+            prompt_parts.append("=== 引用的文档内容 ===")
+            for doc_name in referenced_docs:
+                logger.info(f"正在读取文档: {doc_name}")
+                doc_content = get_document_content(data_manager, project_id, week, doc_name)
+                if doc_content:
+                    logger.info(f"文档 {doc_name} 读取成功，长度: {len(doc_content)}")
+                    prompt_parts.append(f"文档 '{doc_name}' 内容：\n{doc_content[:2000]}...")  # 限制长度
+                else:
+                    logger.warning(f"文档 '{doc_name}' 未找到或无法读取")
+                    prompt_parts.append(f"文档 '{doc_name}' 未找到或无法读取")
+            prompt_parts.append("=== 文档内容结束 ===\n")
 
     # 添加上下文信息
     if context.get('focused_section'):
@@ -1047,6 +1031,34 @@ def build_chat_user_prompt(user_message: str, context: dict, context_data: dict)
         prompt_parts.append(f"可用文档：{', '.join(doc_list)}")
 
     return "\n\n".join(prompt_parts)
+
+def extract_document_references(message: str) -> list:
+    """从消息中提取@文档引用"""
+    import re
+    # 匹配 @文档名 格式
+    pattern = r'@([^@\s]+)'
+    matches = re.findall(pattern, message)
+    return [match.strip() for match in matches if match.strip()]
+
+def get_document_content(data_manager: DataManager, project_id: str, week: int, doc_name: str) -> str:
+    """获取文档内容"""
+    try:
+        # 尝试通过文件名获取内容
+        content = data_manager.get_file_content_by_name(project_id, week, doc_name)
+        if content:
+            # 如果是HTML，提取文本内容
+            if doc_name.lower().endswith(('.html', '.htm')):
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(content, 'html.parser')
+                # 移除script和style
+                for script in soup(["script", "style"]):
+                    script.decompose()
+                return soup.get_text()
+            return content
+        return None
+    except Exception as e:
+        logger.warning(f"读取文档 {doc_name} 失败: {e}")
+        return None
 
 # 挂载前端静态文件（放在最后，确保不覆盖API路由）
 app.mount("/", NoCacheStaticFiles(directory=frontend_dir, html=True), name="frontend")

@@ -17,8 +17,8 @@ class ExternalFeedback(BaseModel):
 
 class NextWeekPlan(BaseModel):
     task: str
-    priority: str  # P0, P1, P2
-    goal: str
+    priority: str = "P1"  # P0, P1, P2 - 默认中等优先级
+    goal: str = ""  # 默认空字符串
 
 class WeekData(BaseModel):
     week_period: Optional[str] = None
